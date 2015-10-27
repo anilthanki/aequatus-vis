@@ -37,7 +37,10 @@ function init (json){
     console.log("inint 2")
     syntenic_data = json
 
-    if(!syntenic_data){
+    if(!syntenic_data.cigar){
+        console.log("1")
+        syntenic_data.cigar = {};
+            recursive_tree(syntenic_data.tree)
 
     }
 
@@ -50,6 +53,34 @@ function init (json){
     protein_member_id = json.protein_id
     resize_ref();
     console.log("inint 5")
+
+}
+
+function recursive_tree(tree){
+        console.log("recursive")
+
+    var child_lenth = tree.children.length;
+
+    while(child_lenth--){
+        if(tree.children[child_lenth].sequence){
+            addCigar(tree.children[child_lenth])
+        }else{
+            recursive_tree(tree.children[child_lenth])
+        }
+    }
+
+}
+
+function addCigar(child){
+        console.log("add cigar 1")
+var id = child.sequence.id[0].accession
+var cigar = child.sequence.mol_seq.cigar_line
+        console.log("add cigar 2")
+        console.log(id)
+        console.log(cigar)
+        console.log(syntenic_data.cigar)
+    syntenic_data.cigar[id] =  cigar;
+        console.log("add cigar 3")
 
 }
 
