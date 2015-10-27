@@ -116,9 +116,12 @@ function drawTree(json_tree, div, event) {
             })
 
         nodeEnter.append("circle")
-            // .attr("id", function (d, i) {
-            //     return "node" + i
-            // })
+             .attr("id", function (d, i) {
+                if (d.sequence)// && d.children != null) {
+                {
+                    return "circle"+d.sequence.id[0].accession;
+                }
+             })
             .attr("r",  function (d) {
                 if (d.sequence && d.id.accession ==  ref_member)// && d.children != null) {
                 {
@@ -164,6 +167,12 @@ function drawTree(json_tree, div, event) {
             });
 
         nodeUpdate.select("circle")
+            .attr("id", function (d, i) {
+                if (d.sequence)// && d.children != null) {
+                {
+                    return "circle"+d.sequence.id[0].accession;
+                }
+            })
             .attr("r",  function (d) {
                 if (d.sequence && d.id.accession ==  ref_member)// && d.children != null) {
                 {

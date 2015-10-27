@@ -40,7 +40,7 @@ function init (json){
     if(!syntenic_data.cigar){
         console.log("1")
         syntenic_data.cigar = {};
-            recursive_tree(syntenic_data.tree)
+        recursive_tree(syntenic_data.tree)
 
     }
 
@@ -57,7 +57,7 @@ function init (json){
 }
 
 function recursive_tree(tree){
-        console.log("recursive")
+    console.log("recursive")
 
     var child_lenth = tree.children.length;
 
@@ -72,15 +72,15 @@ function recursive_tree(tree){
 }
 
 function addCigar(child){
-        console.log("add cigar 1")
-var id = child.sequence.id[0].accession
-var cigar = child.sequence.mol_seq.cigar_line
-        console.log("add cigar 2")
-        console.log(id)
-        console.log(cigar)
-        console.log(syntenic_data.cigar)
+    console.log("add cigar 1")
+    var id = child.sequence.id[0].accession
+    var cigar = child.sequence.mol_seq.cigar_line
+    console.log("add cigar 2")
+    console.log(id)
+    console.log(cigar)
+    console.log(syntenic_data.cigar)
     syntenic_data.cigar[id] =  cigar;
-        console.log("add cigar 3")
+    console.log("add cigar 3")
 
 }
 
@@ -359,42 +359,73 @@ function resize_ref() {
     console.log("resize_ref 2")
     console.log(ref_data)
 
-    ref_data.Transcript[0].Exon.sort(sort_by('start', true, parseInt));
+
+    var i = 10;
+    jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function(obj) {
+        console.log("each "+obj.id)
+
+
+        if (obj.Translation.id == protein_member_id){
+            console.log("if")
+
+            i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
+        }
+
+    });
+
+
+    console.log(i)
+    syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.sort(sort_by('start', true, parseInt));
     console.log("resize_ref 3")
 
-    var diff = parseInt(ref_data.Transcript[0].Exon[exon_nu].end - ref_data.Transcript[0].Translation.start) + parseInt(1)
+    var diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[0].Translation.start) + parseInt(1)
     console.log("diff " + diff)
 
     while (diff < 0) {
         console.log("while")
-        ref_data.Transcript[0].Exon[exon_nu].length = 0
+        syntenic_data.member[syntenic_data.ref].Transcript[0].Exon[exon_nu].length = 0
         exon_nu++;
-        diff = parseInt(ref_data.Transcript[0].Exon[exon_nu].end - ref_data.Transcript[0].Translation.start) + parseInt(1)
+        diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[0].Translation.start) + parseInt(1)
     }
 
 
-    ref_data.Transcript[0].Exon[exon_nu].length = diff;
-    ref_data.Transcript[0].Exon[exon_nu]._start += ref_data.Transcript[0].Translation.start - ref_data.Transcript[0].Exon[exon_nu].start;
+    syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff;
+    syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu]._start += syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.start - syntenic_data.member[syntenic_data.ref].Transcript[0].Exon[exon_nu].start;
 
 
-    var exon_nu = ref_data.Transcript[0].Exon.length - 1
-    var diff = parseInt(ref_data.Transcript[0].Translation.end - ref_data.Transcript[0].Exon[exon_nu]._start) + parseInt(1)
+    var exon_nu = syntenic_data.member[syntenic_data.ref].Transcript[0].Exon.length - 1
+    var diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu]._start) + parseInt(1)
     while (diff < 0) {
-        ref_data.Transcript[0].Exon[exon_nu].length = 0
+        syntenic_data.member[syntenic_data.ref].Transcript[0].Exon[exon_nu].length = 0
         exon_nu--;
-        diff = parseInt(ref_data.Transcript[0].Translation.end - ref_data.Transcript[0].Exon[exon_nu]._start) + parseInt(1)
+        diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu]._start) + parseInt(1)
     }
-    ref_data.Transcript[0].Exon[exon_nu].length = diff;
+    syntenic_data.member[syntenic_data.ref].Transcript[0].Exon[exon_nu].length = diff;
 
 
 }
 
 function resize_ref_to_def() {
-    var exon_nu = syntenic_data.member[ref].Transcript[0].Exon.length;
+
+    var i = 10;
+    jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function(obj) {
+        console.log("each "+obj.id)
+
+
+        if (obj.Translation.id == protein_member_id){
+            console.log("if")
+
+            i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
+        }
+
+    });
+
+
+    var exon_nu = syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.length;
 
 
     while (exon_nu--) {
-        syntenic_data.member[ref].Transcript[0].Exon[exon_nu][exon_nu].length = (syntenic_data.member[ref].Transcript[0].Exon[exon_nu][exon_nu].end - ssyntenic_data.member[ref].Transcript[0].Exon[exon_nu].start) + 1
+        syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = (syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start) + 1
     }
 
 
@@ -459,4 +490,59 @@ function checkCigar(ref_cigar_string) {
 
 function replaceAt(str, index, character) {
     return str.substr(0, index) + character + str.substr(index + character.length);
+}
+
+
+function changeReference(new_gene_id, new_protein_id) {
+    console.log("change reference")
+    console.log(new_gene_id)
+    console.log(new_protein_id)
+
+
+    if (new_gene_id != member_id || new_protein_id != protein_member_id) {
+        removePopup();
+
+        jQuery("#id" + protein_member_id+"geneline").attr("stroke", "green")
+        jQuery("." + protein_member_id+"genetext").attr("fill", "blue")
+
+        console.log("change reference 1")
+
+        resize_ref_to_def()
+
+        jQuery("#circle" + protein_member_id).attr("r", 4)
+        jQuery("#circle" + new_protein_id).attr("r", 6)
+
+
+        jQuery("#circle" + protein_member_id).css("stroke-width", "1px")
+        jQuery("#circle" + new_protein_id).css("stroke-width", "2px")
+
+        jQuery("#circle" + protein_member_id).css("stroke", "steelblue")
+        jQuery("#circle" + new_protein_id).css("stroke", "black")
+
+        console.log("changereference " + new_gene_id)
+
+
+
+        syntenic_data.ref = new_gene_id;
+        protein_member_id = new_protein_id
+        syntenic_data.protein_id = new_protein_id;
+        console.log("change reference 2")
+
+
+
+        jQuery(".match").remove()
+        jQuery(".insert").remove()
+        jQuery(".delete").remove()
+        console.log("change reference 3")
+
+        member_id = new_gene_id;
+
+
+        console.log("change reference 4")
+
+        resize_ref();
+        console.log("change reference 6")
+        redrawCIGAR()
+    }
+
 }

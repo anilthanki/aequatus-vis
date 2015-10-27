@@ -286,26 +286,24 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
 
                 ref = syntenic_data.ref
 
-                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].assembly_name
+                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].display_name
 
                 svg.text(parseInt(stopposition) + 10, 10, text, {
-                    //id: 'id' + member_id+'genetext',
                     fontFamily: 'Verdana',
                     fontSize: 10,
                     textAnchor: 'begin',
                     fill: "blue",
-                    class: "geneinfo genelabel "+ member_id+"genetext"
+                    class: "geneinfo genelabel "+ protein_id+"genetext"
                 });
 
-                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].id
+                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].stable_id
 
                 svg.text(parseInt(stopposition) + 10, 10, text, {
-                    //id: 'id' + member_id+'genetext',
                     fontFamily: 'Verdana',
                     fontSize: 10,
                     textAnchor: 'begin',
                     fill: "blue",
-                    class: "stable genelabel "+ member_id+"genetext"
+                    class: "stable genelabel "+ protein_id+"genetext"
                 });
 
 
