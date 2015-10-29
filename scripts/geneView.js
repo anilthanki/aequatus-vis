@@ -29,7 +29,7 @@ var chr_name = null;
 var protein_member_id = null;
 var ref_data = null;
 
-function init (json){
+function init(json) {
     console.log("inint 1")
     console.log(json)
 
@@ -37,7 +37,7 @@ function init (json){
     console.log("inint 2")
     syntenic_data = json
 
-    if(!syntenic_data.cigar){
+    if (!syntenic_data.cigar) {
         console.log("1")
         syntenic_data.cigar = {};
         recursive_tree(syntenic_data.tree)
@@ -45,7 +45,7 @@ function init (json){
     }
 
 
-    ref_data =  syntenic_data.member[member_id]
+    ref_data = syntenic_data.member[member_id]
     console.log(ref_data)
 
     console.log("inint 3")
@@ -56,22 +56,22 @@ function init (json){
 
 }
 
-function recursive_tree(tree){
+function recursive_tree(tree) {
     console.log("recursive")
 
     var child_lenth = tree.children.length;
 
-    while(child_lenth--){
-        if(tree.children[child_lenth].sequence){
+    while (child_lenth--) {
+        if (tree.children[child_lenth].sequence) {
             addCigar(tree.children[child_lenth])
-        }else{
+        } else {
             recursive_tree(tree.children[child_lenth])
         }
     }
 
 }
 
-function addCigar(child){
+function addCigar(child) {
     console.log("add cigar 1")
     var id = child.sequence.id[0].accession
     var cigar = child.sequence.mol_seq.cigar_line
@@ -79,7 +79,7 @@ function addCigar(child){
     console.log(id)
     console.log(cigar)
     console.log(syntenic_data.cigar)
-    syntenic_data.cigar[id] =  cigar;
+    syntenic_data.cigar[id] = cigar;
     console.log("add cigar 3")
 
 }
@@ -213,9 +213,6 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_stra
 }
 
 
-
-
-
 function reverse_compliment(sequence) {
     var complimentry = ""
 
@@ -234,8 +231,6 @@ function reverse_compliment(sequence) {
 }
 
 
-
-
 function redrawCIGAR() {
 
 
@@ -245,111 +240,120 @@ function redrawCIGAR() {
         var core_data = json.member;
         var max = 0;
         var keys = [];
+        var ptn_keys = [];
+
         for (var k in core_data) keys.push(k);
 
-        var ref_data = json.ref;
-        var genes = ref_data.genes
-        if (max < genes.gene.length) {
-            max = genes.gene.length;
-        }
-        var name = ref_data.genome_name;
+        for (var k in json.cigar) ptn_keys.push(k);
 
+        var ref_data = syntenic_data.member[syntenic_data.ref];
 
-        browser_coordinates(max)
-
-        var colour = jQuery("#option" + name).css("background");
-        var transcript_len = genes.gene.transcripts.length;
-        while (transcript_len--) {
-            var gene_start;
-            var gene_stop;
-            var gene_length = genes.gene.transcripts[transcript_len].length;
-
-            var transcript_start = genes.gene.transcripts[transcript_len].transcript_start;
-            var transcript_end = genes.gene.transcripts[transcript_len].transcript_end;
-
-            if (genes.gene.transcripts[transcript_len].start < genes.gene.transcripts[transcript_len].end) {
-                gene_start = genes.gene.transcripts[transcript_len].start;
-                gene_stop = genes.gene.transcripts[transcript_len].end;
-            }
-            else {
-                gene_start = genes.gene.transcripts[transcript_len].end;
-                gene_stop = genes.gene.transcripts[transcript_len].start;
-
-            }
-            var maxLentemp = jQuery(document).width() * 0.6;
-            var newEnd_temp = max;
-            var stopposition = ((gene_stop - gene_start) + 1) * parseFloat(maxLentemp) / (newEnd_temp);
-            var temp_div = jQuery("#id" + genes.gene.member_id).find('.style1');
-
-            //
-            dispCigarLineRef(ref_data.cigarline, 1, top, gene_length, gene_start, stopposition, genes.gene.transcripts[transcript_len].Exons.toJSON(), temp_div, genes.gene.transcripts[transcript_len].Exons.toJSON(), transcript_start, transcript_end, genes.gene.transcripts[transcript_len].id, "style1");
-            var temp_div = jQuery("#id" + genes.gene.member_id).fin
-            d('.style2');
-            dispCigarLineRef(ref_data.cigarline, 1, top, gene_length, gene_start, stopposition, genes.gene.transcripts[transcript_len].Exons.toJSON(), temp_div, genes.gene.transcripts[transcript_len].Exons.toJSON(), transcript_start, transcript_end, genes.gene.transcripts[transcript_len].id, "style2");
-
-
-        }
-
+        console.log(keys)
+        console.log(ptn_keys)
 
         for (var i = 0; i < keys.length; i++) {
-            var member_id = keys[i]
-            var gene = syntenic_data.member[member_id].genes.gene;
-            var transcript_len = genes.gene.transcripts.length;
-            while (transcript_len--) {
-                var gene_start;
-                var gene_stop;
-                var gene_length = gene.transcripts[transcript_len].length;
-
-                var transcript_start = gene.transcripts[transcript_len].transcript_start;
-                var transcript_end = gene.transcripts[transcript_len].transcript_end;
-
-                if (gene.transcripts[transcript_len].start < gene.transcripts[transcript_len].end) {
-                    gene_start = gene.transcripts[transcript_len].start;
-                    gene_stop = gene.transcripts[transcript_len].end;
-                }
-                else {
-                    gene_start = gene.transcripts[transcript_len].end;
-                    gene_stop = gene.transcripts[transcript_len].start;
-                }
-                var maxLentemp = jQuery(document).width() * 0.6;
-                var newEnd_temp = max;
-
-                var stopposition = ((gene_stop - gene_start) + 1) * parseFloat(maxLentemp) / (newEnd_temp);
+            var temp_member_id = keys[i]
 
 
-                var ref_strand = 1;
-                if (ref_data.genes.gene.strand != gene.transcripts[transcript_len].strand) {
-                    ref_strand = -1
-                }
-
-
-                var strand = 0;
-                if (ref_data.genes.gene.strand == gene.transcripts[transcript_len].strand) {
-                    strand = 1;
-                } else {
-                    strand = -1;
-                }
-
-                var temp_div = jQuery("#id" + gene.member_id).find('.style1');
-
-                dispCigarLine(syntenic_data.member[gene.member_id].cigarline, 1, top, gene_length, gene_start, stopposition, gene.transcripts[transcript_len].Exons.toJSON(), temp_div, ref_data.genes.gene.transcripts[0].Exons.toJSON(), transcript_start, transcript_end, strand, ref_data.cigarline, ref_data.genes.gene.strand, gene.transcripts[transcript_len].id, "style1");
-                var temp_div = jQuery("#id" + gene.member_id).find('.style2');
-                dispCigarLine(syntenic_data.member[gene.member_id].cigarline, 1, top, gene_length, gene_start, stopposition, gene.transcripts[transcript_len].Exons.toJSON(), temp_div, ref_data.genes.gene.transcripts[0].Exons.toJSON(), transcript_start, transcript_end, strand, ref_data.cigarline, ref_data.genes.gene.strand, gene.transcripts[transcript_len].id, "style2");
-
+            var gene = syntenic_data.member[temp_member_id];
+            if (max < gene.end - gene.start) {
+                max = gene.end - gene.start;
             }
 
+
+            var transcript_len = gene.Transcript.length;
+            while (transcript_len--) {
+                if (gene.Transcript[transcript_len].Translation && ptn_keys.indexOf(gene.Transcript[transcript_len].Translation.id) >= 0 ) {
+                    var gene_start;
+                    var gene_stop;
+                    var gene_length = gene.Transcript[transcript_len].length;
+                    var svg = jQuery("#id" + gene.Transcript[transcript_len].Translation.id).svg("get")
+
+                    var transcript_start = gene.Transcript[transcript_len].Translation.start;
+                    var transcript_end = gene.Transcript[transcript_len].Translation.end;
+
+                    if (gene.Transcript[transcript_len].start < gene.Transcript[transcript_len].end) {
+                        gene_start = gene.Transcript[transcript_len].start;
+                        gene_stop = gene.Transcript[transcript_len].end;
+                    }
+                    else {
+                        gene_start = gene.Transcript[transcript_len].end;
+                        gene_stop = gene.Transcript[transcript_len].start;
+
+                    }
+                    var maxLentemp = jQuery(document).width() * 0.6;
+                    var newEnd_temp = max;
+                    var stopposition = ((gene_stop - gene_start) + 1) * parseFloat(maxLentemp) / (newEnd_temp);
+                    var temp_div = svg;
+
+                    var strand = 0;
+
+                    if (syntenic_data.member[syntenic_data.ref].strand == gene.Transcript[transcript_len].strand) {
+                        strand = 1;
+                    } else {
+                        strand = -1;
+                    }
+
+
+                    if (temp_member_id != member_id) {
+                        console.log("if")
+
+                        var g = svg.group({class: 'style1'});
+
+                        dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[0].Exon.toJSON(), transcript_start, transcript_end,  strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style1");
+                        //dispCigarLine(g, syntenic_data.cigar[protein_id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[0].Exon.toJSON(), transcript_start, transcript_end, strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style1");
+
+
+                        var g = svg.group({class: 'style2'});
+
+                        dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[0].Exon.toJSON(), transcript_start, transcript_end,  strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style2");
+
+                    } else {
+
+                        console.log("else")
+
+                        var g = svg.group({class: 'style1'});
+
+                        dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, transcript_end, gene.Transcript[transcript_len].Translation.id, "style1");
+
+
+                        var g = svg.group({class: 'style2'});
+
+                        dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, transcript_end, gene.Transcript[transcript_len].Translation.id, "style2");
+
+                    }
+
+
+                }
+
+
+            }
         }
+
+        var view_type = null
+        if (jQuery('input[name=view_type]:checked').val() == "with") {
+            view_type = true;
+        }
+        else {
+            view_type = false;
+        }
+
+        if (view_type == true) {
+            jQuery(".style1").show()
+            jQuery(".style2").hide()
+            //display = "display: block;"
+        } else {
+            jQuery(".style1").hide()
+            jQuery(".style2").show()
+            //display = "display: none;"
+        }
+
+
     } else {
         jQuery("#gene_widget").html("")
         jQuery("#gene_widget").html("Selected Gene not found.")
         jQuery("#gene_tree_nj").html("<span style='font-size: large; text-align: center'>Selected Gene not found.</span>")
     }
-
-    window.history.pushState("ref=" + syntenic_data.ref.genome_name, "Title", "index.jsp?query=" + syntenic_data.ref.genes.gene.stable_id);
-
-    select_member();
-
-
 }
 
 function resize_ref() {
@@ -361,11 +365,11 @@ function resize_ref() {
 
 
     var i = 10;
-    jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function(obj) {
-        console.log("each "+obj.id)
+    jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
+        console.log("each " + obj.id)
 
 
-        if (obj.Translation.id == protein_member_id){
+        if (obj.Translation.id == protein_member_id) {
             console.log("if")
 
             i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
@@ -408,11 +412,11 @@ function resize_ref() {
 function resize_ref_to_def() {
 
     var i = 10;
-    jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function(obj) {
-        console.log("each "+obj.id)
+    jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
+        console.log("each " + obj.id)
 
 
-        if (obj.Translation.id == protein_member_id){
+        if (obj.Translation.id == protein_member_id) {
             console.log("if")
 
             i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
@@ -502,8 +506,8 @@ function changeReference(new_gene_id, new_protein_id) {
     if (new_gene_id != member_id || new_protein_id != protein_member_id) {
         removePopup();
 
-        jQuery("#id" + protein_member_id+"geneline").attr("stroke", "green")
-        jQuery("." + protein_member_id+"genetext").attr("fill", "blue")
+        jQuery("#id" + protein_member_id + "geneline").attr("stroke", "green")
+        jQuery("." + protein_member_id + "genetext").attr("fill", "blue")
 
         console.log("change reference 1")
 
@@ -520,14 +524,14 @@ function changeReference(new_gene_id, new_protein_id) {
         jQuery("#circle" + new_protein_id).css("stroke", "black")
 
         console.log("changereference " + new_gene_id)
-
+        jQuery("#id" + new_protein_id + "geneline").attr("stroke", "red")
+        jQuery("." + new_protein_id + "genetext").attr("fill", "red")
 
 
         syntenic_data.ref = new_gene_id;
         protein_member_id = new_protein_id
         syntenic_data.protein_id = new_protein_id;
         console.log("change reference 2")
-
 
 
         jQuery(".match").remove()
