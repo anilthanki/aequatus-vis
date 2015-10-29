@@ -332,14 +332,14 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
             else {
 
 
-                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].assembly_name
+                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].display_name
 
                 svg.text(parseInt(stopposition) + 10, 10, text, {
                     fontFamily: 'Verdana',
                     fontSize: 10,
                     textAnchor: 'red',
-                    fill: "blue",
-                    class: "geneinfo genelabel "+ member_id+"genetext"
+                    fill: "red",
+                    class: "geneinfo genelabel "+ protein_id+"genetext"
                 });
 
                 var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].id
@@ -349,7 +349,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     fontSize: 10,
                     textAnchor: 'begin',
                     fill: "red",
-                    class: "stable genelabel "+ member_id+"genetext"
+                    class: "stable genelabel "+ protein_id+"genetext"
                 });
 
 
