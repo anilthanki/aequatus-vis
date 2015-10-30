@@ -37,6 +37,24 @@ function init(json) {
     console.log("inint 2")
     syntenic_data = json
 
+     if (!syntenic_data.cigar) {
+        console.log("1")
+        syntenic_data.cigar = {};
+        recursive_tree(syntenic_data.tree)
+
+    }
+
+console.log(jQuery.type(syntenic_data.tree))
+    if(jQuery.type(syntenic_data.tree) =='object')
+    {
+        // alert("It is JSON")
+    }
+    else
+    {
+       syntenic_data.tree = toNewick(syntenic_data.tree)
+    }
+
+
     if (!syntenic_data.cigar) {
         console.log("1")
         syntenic_data.cigar = {};
@@ -547,6 +565,24 @@ function changeReference(new_gene_id, new_protein_id) {
         resize_ref();
         console.log("change reference 6")
         redrawCIGAR()
+    }
+
+}
+
+var sort_by = function (field, reverse, primer) {
+
+    var key = primer ?
+        function (x) {
+            return primer(x[field])
+        } :
+        function (x) {
+            return x[field]
+        };
+
+    reverse = [1, 1][+!!reverse];
+
+    return function (a, b) {
+        return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
     }
 
 }
