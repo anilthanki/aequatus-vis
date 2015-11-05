@@ -7,13 +7,11 @@
  */
 
 function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len, id) {
-    //console.log("dispGeneExon")
     var trackClass = "exon";
     var utrtrackClass = "utr";
 
     var disp_exon = false;
     var geneexons = track.Exon;
-    //console.log("dispGeneExon 1")
 
     if (geneexons.length > 0) {
         var strand = genestrand;
@@ -172,9 +170,7 @@ function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len
 }
 
 function dispGenesForMember_id(member_id, protein_id, ref) {
-    console.log("dispGenesForMember_id")
-    console.log(member_id)
-    console.log(protein_id)
+
     var gene;
     if (ref) {
         gene = syntenic_data.member[member_id];
@@ -206,7 +202,6 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
     } else {
         display = "display: none;"
     }
-    //console.log("2")
 
     var view_type = null
     if (jQuery('input[name=label_type]:radio:checked').val() == "stable") {
@@ -227,13 +222,10 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
 
         stable_display = "display: none;"
     }
-    console.log("1")
 
     while (transcript_len--) {
-        console.log("2 " + transcript_len)
 
         if (gene.Transcript[transcript_len].Translation && gene.Transcript[transcript_len].Translation.id == protein_id) {
-            console.log("if")
 
             max = gene.Transcript[transcript_len].end - gene.Transcript[transcript_len].start
             var newEnd_temp = max;
@@ -248,7 +240,6 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                 transcript_start = gene.Transcript[transcript_len].Translation.start;
                 transcript_end = gene.Transcript[transcript_len].Translation.end;
             }
-            console.log("3")
 
             if (gene.Transcript[transcript_len].start < gene.Transcript[transcript_len].end) {
                 gene_start = gene.Transcript[transcript_len].start;
@@ -259,7 +250,6 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                 gene_stop = gene.Transcript[transcript_len].start;
             }
 
-            console.log("4")
 
             if (gene.Transcript[transcript_len].desc) {
                 label = gene.Transcript[transcript_len].desc;

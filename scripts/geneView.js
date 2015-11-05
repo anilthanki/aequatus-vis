@@ -90,15 +90,9 @@ function recursive_tree(tree) {
 }
 
 function addCigar(child) {
-    console.log("add cigar 1")
     var id = child.sequence.id[0].accession
     var cigar = child.sequence.mol_seq.cigar_line
-    console.log("add cigar 2")
-    console.log(id)
-    console.log(cigar)
-    console.log(syntenic_data.cigar)
     syntenic_data.cigar[id] = cigar;
-    console.log("add cigar 3")
 
 }
 
