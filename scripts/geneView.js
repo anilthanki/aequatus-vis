@@ -37,21 +37,25 @@ function init(json) {
     console.log("inint 2")
     syntenic_data = json
 
-     if (!syntenic_data.cigar) {
+    if (!syntenic_data.cigar) {
         console.log("1")
         syntenic_data.cigar = {};
         recursive_tree(syntenic_data.tree)
 
     }
 
-console.log(jQuery.type(syntenic_data.tree))
+// syntenic_data_string =  JSON.stringify(syntenic_data)
+// syntenic_data_string =  syntenic_data_string.replace(/\./g, "");
+// syntenic_data = JSON.parse(syntenic_data_string)
+
+    console.log(jQuery.type(syntenic_data.tree))
     if(jQuery.type(syntenic_data.tree) =='object')
     {
         // alert("It is JSON")
     }
     else
     {
-       syntenic_data.tree = toNewick(syntenic_data.tree)
+        syntenic_data.tree = toNewick(syntenic_data.tree)
     }
 
 
@@ -75,7 +79,6 @@ console.log(jQuery.type(syntenic_data.tree))
 }
 
 function recursive_tree(tree) {
-    console.log("recursive")
 
     var child_lenth = tree.children.length;
 
@@ -373,22 +376,24 @@ function resize_ref() {
     var exon_nu = 0
 
     console.log("resize_ref 2")
-    console.log(ref_data)
 
 
-    var i = 10;
+    var i = null;
     jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
         console.log("each " + obj.id)
-
-
-        if (obj.Translation.id == protein_member_id) {
+        // console.log("each " + obj.Translation.id)
+        console.log(protein_member_id)
+        if (obj.Translation && obj.Translation.id == protein_member_id) {
             console.log("if")
 
             i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
+
+            console.log(i)
         }
+        console.log("here")
 
     });
-
+    console.log("gherer 2")
 
     console.log(i)
     syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.sort(sort_by('start', true, parseInt));
@@ -426,7 +431,8 @@ function resize_ref_to_def() {
     var i = 10;
     jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
         console.log("each " + obj.id)
-
+        console.log(protein_member_id)
+        console.log(obj.Translation.id )
 
         if (obj.Translation.id == protein_member_id) {
             console.log("if")
