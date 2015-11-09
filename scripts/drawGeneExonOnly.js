@@ -87,8 +87,8 @@ function dispExon(g, svg, track, genestrand, div, gene_start, width, max_len, id
                 strokeWidth: 2
             });
 
-            if (exon_len > 0) {
-                svg.text(g, startposition-9, 9,  spanclass, {stroke: 'green'});
+            if (exon_len < geneexons.length-1) {
+                svg.text(g, startposition+stopposition, 9,  spanclass, {stroke: 'green'});
             }
 
             disp_exon = true;
