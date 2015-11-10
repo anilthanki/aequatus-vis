@@ -9,7 +9,7 @@
 
 function drawTree(json_tree, div, event) {
     console.log("drawtree")
-    var gene_width = jQuery(document).width()*0.8
+    var gene_width = jQuery(document).width() * 0.8
     var margin = {top: 0, right: 0, bottom: 0, left: 0},
         width = 400,//jQuery(document).width(),
         height = 1000 - margin.top - margin.bottom;
@@ -44,13 +44,14 @@ function drawTree(json_tree, div, event) {
         root.x0 = height / 2;
         root.y0 = 0;
 
-        function collapse(d) {
-            if (d.children) {
-                d._children = d.children;
-                d._children.forEach(collapse);
-                d.children = null;
-            }
-        }
+        // function collapse(d) {
+        //     if (d.children) {
+        //         d._children = d.children;
+        //         d._children.forEach(collapse);
+        //         d.children = null;
+        //     }
+        // }
+        // root = collapse(root)
 
         update(root, member_id);
     });
@@ -71,6 +72,29 @@ function drawTree(json_tree, div, event) {
         // Normalize for fixed-depth.
         var count = 0;
         nodes.forEach(function (d) {
+            if (d.parent && d.parent.children.size() == 1 && d.children != null) {
+                console.log("\t\tif")
+                if (!d.parent._children) {
+                    d.parent._children = []
+
+                }
+
+                d.parent._children.push(d)
+                d.parent.close = true
+                console.log(d.node_id)
+                d.parent.children = d.children;
+            }
+            // else if(d.parent && d.parent.children.size() == 1 && d.children == null){
+            //    console.log("\t\telse \t if")
+            //     if(!d.parent._children){
+            //         d.parent._children = []
+
+            //     }
+            //         d.parent._children.push(d)
+
+            //     d.parent.children = d;
+
+            // }
             if (d.children == null)
                 count++;
         });
@@ -84,7 +108,9 @@ function drawTree(json_tree, div, event) {
 
 
         var node = svg.selectAll("g.node")
-            .data(nodes, function(d) { return d.ID || (d.ID = ++i); });
+            .data(nodes, function (d) {
+                return d.ID || (d.ID = ++i);
+            });
 
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
@@ -92,8 +118,8 @@ function drawTree(json_tree, div, event) {
             // .attr("id", function (d, i) {
             //     return "node" + i
             // })
-            .attr("transform", function(d) {
-                if(source.x0 > maxHeight){
+            .attr("transform", function (d) {
+                if (source.x0 > maxHeight) {
                     maxHeight = source.x0
                 }
 
@@ -116,14 +142,17 @@ function drawTree(json_tree, div, event) {
             })
 
         nodeEnter.append("circle")
-             .attr("id", function (d, i) {
+            .attr("id", function (d, i) {
                 if (d.sequence)// && d.children != null) {
                 {
-                    return "circle"+d.sequence.id[0].accession;
+                    return "circle" + d.sequence.id[0].accession;
                 }
-             })
-            .attr("r",  function (d) {
-                if (d.sequence && d.id.accession ==  ref_member)// && d.children != null) {
+            })
+            .attr("r", function (d) {
+                //  if (d.close && d.close == true) {
+                //     return 6;
+                // } else 
+                if (d.sequence && d.id.accession == ref_member)// && d.children != null) {
                 {
                     return 6;
                 }
@@ -131,22 +160,26 @@ function drawTree(json_tree, div, event) {
                     return 4;
                 }
             })
-            .style("fill", function(d) {
-                if(d.sequence){
+            .style("fill", function (d) {
+                if (d.sequence) {
                     return "white";
 
                 }
-                else if (d.events){if (d.events.type == "duplication") {
-                    return 'red';
-                } else if (d.events.type == "dubious") {
-                    return "cyan";
-                } else if (d.events.type == "speciation") {
-                    return 'blue';
-                } else if (d.events.type == "gene_split") {
-                    return 'pink';
-                } else {
+                else if(d.close && d.close == true){
                     return "white";
-                }}
+                }else if (d.events) {
+                    if (d.events.type == "duplication") {
+                        return 'red';
+                    } else if (d.events.type == "dubious") {
+                        return "cyan";
+                    } else if (d.events.type == "speciation") {
+                        return 'blue';
+                    } else if (d.events.type == "gene_split") {
+                        return 'pink';
+                    } else {
+                        return "white";
+                    }
+                }
             });
 
         //nodeEnter.append("text")
@@ -159,8 +192,8 @@ function drawTree(json_tree, div, event) {
         // Transition nodes to their new position.
         var nodeUpdate = node.transition()
             .duration(duration)
-            .attr("transform", function(d) {
-                if(d.x > maxHeight){
+            .attr("transform", function (d) {
+                if (d.x > maxHeight) {
                     maxHeight = d.x
                 }
                 return "translate(" + d.y + "," + d.x + ")";
@@ -170,11 +203,13 @@ function drawTree(json_tree, div, event) {
             .attr("id", function (d, i) {
                 if (d.sequence)// && d.children != null) {
                 {
-                    return "circle"+d.sequence.id[0].accession;
+                    return "circle" + d.sequence.id[0].accession;
                 }
             })
-            .attr("r",  function (d) {
-                if (d.sequence && d.id.accession ==  ref_member)// && d.children != null) {
+            .attr("r", function (d) {
+                if (d.close && d.close == true) {
+                    return 6;
+                } else if (d.sequence && d.id.accession == ref_member)// && d.children != null) {
                 {
                     return 6;
                 }
@@ -182,22 +217,25 @@ function drawTree(json_tree, div, event) {
                     return 4;
                 }
             })
-            .style("fill", function(d) {
-                if(d.sequence){
+            .style("fill", function (d) {
+                if (d.sequence) {
                     return "white";
-
                 }
-                else if (d.events){if (d.events.type == "duplication") {
-                    return 'red';
-                } else if (d.events.type == "dubious") {
-                    return "cyan";
-                } else if (d.events.type == "speciation") {
-                    return 'blue';
-                } else if (d.events.type == "gene_split") {
-                    return 'pink';
-                } else {
+                else if(d.close && d.close == true){
                     return "white";
-                }}
+                }else if (d.events) {
+                    if (d.events.type == "duplication") {
+                        return 'red';
+                    } else if (d.events.type == "dubious") {
+                        return "cyan";
+                    } else if (d.events.type == "speciation") {
+                        return 'blue';
+                    } else if (d.events.type == "gene_split") {
+                        return 'pink';
+                    } else {
+                        return "white";
+                    }
+                }
             });
         //
         //nodeUpdate.select("text")
@@ -206,7 +244,9 @@ function drawTree(json_tree, div, event) {
         // Transition exiting nodes to the parent's new position.
         var nodeExit = node.exit().transition()
             .duration(duration)
-            .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+            .attr("transform", function (d) {
+                return "translate(" + source.y + "," + source.x + ")";
+            })
             .remove();
 
         nodeExit.select("circle")
@@ -214,8 +254,6 @@ function drawTree(json_tree, div, event) {
 
         nodeExit.select("text")
             .style("fill-opacity", 1e-6);
-
-
 
 
         nodeEnter.filter(function (d) {
@@ -243,11 +281,11 @@ function drawTree(json_tree, div, event) {
             .style("left", "10px")
             .style("top", "10px")
             .html(function (d) {
-                return "<div id = 'id" + d.sequence.id[0].accession + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :"+gene_width+"px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
+                return "<div id = 'id" + d.sequence.id[0].accession + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
             });
 
         nodeEnter.filter(function (d) {
-            if (d.sequence && d.id.accession ==  ref_member) {
+            if (d.sequence && d.id.accession == ref_member) {
                 jQuery("#id" + d.sequence.id[0].accession).svg()
                 dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession)
                 dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession)
@@ -322,15 +360,16 @@ function drawTree(json_tree, div, event) {
             .attr('y', -20);
 
 
-
         // Update the links…
         var link = svg.selectAll("path.link")
-            .data(links, function(d,i) { return d.target.ID; });
+            .data(links, function (d, i) {
+                return d.target.ID;
+            });
 
         // Enter any new links at the parent's previous position.
         link.enter().insert("path", "g")
             .attr("class", "link")
-            .attr("d", function(d) {
+            .attr("d", function (d) {
                 var o = {x: source.x0, y: source.y0};
                 return diagonal({source: o, target: o});
             });
@@ -343,22 +382,22 @@ function drawTree(json_tree, div, event) {
         // Transition exiting nodes to the parent's new position.
         link.exit().transition()
             .duration(duration)
-            .attr("d", function(d) {
+            .attr("d", function (d) {
                 var o = {x: source.x, y: source.y};
                 return diagonal({source: o, target: o});
             })
             .remove();
 
         // Stash the old positions for transition.
-        nodes.forEach(function(d) {
+        nodes.forEach(function (d) {
             d.x0 = d.x;
             d.y0 = d.y;
         });
 
-        if(maxHeight > height){
+        if (maxHeight > height) {
             var body = d3.select("body");
             var temp_svg = body.select("svg")
-            temp_svg.attr("height", parseInt(maxHeight)+100+"px")
+            temp_svg.attr("height", parseInt(maxHeight) + 100 + "px")
 
         }
     }
@@ -385,7 +424,6 @@ function drawTree(json_tree, div, event) {
         update(d, ref_member);
 
     }
-
 
     function updateWindow(count) {
 
@@ -427,7 +465,6 @@ function drawTree(json_tree, div, event) {
         new_children.child = children;
         return new_children;
     }
-
 
 
 }
