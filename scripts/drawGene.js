@@ -282,7 +282,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     fontFamily: 'Verdana',
                     fontSize: 10,
                     textAnchor: 'begin',
-                    fill: "blue",
+                    fill: "gray",
                     class: "geneinfo genelabel "+ protein_id+"genetext"
                 });
 
@@ -292,13 +292,13 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     fontFamily: 'Verdana',
                     fontSize: 10,
                     textAnchor: 'begin',
-                    fill: "blue",
+                    fill: "gray",
                     class: "stable genelabel "+ protein_id+"genetext"
                 });
 
 
                 var temp_div = svg;
-                svg.line(0, 6, stopposition, 6, {id: 'id' + protein_id+'geneline', stroke: 'green', strokeWidth: 2});
+                svg.line(0, 6, stopposition, 6, {id: 'id' + protein_id+'geneline', stroke: 'green', strokeWidth: 1});
 
                 var strand = 0;
 
