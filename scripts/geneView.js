@@ -525,7 +525,7 @@ function changeReference(new_gene_id, new_protein_id) {
         removePopup();
 
         jQuery("#id" + protein_member_id + "geneline").attr("stroke", "green")
-        jQuery("." + protein_member_id + "genetext").attr("fill", "blue")
+        jQuery("." + protein_member_id + "genetext").attr("fill", "gray")
 
         console.log("change reference 1")
 
