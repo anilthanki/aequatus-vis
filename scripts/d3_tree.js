@@ -19,10 +19,10 @@ function drawTree(json_tree, div, event) {
     var cluster = d3.layout.cluster()
         .size([height, width - 160]);
 
-    var diagonal = d3.svg.diagonal()
-        .projection(function (d) {
-            return [d.y, d.x];
-        });
+    var diagonal = d3.svg.line().interpolate('step-before')
+        .x(function (d) { return d.x; })
+        .y(function (d) { return d.y; });
+
 
     var svg = d3.select(div).append("svg")
         .attr("width", width + margin.right + margin.left)
@@ -180,6 +180,13 @@ function drawTree(json_tree, div, event) {
                         return "white";
                     }
                 }
+            })
+            .style("stroke-width", function (d) {
+                if(d.close && d.close == true){
+                    return "2px";
+                }else{
+                    return "1px";
+                }
             });
 
         //nodeEnter.append("text")
@@ -207,9 +214,7 @@ function drawTree(json_tree, div, event) {
                 }
             })
             .attr("r", function (d) {
-                if (d.close && d.close == true) {
-                    return 6;
-                } else if (d.sequence && d.id.accession == ref_member)// && d.children != null) {
+               if (d.sequence && d.id.accession == ref_member)// && d.children != null) {
                 {
                     return 6;
                 }
@@ -235,6 +240,13 @@ function drawTree(json_tree, div, event) {
                     } else {
                         return "white";
                     }
+                }
+            })
+            .style("stroke-width", function (d) {
+                if(d.close && d.close == true){
+                    return "2px";
+                }else{
+                    return "1px";
                 }
             });
         //
@@ -370,21 +382,39 @@ function drawTree(json_tree, div, event) {
         link.enter().insert("path", "g")
             .attr("class", "link")
             .attr("d", function (d) {
-                var o = {x: source.x0, y: source.y0};
-                return diagonal({source: o, target: o});
+                return diagonal([{
+                    y: d.source.x,
+                    x: d.source.y
+                }, {
+                    y: d.target.x,
+                    x: d.target.y
+                }]);
             });
 
         // Transition links to their new position.
         link.transition()
             .duration(duration)
-            .attr("d", diagonal);
+            .attr("d", function (d) {
+                return diagonal([{
+                    y: d.source.x,
+                    x: d.source.y
+                }, {
+                    y: d.target.x,
+                    x: d.target.y
+                }]);
+            });
 
         // Transition exiting nodes to the parent's new position.
         link.exit().transition()
             .duration(duration)
             .attr("d", function (d) {
-                var o = {x: source.x, y: source.y};
-                return diagonal({source: o, target: o});
+                return diagonal([{
+                    y: d.source.x,
+                    x: d.source.y
+                }, {
+                    y: d.target.x,
+                    x: d.target.y
+                }]);
             })
             .remove();
 
