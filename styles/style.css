@@ -2875,8 +2875,8 @@ border-radius: 5px 0 0 5px;
 
 .link {
     fill: none;
-    stroke: #ccc;
-    stroke-width: 1.5px;
+    stroke: gray;
+    stroke-width: 2px;
 }
 
 div.tooltip {
