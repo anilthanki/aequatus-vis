@@ -521,9 +521,6 @@ function changeReference(new_gene_id, new_protein_id) {
     console.log(new_protein_id)
 
 
-    if (new_gene_id != member_id || new_protein_id != protein_member_id) {
-        removePopup();
-
         jQuery("#id" + protein_member_id + "geneline").attr("stroke", "green")
         jQuery("." + protein_member_id + "genetext").attr("fill", "gray")
 
@@ -565,7 +562,6 @@ function changeReference(new_gene_id, new_protein_id) {
         resize_ref();
         console.log("change reference 6")
         redrawCIGAR()
-    }
 
 }
 
