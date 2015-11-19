@@ -68,6 +68,9 @@ function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len
             startposition = (exon_start - newStart_temp) * parseFloat(maxLentemp) / (max_len);
             stopposition = ((exon_stop - exon_start) + 1) * parseFloat(maxLentemp) / (max_len);
 
+            stopposition -= 1
+            startposition += 1
+
             svg.rect(g, startposition, 1, stopposition, 10, 2, 2, {
                 'id': "exon" + geneexons[exon_len].id + "style1",
                 fill: 'white',
@@ -76,7 +79,7 @@ function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len
             });
 
             if (exon_len > 0) {
-                svg.text(g, startposition-20, 9,  spanclass, {stroke: 'green'});
+                svg.text(g, startposition-20, 8,  spanclass, {stroke: 'green'});
             }
             disp_exon = true;
         }
