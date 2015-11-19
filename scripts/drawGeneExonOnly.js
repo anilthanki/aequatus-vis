@@ -71,7 +71,7 @@ function dispExon(g, svg, track, genestrand, div, gene_start, width, max_len, id
 
             var top = 0;
 
-            if (disp_exon == true) {
+            if (geneexons[exon_len-1]) {
                 startposition = parseFloat(jQuery("#exon" + geneexons[exon_len-1].id  + "style2").attr("width")) + parseFloat(jQuery("#exon" + geneexons[exon_len-1].id + "style2").attr("x")) + 10//(exon_start - newStart_temp) * parseFloat(maxLentemp) / (max_len);
 
             } else {
@@ -80,6 +80,8 @@ function dispExon(g, svg, track, genestrand, div, gene_start, width, max_len, id
             }
             stopposition = ((exon_stop - exon_start) + 1) * parseFloat(maxLentemp) / (max_len);
 
+            stopposition -= 1
+            startposition += 1
             svg.rect(g, startposition, 1, stopposition, 10, 2, 2, {
                 id: "exon" + geneexons[exon_len].id + "style2",
                 fill: 'white',
@@ -87,11 +89,13 @@ function dispExon(g, svg, track, genestrand, div, gene_start, width, max_len, id
                 strokeWidth: 2
             });
 
-            if (exon_len < geneexons.length-1) {
-                svg.text(g, startposition+stopposition, 9,  spanclass, {stroke: 'green'});
+            if (exon_len < geneexons.length-1 && disp_exon) {
+                svg.text(g, startposition+stopposition+1, 8,  spanclass, {stroke: 'green'});
+                disp_exon = false
+            }else{
+                disp_exon = true;
             }
 
-            disp_exon = true;
         }
 
 
