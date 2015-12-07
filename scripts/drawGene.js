@@ -69,6 +69,10 @@ function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len
             stopposition = ((exon_stop - exon_start) + 1) * parseFloat(maxLentemp) / (max_len);
 
             stopposition -= 1
+
+            if (stopposition < 1){
+                stopposition = 1
+            }
             startposition += 1
 
             svg.rect(g, startposition, 1, stopposition, 10, 2, 2, {
