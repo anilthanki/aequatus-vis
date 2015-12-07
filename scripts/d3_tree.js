@@ -73,7 +73,6 @@ function drawTree(json_tree, div, event) {
         var count = 0;
         nodes.forEach(function (d) {
             if (d.parent && d.parent.children.size() == 1 && d.children != null) {
-                console.log("\t\tif")
                 if (!d.parent._children) {
                     d.parent._children = []
 
@@ -81,20 +80,8 @@ function drawTree(json_tree, div, event) {
 
                 d.parent._children.push(d)
                 d.parent.close = true
-                console.log(d.node_id)
                 d.parent.children = d.children;
             }
-            // else if(d.parent && d.parent.children.size() == 1 && d.children == null){
-            //    console.log("\t\telse \t if")
-            //     if(!d.parent._children){
-            //         d.parent._children = []
-
-            //     }
-            //         d.parent._children.push(d)
-
-            //     d.parent.children = d;
-
-            // }
             if (d.children == null)
                 count++;
         });
@@ -419,7 +406,7 @@ function drawTree(json_tree, div, event) {
             .remove();
 
         // Stash the old positions for transition.
-        nodes.forEach(function (d) {
+        nodes.forEach(function (d, i) {
             d.x0 = d.x;
             d.y0 = d.y;
         });
@@ -495,6 +482,9 @@ function drawTree(json_tree, div, event) {
         new_children.child = children;
         return new_children;
     }
+
+
+
 
 
 }
