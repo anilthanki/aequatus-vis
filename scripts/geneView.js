@@ -30,25 +30,17 @@ var protein_member_id = null;
 var ref_data = null;
 
 function init(json) {
-    console.log("inint 1")
-    console.log(json)
 
     member_id = json.ref;
-    console.log("inint 2")
     syntenic_data = json
 
+
     if (!syntenic_data.cigar) {
-        console.log("1")
         syntenic_data.cigar = {};
         recursive_tree(syntenic_data.tree)
 
     }
 
-// syntenic_data_string =  JSON.stringify(syntenic_data)
-// syntenic_data_string =  syntenic_data_string.replace(/\./g, "");
-// syntenic_data = JSON.parse(syntenic_data_string)
-
-    console.log(jQuery.type(syntenic_data.tree))
     if(jQuery.type(syntenic_data.tree) =='object')
     {
         // alert("It is JSON")
@@ -60,7 +52,6 @@ function init(json) {
 
 
     if (!syntenic_data.cigar) {
-        console.log("1")
         syntenic_data.cigar = {};
         recursive_tree(syntenic_data.tree)
 
@@ -68,13 +59,9 @@ function init(json) {
 
 
     ref_data = syntenic_data.member[member_id]
-    console.log(ref_data)
 
-    console.log("inint 3")
-    console.log("inint 4")
     protein_member_id = json.protein_id
     resize_ref();
-    console.log("inint 5")
 
 }
 
@@ -100,12 +87,6 @@ function addCigar(child) {
 }
 
 function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_strand) {
-    // console.log("format cigar")
-    // console.log(hit_cigar)
-    // console.log(ref_cigar)
-    // console.log(colours)
-    // console.log(reverse)
-    // console.log(ref_strand)
 
     var no_of_exons = ref_exons.length
     var hit_cigar_arr = [];
@@ -182,13 +163,7 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_stra
         hit_cigar = hit_cigar.split("").reverse().join("");
     }
 
-// console.log(hit_cigar)
 
-// console.log(cigar_string)
-
-// console.log(hit_cigar.length)
-
-// console.log(cigar_string.length)
     while (j < cigar_string.length) {
         if (cigar_string.charAt(j) == 'D') {
             if (hit_cigar.charAt(j) == 'M') {
@@ -263,8 +238,6 @@ function redrawCIGAR() {
 
         var ref_data = syntenic_data.member[syntenic_data.ref];
 
-        console.log(keys)
-        console.log(ptn_keys)
 
         for (var i = 0; i < keys.length; i++) {
             var temp_member_id = keys[i]
@@ -311,7 +284,6 @@ function redrawCIGAR() {
 
 
                     if (temp_member_id != member_id) {
-                        console.log("if")
 
                         var g = svg.group({class: 'style1'});
 
@@ -325,7 +297,6 @@ function redrawCIGAR() {
 
                     } else {
 
-                        console.log("else")
 
                         var g = svg.group({class: 'style1'});
 
@@ -372,38 +343,19 @@ function redrawCIGAR() {
 }
 
 function resize_ref() {
-    console.log("resize_ref 1")
     var exon_nu = 0
-
-    console.log("resize_ref 2")
-
 
     var i = null;
     jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
-        console.log("each " + obj.id)
-        // console.log("each " + obj.Translation.id)
-        console.log(protein_member_id)
         if (obj.Translation && obj.Translation.id == protein_member_id) {
-            console.log("if")
-
             i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
-
-            console.log(i)
         }
-        console.log("here")
-
     });
-    console.log("gherer 2")
-
-    console.log(i)
     syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.sort(sort_by('start', true, parseInt));
-    console.log("resize_ref 3")
 
     var diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[0].Translation.start) + parseInt(1)
-    console.log("diff " + diff)
 
     while (diff < 0) {
-        console.log("while")
         syntenic_data.member[syntenic_data.ref].Transcript[0].Exon[exon_nu].length = 0
         exon_nu++;
         diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[0].Translation.start) + parseInt(1)
@@ -430,13 +382,8 @@ function resize_ref_to_def() {
 
     var i = 10;
     jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
-        console.log("each " + obj.id)
-        console.log(protein_member_id)
-        console.log(obj.Translation.id )
 
         if (obj.Translation.id == protein_member_id) {
-            console.log("if")
-
             i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
         }
 
@@ -464,8 +411,6 @@ function checkCigar(ref_cigar_string) {
 
         if (member.hasOwnProperty(id)) {
 
-//
-            //
             var cigar_string = "";
             var cigars = member[id].replace(/([SIXMND])/g, ":$1,");
             var cigars_array = cigars.split(',');
@@ -488,12 +433,8 @@ function checkCigar(ref_cigar_string) {
                 cigar_string.split("").reverse().join()
             }
             cigar_list.push(cigar_string);
-            //
-            //        //The current property is not a direct property of p
         }
-        //
     }
-    ////syntenic_data.ref.cigarline = cigar_list[0];
     for (var i = 0; i < cigar_list[0].length; i++) {
         if (cigar_list[0][i] == 'D') {
             for (var j = 1; j < cigar_list.length; j++) {
@@ -517,14 +458,10 @@ function replaceAt(str, index, character) {
 
 function changeReference(new_gene_id, new_protein_id) {
     console.log("change reference")
-    console.log(new_gene_id)
-    console.log(new_protein_id)
 
 
         jQuery("#id" + protein_member_id + "geneline").attr("stroke", "green")
         jQuery("." + protein_member_id + "genetext").attr("fill", "gray")
-
-        console.log("change reference 1")
 
         resize_ref_to_def()
 
@@ -538,7 +475,6 @@ function changeReference(new_gene_id, new_protein_id) {
         jQuery("#circle" + protein_member_id).css("stroke", "steelblue")
         jQuery("#circle" + new_protein_id).css("stroke", "black")
 
-        console.log("changereference " + new_gene_id)
         jQuery("#id" + new_protein_id + "geneline").attr("stroke", "red")
         jQuery("." + new_protein_id + "genetext").attr("fill", "red")
 
@@ -546,21 +482,15 @@ function changeReference(new_gene_id, new_protein_id) {
         syntenic_data.ref = new_gene_id;
         protein_member_id = new_protein_id
         syntenic_data.protein_id = new_protein_id;
-        console.log("change reference 2")
 
 
         jQuery(".match").remove()
         jQuery(".insert").remove()
         jQuery(".delete").remove()
-        console.log("change reference 3")
 
         member_id = new_gene_id;
 
-
-        console.log("change reference 4")
-
         resize_ref();
-        console.log("change reference 6")
         redrawCIGAR()
 
 }

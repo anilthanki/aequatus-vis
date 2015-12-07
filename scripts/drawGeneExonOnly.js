@@ -82,6 +82,10 @@ function dispExon(g, svg, track, genestrand, div, gene_start, width, max_len, id
 
             stopposition -= 1
             startposition += 1
+
+            if (stopposition < 1){
+                stopposition = 1
+            }
             svg.rect(g, startposition, 1, stopposition, 10, 2, 2, {
                 id: "exon" + geneexons[exon_len].id + "style2",
                 fill: 'white',

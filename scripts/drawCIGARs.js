@@ -82,7 +82,6 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, stop, exons, temp
 
         var temp_colours = colours.slice(0);
         if (strand == -1) {
-//            cigar_string = cigar_string.split("").reverse().join("")
             var noofrefexon = jQuery.parseJSON(ref_exons).length;
             temp_colours = temp_colours.splice(0, noofrefexon)
             temp_colours = temp_colours.reverse();
@@ -99,7 +98,7 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, stop, exons, temp
                 cigar_string = formatCigar(ref_exons, cigar_string, colours, ref_cigar)
             }
         }
-
+        cigar_string = cigar_string.replace(/(I)/g, "");
 
         cigar_string = cigar_string.replace(/(MD)/g, "M,D");
         cigar_string = cigar_string.replace(/(DM)/g, "D,M");
@@ -125,12 +124,13 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, stop, exons, temp
 
         var total_length = 0;
 
-        console.log("cigar")
-        console.log(gene_start)
-        console.log(transcript_start)
-        console.log(cigar_pos)
+
+
+
+
 
         first: for (var i = 0; i < cigars_array.length; i++) {
+            startposition = null
 
             var cigars_second_array = cigars_array[i].split(",");
 
@@ -214,6 +214,7 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, stop, exons, temp
 
                 }
                 else if (key == "_" && length > 0) {
+
                     trackClass = "insert";
 
                     startposition = parseFloat((cigar_pos) * parseFloat(maxLentemp) / ((temp_end - temp_start)));
@@ -288,7 +289,9 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, stop, exons, temp
 
     function trackHTMLDelete(startposition, stopposition, top, trackClass, temp_div, colour, title) {
         var track_html_local;
-        temp_div.text(g, startposition, 7, '\'');
+        temp_div.text(g, startposition, 7, '\'', {
+            'class': trackClass
+        });
     }
 
     function trackHTML(startposition, stopposition, top, trackClass, temp_div, colour, title, i) {
@@ -376,6 +379,7 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, stop, exons, t
         }
 
         cigar_string = checkCigar(cigar_string);
+        cigar_string = cigar_string.replace(/(I)/g, "");
 
 
         cigar_string = cigar_string.replace(/(MD)/g, "M,D");
@@ -471,7 +475,9 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, stop, exons, t
     }
 
     function trackHTMLDelete(startposition, stopposition, top, trackClass, temp_div, colour, title) {
-        temp_div.text(g, startposition, 7, '\'');
+        temp_div.text(g, startposition, 7, '\'', {
+            'class': trackClass
+        });
     }
 
     function trackHTML(startposition, stopposition, top, trackClass, temp_div, colour, title, i) {
