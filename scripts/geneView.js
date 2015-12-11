@@ -223,7 +223,9 @@ function reverse_compliment(sequence) {
 
 function redrawCIGAR() {
 
-
+console.log("redraw cigar ")
+    var count = 1;
+    count++; console.log(count)
     var json = syntenic_data;
     if (json.ref) {
         gene_list_array = []
@@ -251,14 +253,25 @@ function redrawCIGAR() {
 
             var transcript_len = gene.Transcript.length;
             while (transcript_len--) {
-                if (gene.Transcript[transcript_len].Translation && ptn_keys.indexOf(gene.Transcript[transcript_len].Translation.id) >= 0 ) {
-                    var gene_start;
-                    var gene_stop;
-                    var gene_length = gene.Transcript[transcript_len].length;
-                    var svg = jQuery("#id" + gene.Transcript[transcript_len].Translation.id).svg("get")
+                count++; console.log(count)
 
+                if (gene.Transcript[transcript_len].Translation && ptn_keys.indexOf(gene.Transcript[transcript_len].Translation.id) >= 0 ) {
+                    count++; console.log(count)
+                    var gene_start;
+                    count++; console.log(count)
+                    var gene_stop;
+                    count++; console.log(count)
+                    var gene_length = gene.Transcript[transcript_len].length;
+                    count++; console.log(count)
+                    console.log(gene.id)
+                    console.log(temp_member_id)
+
+                    var svg = jQuery("#id" + temp_member_id).svg("get")
+
+                    count++; console.log(count)
                     var transcript_start = gene.Transcript[transcript_len].Translation.start;
                     var transcript_end = gene.Transcript[transcript_len].Translation.end;
+                    count++; console.log(count)
 
                     if (gene.Transcript[transcript_len].start < gene.Transcript[transcript_len].end) {
                         gene_start = gene.Transcript[transcript_len].start;
@@ -269,12 +282,14 @@ function redrawCIGAR() {
                         gene_stop = gene.Transcript[transcript_len].start;
 
                     }
+                    count++; console.log(count)
                     var maxLentemp = jQuery(document).width() * 0.6;
                     var newEnd_temp = max;
                     var stopposition = ((gene_stop - gene_start) + 1) * parseFloat(maxLentemp) / (newEnd_temp);
                     var temp_div = svg;
 
                     var strand = 0;
+                    count++; console.log(count)
 
                     if (syntenic_data.member[syntenic_data.ref].strand == gene.Transcript[transcript_len].strand) {
                         strand = 1;
@@ -282,6 +297,7 @@ function redrawCIGAR() {
                         strand = -1;
                     }
 
+                    count++; console.log(count)
 
                     if (temp_member_id != member_id) {
 
@@ -308,6 +324,7 @@ function redrawCIGAR() {
                         dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, transcript_end, gene.Transcript[transcript_len].Translation.id, "style2");
 
                     }
+                    count++; console.log(count)
 
 
                 }
@@ -315,6 +332,7 @@ function redrawCIGAR() {
 
             }
         }
+        count++; console.log(count)
 
         var view_type = null
         if (jQuery('input[name=view_type]:checked').val() == "with") {
@@ -323,6 +341,7 @@ function redrawCIGAR() {
         else {
             view_type = false;
         }
+        count++; console.log(count)
 
         if (view_type == true) {
             jQuery(".style1").show()
@@ -351,6 +370,11 @@ function resize_ref() {
             i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
         }
     });
+
+    console.log(protein_member_id)
+    console.log(syntenic_data.ref)
+    console.log(i)
+
     syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.sort(sort_by('start', true, parseInt));
 
     var diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[0].Translation.start) + parseInt(1)
@@ -458,25 +482,28 @@ function replaceAt(str, index, character) {
 
 function changeReference(new_gene_id, new_protein_id) {
     console.log("change reference")
+    console.log(new_gene_id)
+    console.log(new_protein_id)
 
 
-        jQuery("#id" + protein_member_id + "geneline").attr("stroke", "green")
-        jQuery("." + protein_member_id + "genetext").attr("fill", "gray")
+
+        jQuery("#id" + member_id + "geneline").attr("stroke", "green")
+        jQuery("." + member_id + "genetext").attr("fill", "gray")
 
         resize_ref_to_def()
 
-        jQuery("#circle" + protein_member_id).attr("r", 4)
-        jQuery("#circle" + new_protein_id).attr("r", 6)
+        jQuery("#circle" + member_id).attr("r", 4)
+        jQuery("#circle" + new_gene_id).attr("r", 6)
 
 
-        jQuery("#circle" + protein_member_id).css("stroke-width", "1px")
-        jQuery("#circle" + new_protein_id).css("stroke-width", "2px")
+        jQuery("#circle" + member_id).css("stroke-width", "1px")
+        jQuery("#circle" + new_gene_id).css("stroke-width", "2px")
 
-        jQuery("#circle" + protein_member_id).css("stroke", "steelblue")
-        jQuery("#circle" + new_protein_id).css("stroke", "black")
+        jQuery("#circle" + member_id).css("stroke", "steelblue")
+        jQuery("#circle" + new_gene_id).css("stroke", "black")
 
-        jQuery("#id" + new_protein_id + "geneline").attr("stroke", "red")
-        jQuery("." + new_protein_id + "genetext").attr("fill", "red")
+        jQuery("#id" + new_gene_id + "geneline").attr("stroke", "red")
+        jQuery("." + new_gene_id + "genetext").attr("fill", "red")
 
 
         syntenic_data.ref = new_gene_id;

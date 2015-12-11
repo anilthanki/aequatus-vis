@@ -187,7 +187,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
     }
 //
 
-    var svg = jQuery("#id" + protein_id).svg("get")
+    var svg = jQuery("#id" + member_id).svg("get")
     var trackClass;
     var newStart_temp = 1;
     var maxLentemp = jQuery(document).width() * 0.6;
@@ -290,7 +290,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     fontSize: 10,
                     textAnchor: 'begin',
                     fill: "gray",
-                    class: "geneinfo genelabel "+ protein_id+"genetext"
+                    class: "geneinfo genelabel "+ member_id+"genetext"
                 });
 
                 var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].stable_id
@@ -300,12 +300,12 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     fontSize: 10,
                     textAnchor: 'begin',
                     fill: "gray",
-                    class: "stable genelabel "+ protein_id+"genetext"
+                    class: "stable genelabel "+ member_id+"genetext"
                 });
 
 
                 var temp_div = svg;
-                svg.line(0, 6, stopposition, 6, {id: 'id' + protein_id+'geneline', stroke: 'green', strokeWidth: 1});
+                svg.line(0, 6, stopposition, 6, {id: 'id' + member_id+'geneline', stroke: 'green', strokeWidth: 1});
 
                 var strand = 0;
 
@@ -320,7 +320,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                 var g = svg.group({class: 'style1'});
                 dispGeneExon(g, svg, gene.Transcript[transcript_len], gene.strand, temp_div, gene_start, stopposition, gene_length, transcript_len);
 
-                var g = svg.group({id: 'id' + protein_id+'style1CIGAR', class: 'style1'});
+                var g = svg.group({id: 'id' + member_id+'style1CIGAR', class: 'style1'});
 
 
                 dispCigarLine(g, syntenic_data.cigar[protein_id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[0].Exon.toJSON(), transcript_start, transcript_end, strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style1");
@@ -336,7 +336,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     fontSize: 10,
                     textAnchor: 'red',
                     fill: "red",
-                    class: "geneinfo genelabel "+ protein_id+"genetext"
+                    class: "geneinfo genelabel "+ member_id+"genetext"
                 });
 
                 var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].id
@@ -346,11 +346,11 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     fontSize: 10,
                     textAnchor: 'begin',
                     fill: "red",
-                    class: "stable genelabel "+ protein_id+"genetext"
+                    class: "stable genelabel "+ member_id+"genetext"
                 });
 
 
-                svg.line(0, 6, stopposition, 6, {id: 'id' + protein_id+'geneline', stroke: 'red', strokeWidth: 2});
+                svg.line(0, 6, stopposition, 6, {id: 'id' + member_id+'geneline', stroke: 'red', strokeWidth: 2});
 
 
                 var temp_div = svg;
@@ -359,7 +359,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                 var g = svg.group({class: 'style1'});
                 dispGeneExon(g, svg, gene.Transcript[transcript_len], gene.strand, temp_div, gene_start, stopposition, gene_length);
 
-                var g = svg.group({id: 'id' + protein_id+'style1CIGAR' ,class: 'style1 CIGAR'});
+                var g = svg.group({id: 'id' + member_id+'style1CIGAR' ,class: 'style1 CIGAR'});
 
                 dispCigarLineRef(g, syntenic_data.cigar[protein_id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, transcript_end, gene.Transcript[transcript_len].assembly_name, "style1");
 
