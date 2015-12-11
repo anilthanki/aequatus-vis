@@ -315,7 +315,7 @@ function drawTree(json_tree, div, event) {
             .attr("id", function (d, i) {
                 if (d.sequence)// && d.children != null) {
                 {
-                    return "circle" + d.sequence.id[0].accession;
+                    return "circle" + d.id.accession;
                 }else{
                     return "circle" + d.node_id;
 
@@ -383,7 +383,7 @@ function drawTree(json_tree, div, event) {
             .attr("id", function (d, i) {
                 if (d.sequence)// && d.children != null) {
                 {
-                    return "circle" + d.sequence.id[0].accession;
+                    return "circle" + d.id.accession;
                 }else{
                     return "circle" + d.node_id;
 
@@ -469,12 +469,12 @@ function drawTree(json_tree, div, event) {
             .style("left", "10px")
             .style("top", "10px")
             .html(function (d) {
-                return "<div id = 'id" + d.sequence.id[0].accession + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
+                return "<div id = 'id" + d.id.accession + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
             });
 
         nodeEnter.filter(function (d) {
             if (d.sequence && d.id.accession == ref_member) {
-                jQuery("#id" + d.sequence.id[0].accession).svg()
+                jQuery("#id" + d.id.accession).svg()
                 dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession)
                 dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession)
                 var view_type = null
@@ -495,7 +495,7 @@ function drawTree(json_tree, div, event) {
                     //display = "display: none;"
                 }
             } else if (d.sequence && syntenic_data.member[d.id.accession]) {
-                jQuery("#id" + d.sequence.id[0].accession).svg()
+                jQuery("#id" + d.id.accession).svg()
                 dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession, true)
                 dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession, true)
                 var view_type = null
