@@ -355,10 +355,15 @@ function drawTree(json_tree, div, event) {
                 }
             })
             .style("stroke-width", function (d) {
-                if(d.close && d.close == true){
+                if ((d.sequence && d.id.accession == ref_member) || (d.close && d.close == true)){
                     return "2px";
                 }else{
                     return "1px";
+                }
+            })
+            .style("stroke", function (d) {
+                if ((d.sequence && d.id.accession == ref_member)) {
+                    return "black";
                 }
             });
 
@@ -419,10 +424,15 @@ function drawTree(json_tree, div, event) {
                 }
             })
             .style("stroke-width", function (d) {
-                if(d.close && d.close == true){
+                if ((d.sequence && d.id.accession == ref_member) || (d.close && d.close == true)){
                     return "2px";
                 }else{
                     return "1px";
+                }
+            })
+            .style("stroke", function (d) {
+                if ((d.sequence && d.id.accession == ref_member)) {
+                    return "black";
                 }
             });
         //
@@ -671,11 +681,6 @@ function drawTree(json_tree, div, event) {
         new_children.child = children;
         return new_children;
     }
-
-
-
-
-
 }
 
 function changeToNormal() {
