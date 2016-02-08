@@ -95,13 +95,15 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_stra
     var i = 0
     var j = 0;
     while (i < no_of_exons) {
-        var ref_exon = ref_exons[i].length ? ref_exons[i].length : (ref_exons[i].end - ref_exons[i].start) + 1;
-        if (parseInt(ref_exon) > 0) {
+        console.log(ref_exons[i].length+" "+(ref_exons[i].end - ref_exons[i].start) + 1)
+        var ref_exon = ref_exons[i].length// ? ref_exons[i].length : (ref_exons[i].end - ref_exons[i].start) + 1;
+        if (parseInt(ref_exon) >= 0) {
             ref_exon_array.push(ref_exon)
         }
         i++;
     }
 
+    console.log(ref_exon_array)
 
     var a = 0;
     var p = 0;
@@ -223,7 +225,7 @@ function reverse_compliment(sequence) {
 
 function redrawCIGAR() {
 
-console.log("redraw cigar ")
+    console.log("redraw cigar ")
     var count = 1;
     count++; console.log(count)
     var json = syntenic_data;
@@ -256,22 +258,22 @@ console.log("redraw cigar ")
                 count++; console.log(count)
 
                 if (gene.Transcript[transcript_len].Translation && ptn_keys.indexOf(gene.Transcript[transcript_len].Translation.id) >= 0 ) {
-                    count++; console.log(count)
+                    // count++; console.log(count)
                     var gene_start;
-                    count++; console.log(count)
+                    // count++; console.log(count)
                     var gene_stop;
                     count++; console.log(count)
                     var gene_length = gene.Transcript[transcript_len].length;
-                    count++; console.log(count)
-                    console.log(gene.id)
-                    console.log(temp_member_id)
+                    // count++; console.log(count)
+                    // console.log(gene.id)
+                    // console.log(temp_member_id)
 
                     var svg = jQuery("#id" + temp_member_id).svg("get")
 
-                    count++; console.log(count)
+                    // count++; console.log(count)
                     var transcript_start = gene.Transcript[transcript_len].Translation.start;
                     var transcript_end = gene.Transcript[transcript_len].Translation.end;
-                    count++; console.log(count)
+                    // count++; console.log(count)
 
                     if (gene.Transcript[transcript_len].start < gene.Transcript[transcript_len].end) {
                         gene_start = gene.Transcript[transcript_len].start;
@@ -282,14 +284,14 @@ console.log("redraw cigar ")
                         gene_stop = gene.Transcript[transcript_len].start;
 
                     }
-                    count++; console.log(count)
+                    // count++; console.log(count)
                     var maxLentemp = jQuery(document).width() * 0.6;
                     var newEnd_temp = max;
                     var stopposition = ((gene_stop - gene_start) + 1) * parseFloat(maxLentemp) / (newEnd_temp);
                     var temp_div = svg;
 
                     var strand = 0;
-                    count++; console.log(count)
+                    // count++; console.log(count)
 
                     if (syntenic_data.member[syntenic_data.ref].strand == gene.Transcript[transcript_len].strand) {
                         strand = 1;
@@ -297,7 +299,7 @@ console.log("redraw cigar ")
                         strand = -1;
                     }
 
-                    count++; console.log(count)
+                    // count++; console.log(count)
 
                     if (temp_member_id != member_id) {
 
@@ -324,7 +326,7 @@ console.log("redraw cigar ")
                         dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, transcript_end, gene.Transcript[transcript_len].Translation.id, "style2");
 
                     }
-                    count++; console.log(count)
+                    // count++; console.log(count)
 
 
                 }
@@ -487,38 +489,38 @@ function changeReference(new_gene_id, new_protein_id) {
 
 
 
-        jQuery("#id" + member_id + "geneline").attr("stroke", "green")
-        jQuery("." + member_id + "genetext").attr("fill", "gray")
+    jQuery("#id" + member_id + "geneline").attr("stroke", "green")
+    jQuery("." + member_id + "genetext").attr("fill", "gray")
 
-        resize_ref_to_def()
+    resize_ref_to_def()
 
-        jQuery("#circle" + member_id).attr("r", 4)
-        jQuery("#circle" + new_gene_id).attr("r", 6)
-
-
-        jQuery("#circle" + member_id).css("stroke-width", "1px")
-        jQuery("#circle" + new_gene_id).css("stroke-width", "2px")
-
-        jQuery("#circle" + member_id).css("stroke", "steelblue")
-        jQuery("#circle" + new_gene_id).css("stroke", "black")
-
-        jQuery("#id" + new_gene_id + "geneline").attr("stroke", "red")
-        jQuery("." + new_gene_id + "genetext").attr("fill", "red")
+    jQuery("#circle" + member_id).attr("r", 4)
+    jQuery("#circle" + new_gene_id).attr("r", 6)
 
 
-        syntenic_data.ref = new_gene_id;
-        protein_member_id = new_protein_id
-        syntenic_data.protein_id = new_protein_id;
+    jQuery("#circle" + member_id).css("stroke-width", "1px")
+    jQuery("#circle" + new_gene_id).css("stroke-width", "2px")
+
+    jQuery("#circle" + member_id).css("stroke", "steelblue")
+    jQuery("#circle" + new_gene_id).css("stroke", "black")
+
+    jQuery("#id" + new_gene_id + "geneline").attr("stroke", "red")
+    jQuery("." + new_gene_id + "genetext").attr("fill", "red")
 
 
-        jQuery(".match").remove()
-        jQuery(".insert").remove()
-        jQuery(".delete").remove()
+    syntenic_data.ref = new_gene_id;
+    protein_member_id = new_protein_id
+    syntenic_data.protein_id = new_protein_id;
 
-        member_id = new_gene_id;
 
-        resize_ref();
-        redrawCIGAR()
+    jQuery(".match").remove()
+    jQuery(".insert").remove()
+    jQuery(".delete").remove()
+
+    member_id = new_gene_id;
+
+    resize_ref();
+    redrawCIGAR()
 
 }
 
