@@ -9,31 +9,33 @@
 var data = "";
 
 var colours = ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)', 'rgb(255,255,153)', 'rgb(177,89,40)', 'rgb(141,211,199)', 'rgb(255,255,179)', 'rgb(190,186,218)', 'rgb(251,128,114)', 'rgb(128,177,211)', 'rgb(253,180,98)', 'rgb(179,222,105)', 'rgb(252,205,229)', 'rgb(217,217,217)', 'rgb(188,128,189)', 'rgb(204,235,197)', 'rgb(255,237,111)']
-//var colours = ['#A6CEE3', '#1F78B4', '#B2DF8A', '#33A02C', '#FB9A99', '#E31A1C', '#FDBF6F', '#FF7F00', '#CAB2D6', '#6A3D9A', '#FFFF99', '#B15928', '#8DD3C7', '#FFFFB3', '#BEBADA', '#FB8072', '#80B1D3', '#FDB462', '#B3DE69', '#FCCDE5', '#D9D9D9', '#BC80BD', '#CCEBC5', '#FFED6F']
 
 
-var gapped_seq_list = [];
 var gene_list_array = [];
-var cigar_list = [];
 var ref_member = null
 var syntenic_data = null;
-var chromosomes = null;
 var genome_db_id = null;
-var genome_name = null;
 var chr = null;
 var member_id = null;
 var members = null;
-var members_overview = null;
-var chr_len = null;
-var chr_name = null;
 var protein_member_id = null;
 var ref_data = null;
+var filter_div = null;
 
-function init(json) {
+function init(json, control_div, filter_spacer) {
 
     member_id = json.ref;
     syntenic_data = json
+    if (control_div) {
+        setControls(control_div)
+    }
 
+    if(filter_spacer){
+        console.log("spacer")
+        console.log(filter_spacer)
+        filter_div =  filter_spacer
+        console.log(filter_div)
+    }
 
     if (!syntenic_data.cigar) {
         syntenic_data.cigar = {};
@@ -41,12 +43,10 @@ function init(json) {
 
     }
 
-    if(jQuery.type(syntenic_data.tree) =='object')
-    {
+    if (jQuery.type(syntenic_data.tree) == 'object') {
         // alert("It is JSON")
     }
-    else
-    {
+    else {
         syntenic_data.tree = toNewick(syntenic_data.tree)
     }
 
@@ -95,7 +95,7 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_stra
     var i = 0
     var j = 0;
     while (i < no_of_exons) {
-        console.log(ref_exons[i].length+" "+(ref_exons[i].end - ref_exons[i].start) + 1)
+        console.log(ref_exons[i].length + " " + (ref_exons[i].end - ref_exons[i].start) + 1)
         var ref_exon = ref_exons[i].length// ? ref_exons[i].length : (ref_exons[i].end - ref_exons[i].start) + 1;
         if (parseInt(ref_exon) >= 0) {
             ref_exon_array.push(ref_exon)
@@ -227,7 +227,8 @@ function redrawCIGAR() {
 
     console.log("redraw cigar ")
     var count = 1;
-    count++; console.log(count)
+    count++;
+    console.log(count)
     var json = syntenic_data;
     if (json.ref) {
         gene_list_array = []
@@ -255,14 +256,16 @@ function redrawCIGAR() {
 
             var transcript_len = gene.Transcript.length;
             while (transcript_len--) {
-                count++; console.log(count)
+                count++;
+                console.log(count)
 
-                if (gene.Transcript[transcript_len].Translation && ptn_keys.indexOf(gene.Transcript[transcript_len].Translation.id) >= 0 ) {
+                if (gene.Transcript[transcript_len].Translation && ptn_keys.indexOf(gene.Transcript[transcript_len].Translation.id) >= 0) {
                     // count++; console.log(count)
                     var gene_start;
                     // count++; console.log(count)
                     var gene_stop;
-                    count++; console.log(count)
+                    count++;
+                    console.log(count)
                     var gene_length = gene.Transcript[transcript_len].length;
                     // count++; console.log(count)
                     // console.log(gene.id)
@@ -305,13 +308,13 @@ function redrawCIGAR() {
 
                         var g = svg.group({class: 'style1'});
 
-                        dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[0].Exon.toJSON(), transcript_start, transcript_end,  strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style1");
+                        dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[0].Exon.toJSON(), transcript_start, transcript_end, strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style1");
                         //dispCigarLine(g, syntenic_data.cigar[protein_id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[0].Exon.toJSON(), transcript_start, transcript_end, strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style1");
 
 
                         var g = svg.group({class: 'style2'});
 
-                        dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[0].Exon.toJSON(), transcript_start, transcript_end,  strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style2");
+                        dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[0].Exon.toJSON(), transcript_start, transcript_end, strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style2");
 
                     } else {
 
@@ -334,7 +337,8 @@ function redrawCIGAR() {
 
             }
         }
-        count++; console.log(count)
+        count++;
+        console.log(count)
 
         var view_type = null
         if (jQuery('input[name=view_type]:checked').val() == "with") {
@@ -343,7 +347,8 @@ function redrawCIGAR() {
         else {
             view_type = false;
         }
-        count++; console.log(count)
+        count++;
+        console.log(count)
 
         if (view_type == true) {
             jQuery(".style1").show()
@@ -488,7 +493,6 @@ function changeReference(new_gene_id, new_protein_id) {
     console.log(new_protein_id)
 
 
-
     jQuery("#id" + member_id + "geneline").attr("stroke", "green")
     jQuery("." + member_id + "genetext").attr("fill", "gray")
 
@@ -541,3 +545,163 @@ var sort_by = function (field, reverse, primer) {
     }
 
 }
+
+function setControls(control_div) {
+
+    console.log("setControls " + control_div)
+    var table = jQuery("<table cellpadding='2px'></table>");
+
+    var row_spacing = jQuery("<tr></tr>");
+    var column_spanning = jQuery("<th colspan=2></th>");
+    column_spanning.html("Visual Controls")
+    row_spacing.append(column_spanning)
+
+    table.append(row_spacing)
+
+
+    var row1 = jQuery("<tr></tr>");
+    var column1 = jQuery("<td></td>");
+
+    var input1 = jQuery('<input>', {
+        type: "checkbox",
+        id: "deleteCheck",
+        onclick: 'toggleCigar(".delete")',
+        "checked": "checked"
+    });
+    column1.html(input1)
+    row1.append(column1)
+
+    var column2 = jQuery("<td></td>");
+    column2.html("Deletion")
+    row1.append(column2)
+    table.append(row1)
+
+    var row2 = jQuery("<tr></tr>");
+    var column1 = jQuery("<td></td>");
+
+    var input = jQuery('<input>', {
+        type: "checkbox",
+        id: "matchCheck",
+        onclick: 'toggleCigar(".match")',
+        "checked": "checked"
+    });
+    column1.html(input)
+    row2.append(column1)
+    var column2 = jQuery("<td></td>");
+
+    column2.html("Match")
+    row2.append(column2)
+
+    table.append(row2)
+
+    var row3 = jQuery("<tr></tr>");
+    var column1 = jQuery("<td></td>");
+    var input = jQuery('<input>', {
+        type: "checkbox",
+        id: "insertCheck",
+        onclick: 'toggleCigar(".insert")',
+        "checked": "checked"
+    });
+    column1.html(input)
+    row3.append(column1)
+
+    var column2 = jQuery("<td></td>");
+
+    column2.html("Insertion")
+    row3.append(column2)
+
+    table.append(row3)
+
+
+    var row_spacing = jQuery("<tr></tr>");
+    var column_spanning = jQuery("<th colspan=4></th>");
+    column_spanning.html("Label")
+    row_spacing.append(column_spanning)
+
+    table.append(row_spacing)
+
+
+    var row4 = jQuery("<tr></tr>");
+    var column1 = jQuery("<td></td>");
+    var input = jQuery('<input>', {
+        type: "radio",
+        name: "label_type",
+        onclick: 'changeToGeneInfo()',
+        "checked": "checked"
+    });
+    column1.html(input)
+    row4.append(column1)
+
+    var column2 = jQuery("<td></td>");
+
+    column2.html("Gene Info")
+    row4.append(column2)
+
+    // table.append(row4)
+
+
+    // var row5 = jQuery("<tr></tr>");
+    var column3 = jQuery("<td></td>");
+    var input = jQuery('<input>', {
+        type: "radio",
+        name: "label_type",
+        onclick: 'changeToStable()()',
+    });
+    column3.html(input)
+    row4.append(column3)
+
+    var column4 = jQuery("<td></td>");
+
+    column4.html("Stable ID")
+    row4.append(column4)
+
+    table.append(row4)
+
+    var row_spacing = jQuery("<tr></tr>");
+    var column_spanning = jQuery("<th colspan=4></th>");
+    column_spanning.html("Introns")
+    row_spacing.append(column_spanning)
+
+    table.append(row_spacing)
+
+    var row6 = jQuery("<tr></tr>");
+    var column1 = jQuery("<td></td>");
+    var input = jQuery('<input>', {
+        type: "radio",
+        name: "view_type",
+        onclick: 'changeToNormal()'
+    });
+    column1.html(input)
+    row6.append(column1)
+
+    var column2 = jQuery("<td></td>");
+
+    column2.html("With")
+    row6.append(column2)
+
+    var column3 = jQuery("<td></td>");
+    var input = jQuery('<input>', {
+        type: "radio",
+        name: "view_type",
+        onclick: 'changeToExon()',
+        "checked": "checked"
+    });
+    column3.html(input)
+    row6.append(column3)
+
+    var column4 = jQuery("<td></td>");
+
+    column4.html("Without")
+    row6.append(column4)
+
+    table.append(row6)
+
+    jQuery(control_div).html(table)
+
+}
+
+function toggleCigar(kind) {
+    console.log("toggleCigar " + kind)
+    jQuery(kind).toggle()
+}
+

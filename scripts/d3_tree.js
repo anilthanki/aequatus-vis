@@ -44,8 +44,9 @@ function drawTree(json_tree, div, event) {
 
     genome_list = jQuery.unique( genome_list );
 
+    console.log(filter_div)
 
-    d3.select("#filter").selectAll("input")
+    d3.select(filter_div).selectAll("input")
         .data(genome_list)
         .enter()
         .append('label')
