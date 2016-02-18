@@ -289,7 +289,6 @@ function drawTree(json_tree, div, event) {
                         return syntenic_data.member[syntenic_data.ref].species;
                     } else {
                         return syntenic_data.member[d.id.accession].species;
-
                     }
                 }
                 else {
