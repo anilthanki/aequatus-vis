@@ -306,6 +306,10 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, stop, exons, temp
 }
 
 function dispCigarLineRef(g, cigars, start, top, max, gene_start, stop, exons, temp_div, ref_exons, transcript_start, transcript_end, id, div) {
+
+// console.log("reff  "+cigars+" , "+ start+" , "+ top+" , "+ max+" , "+ gene_start+" , "+ stop+" , exons , "+ temp_div+" , ref_exons , "+ transcript_start+" , "+ transcript_end+" ,   "+ id+" , "+ div) 
+
+
     exons = jQuery.parseJSON(exons);
     ref_exons = jQuery.parseJSON(ref_exons)
     exons.sort(sort_by('start', true, parseInt));
@@ -439,7 +443,7 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, stop, exons, t
                         temp_start = exons[exon_number].start - gene_start;
                         temp_end = (exons[exon_number].end - gene_start) + 1;
 
-                        cigar_pos = 0;//temp_start;
+                        cigar_pos = 0;
 
                         startposition = parseFloat((cigar_pos) * parseFloat(maxLentemp) / (temp_end-temp_start));
                         stopposition = parseFloat((length) * parseFloat(maxLentemp) / (temp_end-temp_start));
