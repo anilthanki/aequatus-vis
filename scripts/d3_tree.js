@@ -281,7 +281,7 @@ function drawTree(json_tree, div, event) {
                     maxHeight = source.x0
                 }
 
-                return "translate(" + source.y0 + "," + source.x0 + ")";
+                return "translate(" + d.y+ "," + d.x + ")";
             })
             .attr("species", function (d) {
                 if (d.sequence) {
