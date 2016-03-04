@@ -7,6 +7,7 @@
  */
 
 function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len, id) {
+    console.log("dispGeneExon")
     var trackClass = "exon";
     var utrtrackClass = "utr";
 
@@ -177,7 +178,8 @@ function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len
 }
 
 function dispGenesForMember_id(member_id, protein_id, ref) {
-
+    console.log("dispGenesForMember_id "+member_id+" "+protein_id)
+    var count = 0
     var gene;
     if (ref) {
         gene = syntenic_data.member[member_id];
@@ -185,7 +187,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
         gene = syntenic_data.member[member_id];
 
     }
-//
+
 
     var svg = jQuery("#id" + member_id).svg("get")
     var trackClass;
@@ -232,14 +234,13 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
 
     while (transcript_len--) {
 
-        if (gene.Transcript[transcript_len].Translation && gene.Transcript[transcript_len].Translation.id == protein_id) {
+        if (gene.Transcript[transcript_len].Translation && (gene.Transcript[transcript_len].Translation.id == protein_id || gene.Transcript[transcript_len].id == protein_id)) {
 
             max = gene.Transcript[transcript_len].end - gene.Transcript[transcript_len].start
             var newEnd_temp = max;
             var gene_start;
             var gene_stop;
             var gene_length = gene.Transcript[transcript_len].end - gene.Transcript[transcript_len].start
-
 
             var transcript_start = gene.Transcript[transcript_len].start;
             var transcript_end = gene.Transcript[transcript_len].end;
@@ -256,7 +257,6 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                 gene_start = gene.Transcript[transcript_len].end;
                 gene_stop = gene.Transcript[transcript_len].start;
             }
-
 
             if (gene.Transcript[transcript_len].desc) {
                 label = gene.Transcript[transcript_len].desc;
@@ -277,7 +277,6 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
             }
 
             label += gene.reference;
-
 
             if (ref) {
 
@@ -303,7 +302,6 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     class: "stable genelabel "+ member_id+"genetext"
                 });
 
-
                 var temp_div = svg;
                 svg.line(0, 6, stopposition, 6, {id: 'id' + member_id+'geneline', stroke: 'green', strokeWidth: 1});
 
@@ -322,12 +320,16 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
 
                 var g = svg.group({id: 'id' + member_id+'style1CIGAR', class: 'style1'});
 
-
-                dispCigarLine(g, syntenic_data.cigar[protein_id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[0].Exon.toJSON(), transcript_start, transcript_end, strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style1");
+                var ref_transcript = 0
+    jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
+        if (obj.Translation && obj.Translation.id == protein_member_id) {
+            ref_transcript = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
+        }
+    });
+                dispCigarLine(g, syntenic_data.cigar[protein_id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), transcript_start, transcript_end, strand, syntenic_data.cigar[protein_member_id] ? syntenic_data.cigar[protein_member_id] : syntenic_data.cigar[transcript_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style1");
 
             }
             else {
-
 
                 var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].display_name
 

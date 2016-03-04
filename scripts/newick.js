@@ -1,4 +1,5 @@
-function toNewick (s) {
+function NewickToJSON (s) {
+
     var ancestors = [];
     var tree = {};
     var tokens = s.split(/\s*(;|\(|\)|,|:|\[|\])\s*/);
@@ -29,11 +30,17 @@ function toNewick (s) {
           break;
 
         default:
-          
           var x = tokens[i-1];
           if (x == ')' || x == '(' || x == ',') {
-
-            tree.name = token;
+            if(token.indexOf("_") > 0){
+              tree.id = {}
+            tree.id.accession = getGeneIDfromTranscript(token.split("_")[0])
+            tree.sequence = {}
+            tree.sequence.id = [];
+            tree.sequence.id[0] = {}
+            tree.sequence.id[0].accession = getProteinIDfromTranscript(token.split("_")[0]); 
+            }
+            
 
           } else if (x == '[') {
 
@@ -57,9 +64,35 @@ function toNewick (s) {
             tag == false
           }else if (x == ':') {
 
-            tree.length = token;
+            tree.branch_length = token;
           }
       }
     }
     return tree;
+  }
+
+  function getGeneIDfromTranscript(token){
+    var id = null
+    jQuery.each(syntenic_data.member, function(i, obj) {
+        for(var j=0; j<obj.Transcript.length; j++){
+              if(obj.Transcript[j].id == token){
+                id = obj.id.toString()
+                break;
+              }
+        }   
+    });
+    return id;
+  }
+
+  function getProteinIDfromTranscript(token){
+    var id = null
+    jQuery.each(syntenic_data.member, function(i, obj) {
+        for(var j=0; j<obj.Transcript.length; j++){
+              if(obj.Transcript[j].id == token){
+                id = obj.Transcript[j].Translation.id.toString()
+                break;
+              }
+        }   
+    });
+    return id;
   }

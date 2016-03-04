@@ -11,7 +11,7 @@ function drawTree(json_tree, div, event) {
     console.log("drawtree")
     var gene_width = jQuery(document).width() * 0.8
     var margin = {top: 0, right: 0, bottom: 0, left: 0},
-        width = 400,//jQuery(document).width(),
+        width = 400,
         height = 1000 - margin.top - margin.bottom;
 
     var maxHeight = 1000;
@@ -44,8 +44,9 @@ function drawTree(json_tree, div, event) {
 
     genome_list = jQuery.unique( genome_list );
 
+    console.log(filter_div)
 
-    d3.select("#filter").selectAll("input")
+    d3.select(filter_div).selectAll("input")
         .data(genome_list)
         .enter()
         .append('label')
@@ -160,69 +161,13 @@ function drawTree(json_tree, div, event) {
             });
     }
 
-    //function unpack(d) {
-    //    console.log("unpack")
-    //
-    //    console.log(d.node_id)
-    //    var cont = true;
-    //
-    //    var child = d
-    //    if (child._children.size() == 0) {
-    //        console.log("nulling")
-    //        console.log(child.node_id)
-    //        child._children = null;
-    //    }
-    //    // if (!d.parent._children || d.parent._children == []) {
-    //    //     update(child, member_id)
-    //    // } else {
-    //    //     while (cont) {
-    //    //         console.log("unpach " + cont)
-    //    //         console.log(child.node_id)
-    //
-    //    child.children.push(child)
-    //    child._children.splice(child._children.indexOf(child), 1)
-    //    // child = child._children
-    //    //         console.log(child.node_id)
-    //
-    //    //         // if(child.parent){
-    //    //             if (child._children.size() == 0) {
-    //    //                 console.log("nulling")
-    //    //                 console.log(child.node_id)
-    //    //                 child._children = null;
-    //    //                   cont = false
-    //    //                 console.log(child)
-    //    update(child, member_id)
-    //    //             }
-    //
-    //    //             // if ( (!child.parent._children || child.parent._children.size() == 0)) {
-    //    //             //     cont = false
-    //    //             //     console.log(child)
-    //    //             //     update(child, member_id)
-    //    //             // }
-    //    //         // }
-    //
-    //
-    //    //     }
-    //    // }
-    //
-    //}
-
-
+   
     d3.json(json_tree, function () {
 
         root = json_tree;
 
         root.x0 = height / 2;
         root.y0 = 0;
-
-        // function collapse(d) {
-        //     if (d.children) {
-        //         d._children = d.children;
-        //         d._children.forEach(collapse);
-        //         d.children = null;
-        //     }
-        // }
-        // root = collapse(root)
 
         update(root, member_id);
     });
@@ -280,7 +225,7 @@ function drawTree(json_tree, div, event) {
                     maxHeight = source.x0
                 }
 
-                return "translate(" + source.y0 + "," + source.x0 + ")";
+                return "translate(" + d.y+ "," + d.x + ")";
             })
             .attr("species", function (d) {
                 if (d.sequence) {
@@ -288,7 +233,6 @@ function drawTree(json_tree, div, event) {
                         return syntenic_data.member[syntenic_data.ref].species;
                     } else {
                         return syntenic_data.member[d.id.accession].species;
-
                     }
                 }
                 else {
@@ -367,13 +311,6 @@ function drawTree(json_tree, div, event) {
                 }
             });
 
-        //nodeEnter.append("text")
-        //    .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-        //    .attr("dy", ".35em")
-        //    .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-        //    .text(function(d) { return d.branch_length; })
-        //    .style("fill-opacity", 1e-6);
-
         // Transition nodes to their new position.
         var nodeUpdate = node.transition()
             .duration(duration)
@@ -435,10 +372,7 @@ function drawTree(json_tree, div, event) {
                     return "black";
                 }
             });
-        //
-        //nodeUpdate.select("text")
-        //    .style("fill-opacity", 1);
-
+     
         // Transition exiting nodes to the parent's new position.
         var nodeExit = node.exit().transition()
             .duration(duration)
