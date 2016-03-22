@@ -63,7 +63,7 @@ function init(json, control_div, filter_spacer) {
 }
 
 function recursive_tree(tree) {
-console.log("recursive_tree")
+    console.log("recursive_tree")
 
     var child_lenth = tree.children.length;
 
@@ -86,7 +86,10 @@ function addCigar(child) {
 }
 
 function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_strand) {
-console.log("formatCigar")
+    console.log("formatCigar")
+    console.log(syntenic_data.ref +" = "+ protein_member_id + " = "+ syntenic_data.protein_id)
+    console.log(ref_exons.toJSON())
+
 
     var no_of_exons = ref_exons.length
     var hit_cigar_arr = [];
@@ -149,7 +152,6 @@ console.log("formatCigar")
         i++;
     }
 
-
     if (reverse) {
         ref_exon_array = ref_exon_array.reverse();
         var sum = 0;
@@ -166,7 +168,6 @@ console.log("formatCigar")
         cigar_string = cigar_string.split("").reverse().join("");
         hit_cigar = hit_cigar.split("").reverse().join("");
     }
-
 
     while (j < cigar_string.length) {
         if (cigar_string.charAt(j) == 'D') {
@@ -227,102 +228,104 @@ function reverse_compliment(sequence) {
 
 
 function redrawCIGAR() {
+    console.log("redrawCIGAR")
     var count = 1;
     var json = syntenic_data;
     if (json.ref) {
+
         gene_list_array = []
         var core_data = json.member;
         var max = 0;
         var keys = [];
         var ptn_keys = [];
-
         for (var k in core_data) keys.push(k);
 
         for (var k in json.cigar) ptn_keys.push(k);
 
-        var ref_data = syntenic_data.member[syntenic_data.ref];
-
+        //var ref_data = syntenic_data.member[syntenic_data.ref];
 
         for (var i = 0; i < keys.length; i++) {
             var temp_member_id = keys[i]
+            if(document.getElementById("id"+temp_member_id) !== null){
+                var gene = syntenic_data.member[temp_member_id];
+                if (max < gene.end - gene.start) {
+                    max = gene.end - gene.start;
+                }
 
 
-            var gene = syntenic_data.member[temp_member_id];
-            if (max < gene.end - gene.start) {
-                max = gene.end - gene.start;
-            }
+                var transcript_len = gene.Transcript.length;
+                while (transcript_len--) {
+                    if (gene.Transcript[transcript_len].Translation && ptn_keys.indexOf(gene.Transcript[transcript_len].Translation.id) >= 0) {
+                        var gene_start;
+
+                        var gene_stop;
+
+                        var gene_length = gene.Transcript[transcript_len].length;
+
+                        var svg = jQuery("#id" + temp_member_id).svg("get")
+
+                        var transcript_start = gene.Transcript[transcript_len].Translation.start;
+                        var transcript_end = gene.Transcript[transcript_len].Translation.end;
+
+                        if (gene.Transcript[transcript_len].start < gene.Transcript[transcript_len].end) {
+                            gene_start = gene.Transcript[transcript_len].start;
+                            gene_stop = gene.Transcript[transcript_len].end;
+                        }
+                        else {
+                            gene_start = gene.Transcript[transcript_len].end;
+                            gene_stop = gene.Transcript[transcript_len].start;
+
+                        }
+                        var maxLentemp = jQuery(document).width() * 0.6;
+                        var newEnd_temp = max;
+                        var stopposition = ((gene_stop - gene_start) + 1) * parseFloat(maxLentemp) / (newEnd_temp);
+                        var temp_div = svg;
+
+                        var strand = 0;
+
+                        if (syntenic_data.member[syntenic_data.ref].strand == gene.Transcript[transcript_len].strand) {
+                            strand = 1;
+                        } else {
+                            strand = -1;
+                        }
+
+                        if (temp_member_id != member_id) {
+
+                            var g = svg.group({class: 'style1'});
+
+                            var ref_transcript = 0
+                            jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
+                                if (obj.Translation && obj.Translation.id == protein_member_id) {
+                                    ref_transcript = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
+                                }
+                            });
 
 
-            var transcript_len = gene.Transcript.length;
-            while (transcript_len--) {
-                if (gene.Transcript[transcript_len].Translation && ptn_keys.indexOf(gene.Transcript[transcript_len].Translation.id) >= 0) {
-                    var gene_start;
-
-                    var gene_stop;
- 
-                    var gene_length = gene.Transcript[transcript_len].length;
-
-                    var svg = jQuery("#id" + temp_member_id).svg("get")
-
-                    var transcript_start = gene.Transcript[transcript_len].Translation.start;
-                    var transcript_end = gene.Transcript[transcript_len].Translation.end;
-
-                    if (gene.Transcript[transcript_len].start < gene.Transcript[transcript_len].end) {
-                        gene_start = gene.Transcript[transcript_len].start;
-                        gene_stop = gene.Transcript[transcript_len].end;
-                    }
-                    else {
-                        gene_start = gene.Transcript[transcript_len].end;
-                        gene_stop = gene.Transcript[transcript_len].start;
-
-                    }
-                    var maxLentemp = jQuery(document).width() * 0.6;
-                    var newEnd_temp = max;
-                    var stopposition = ((gene_stop - gene_start) + 1) * parseFloat(maxLentemp) / (newEnd_temp);
-                    var temp_div = svg;
-
-                    var strand = 0;
-
-                    if (syntenic_data.member[syntenic_data.ref].strand == gene.Transcript[transcript_len].strand) {
-                        strand = 1;
-                    } else {
-                        strand = -1;
-                    }
-
-                    if (temp_member_id != member_id) {
-
-                        var g = svg.group({class: 'style1'});
-
-                        var ref_transcript = 0
-                        jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
-                            if (obj.Translation && obj.Translation.id == protein_member_id) {
-                                ref_transcript = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
-                            }
-                        });
+                            dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), transcript_start, transcript_end, strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style1");
 
 
-                        dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), transcript_start, transcript_end, strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style1");
+                            var g = svg.group({class: 'style2'});
+
+                            dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), transcript_start, transcript_end, strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style2");
+
+                        } else {
 
 
-                        var g = svg.group({class: 'style2'});
+                            var g = svg.group({class: 'style1'});
 
-                        dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), transcript_start, transcript_end, strand, syntenic_data.cigar[protein_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style2");
-
-                    } else {
+                            dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, transcript_end, gene.Transcript[transcript_len].Translation.id, "style1");
 
 
-                        var g = svg.group({class: 'style1'});
+                            var g = svg.group({class: 'style2'});
 
-                        dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, transcript_end, gene.Transcript[transcript_len].Translation.id, "style1");
+                            dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, transcript_end, gene.Transcript[transcript_len].Translation.id, "style2");
 
-
-                        var g = svg.group({class: 'style2'});
-
-                        dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, transcript_end, gene.Transcript[transcript_len].Translation.id, "style2");
-
+                        }
                     }
                 }
+
             }
+
         }
 
         var view_type = null
@@ -408,7 +411,7 @@ function resize_ref_to_def() {
 }
 
 function checkCigar(ref_cigar_string) {
-console.log("checkCigar")
+    console.log("checkCigar")
     var cigar_list = [];
     cigar_list.push(ref_cigar_string);
 
@@ -485,12 +488,11 @@ function changeReference(new_gene_id, new_protein_id) {
     jQuery("#id" + new_gene_id + "geneline").attr("stroke", "red")
     jQuery("." + new_gene_id + "genetext").attr("fill", "red")
 
-
     syntenic_data.ref = new_gene_id;
     protein_member_id = new_protein_id
     syntenic_data.protein_id = new_protein_id;
 
-    
+
     jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
         if (obj.Translation && obj.Translation.id == protein_member_id) {
             var i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
@@ -499,13 +501,16 @@ function changeReference(new_gene_id, new_protein_id) {
     });
 
 
+
     jQuery(".match").remove()
     jQuery(".insert").remove()
     jQuery(".delete").remove()
 
     member_id = new_gene_id;
+    ref_data = syntenic_data.member[member_id]
 
     resize_ref();
+
     redrawCIGAR()
 
 }
