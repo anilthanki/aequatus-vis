@@ -161,7 +161,7 @@ function drawTree(json_tree, div, event) {
             });
     }
 
-   
+
     d3.json(json_tree, function () {
 
         root = json_tree;
@@ -372,7 +372,7 @@ function drawTree(json_tree, div, event) {
                     return "black";
                 }
             });
-     
+
         // Transition exiting nodes to the parent's new position.
         var nodeExit = node.exit().transition()
             .duration(duration)
@@ -571,7 +571,7 @@ function drawTree(json_tree, div, event) {
             d._children = null;
         }
 
-        update(d, ref_member);
+        update(d, member_id);
 
     }
 
