@@ -63,8 +63,6 @@ function init(json, control_div, filter_spacer) {
 }
 
 function recursive_tree(tree) {
-    console.log("recursive_tree")
-
     var child_lenth = tree.children.length;
 
     while (child_lenth--) {
@@ -86,11 +84,6 @@ function addCigar(child) {
 }
 
 function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_strand) {
-    console.log("formatCigar")
-    console.log(syntenic_data.ref +" = "+ protein_member_id + " = "+ syntenic_data.protein_id)
-    console.log(ref_exons.toJSON())
-
-
     var no_of_exons = ref_exons.length
     var hit_cigar_arr = [];
     var ref_exon_array = [];
@@ -103,7 +96,7 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_stra
         if(ref_exons[i].length == null){
             length = (ref_exons[i].end - ref_exons[i].start) + 1
         }
-        var ref_exon = length// ? ref_exons[i].length : (ref_exons[i].end - ref_exons[i].start) + 1;
+        var ref_exon = length
         if (parseInt(ref_exon) >= 0) {
             ref_exon_array.push(ref_exon)
         }
@@ -209,7 +202,6 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_stra
 
 
 function reverse_compliment(sequence) {
-    console.log("reverse_compliment")
     var complimentry = ""
 
     for (var i = 0; i < sequence.length; i++) {
@@ -228,7 +220,6 @@ function reverse_compliment(sequence) {
 
 
 function redrawCIGAR() {
-    console.log("redrawCIGAR")
     var count = 1;
     var json = syntenic_data;
     if (json.ref) {
@@ -241,8 +232,6 @@ function redrawCIGAR() {
         for (var k in core_data) keys.push(k);
 
         for (var k in json.cigar) ptn_keys.push(k);
-
-        //var ref_data = syntenic_data.member[syntenic_data.ref];
 
         for (var i = 0; i < keys.length; i++) {
             var temp_member_id = keys[i]
@@ -259,9 +248,6 @@ function redrawCIGAR() {
                         var gene_start;
 
                         var gene_stop;
-
-                        var gene_length = gene.Transcript[transcript_len].length;
-
                         var svg = jQuery("#id" + temp_member_id).svg("get")
 
                         var transcript_start = gene.Transcript[transcript_len].Translation.start;
@@ -396,22 +382,17 @@ function resize_ref_to_def() {
         if (obj.Translation && (obj.Translation.id == protein_member_id)) {
             i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
         }
-
     });
 
 
     var exon_nu = syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.length;
 
-
     while (exon_nu--) {
         syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = (syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start) + 1
     }
-
-
 }
 
 function checkCigar(ref_cigar_string) {
-    console.log("checkCigar")
     var cigar_list = [];
     cigar_list.push(ref_cigar_string);
 
@@ -467,9 +448,6 @@ function replaceAt(str, index, character) {
 
 
 function changeReference(new_gene_id, new_protein_id) {
-    console.log("changeReference")
-
-
     jQuery("#id" + member_id + "geneline").attr("stroke", "green")
     jQuery("." + member_id + "genetext").attr("fill", "gray")
 
@@ -492,15 +470,12 @@ function changeReference(new_gene_id, new_protein_id) {
     protein_member_id = new_protein_id
     syntenic_data.protein_id = new_protein_id;
 
-
     jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
         if (obj.Translation && obj.Translation.id == protein_member_id) {
             var i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
             syntenic_data.transcript_id = syntenic_data.member[syntenic_data.ref].Transcript[i].id;
         }
     });
-
-
 
     jQuery(".match").remove()
     jQuery(".insert").remove()
@@ -510,9 +485,7 @@ function changeReference(new_gene_id, new_protein_id) {
     ref_data = syntenic_data.member[member_id]
 
     resize_ref();
-
     redrawCIGAR()
-
 }
 
 var sort_by = function (field, reverse, primer) {
@@ -530,7 +503,6 @@ var sort_by = function (field, reverse, primer) {
     return function (a, b) {
         return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
     }
-
 }
 
 function setControls(control_div) {
