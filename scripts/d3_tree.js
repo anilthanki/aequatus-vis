@@ -7,6 +7,12 @@
  */
 
 
+/**
+ * Setup D3 to draw tree
+ * @param json_tree gene tree in JSON format
+ * @param div HTML div reference to draw tree
+ * @param event event to be initialise for onclick on gene
+ */
 function drawTree(json_tree, div, event) {
     var gene_width = jQuery(document).width() * 0.8
     var margin = {top: 0, right: 0, bottom: 0, left: 0},
@@ -67,6 +73,10 @@ function drawTree(json_tree, div, event) {
         .on("click", filtercheck)
 
 
+    /**
+     * selects tree nodes for species
+     * @param de species name
+     */
     function filtercheck(de) {
         var selected = de;
         var display = this.checked;
@@ -75,7 +85,6 @@ function drawTree(json_tree, div, event) {
             .filter(function (d) {
                 if (d.sequence && d.id.accession && display == false) {
                     if (d.id.accession == member_id) {
-                        //return selected == syntenic_data.ref.genome;
                     } else {
                         if (d._children) {
                             var children = d._children.size()
@@ -176,6 +185,11 @@ function drawTree(json_tree, div, event) {
     d3.select(self.frameElement).style("height", "800px");
 
 
+    /**
+     * updates tree layout
+     * @param source nodes
+     * @param ref_member reference member id
+     */
     function update(source, ref_member) {
 
         // Compute the new tree layout.
@@ -534,7 +548,10 @@ function drawTree(json_tree, div, event) {
         }
     }
 
-// Toggle children on click.
+    /**
+     * Toggle children on click.
+     * @param d clicked node
+     */
     function click(d) {
 
         if (d.children && d.children != null) {
@@ -599,31 +616,35 @@ function drawTree(json_tree, div, event) {
     }
 }
 
+/**
+ * changes genes view to normal view with full length introns
+ */
 function changeToNormal() {
     jQuery(".style1").show()
     jQuery(".style2").hide()
 
 }
+
+/**
+ * changes genes view to exon focused view with fixed length introns
+ */
 function changeToExon() {
     jQuery(".style2").show()
     jQuery(".style1").hide()
 }
 
+/**
+ * changes genes label to stable ids
+ */
 function changeToStable() {
     jQuery(".genelabel").hide();
     jQuery(".stable").show();
 }
 
+/**
+ * changes genes label to gene names
+ */
 function changeToGeneInfo() {
     jQuery(".genelabel").hide();
     jQuery(".geneinfo").show();
 }
-
-function unique(list) {
-    var result = [];
-    jQuery.each(list, function (i, e) {
-        if (jQuery.inArray(e, result) == -1) result.push(e);
-    });
-    return result;
-}
-

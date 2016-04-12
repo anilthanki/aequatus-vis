@@ -6,6 +6,18 @@
  * To change this template use File | Settings | File Templates.
  */
 
+/**
+ * draws exons on genes for normal view
+ * @param g group element of svg to draw genes
+ * @param svg svg to add group in
+ * @param track transcript information
+ * @param genestrand gene strand forward or reverse
+ * @param div
+ * @param gene_start gene start position
+ * @param width gene width
+ * @param max_len maximum length information
+ * @param id
+ */
 function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len, id) {
     var disp_exon = false;
     var geneexons = track.Exon;
@@ -167,6 +179,12 @@ function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len
     }
 }
 
+/**
+ * draw normal view gene for specified member and protein id
+ * @param member_id member id for the gene to draw
+ * @param protein_id translation id for the member gene
+ * @param ref gene is reference or hit true or false
+ */
 function dispGenesForMember_id(member_id, protein_id, ref) {
     var gene;
     if (ref) {

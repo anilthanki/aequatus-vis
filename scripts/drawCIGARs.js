@@ -5,6 +5,28 @@
  * Time: 16:31
  * To change this template use File | Settings | File Templates.
  */
+
+
+/**
+ * draws CIGAR line on gene models
+ * @param g
+ * @param cigars CIGAR alignment
+ * @param start start position
+ * @param top top position
+ * @param max max width
+ * @param gene_start gene start position
+ * @param stop
+ * @param exons gene exon list
+ * @param temp_div div to draw CIGAR alignment
+ * @param ref_exons reference exon list
+ * @param transcript_start translation start position
+ * @param transcript_end translation end position
+ * @param strand strand information forward or reverse
+ * @param ref_cigar reference CIGAR string
+ * @param ref_strand reference strand forward or reverse
+ * @param id
+ * @param div
+ */
 function dispCigarLine(g, cigars, start, top, max, gene_start, stop, exons, temp_div, ref_exons, transcript_start, transcript_end, strand, ref_cigar, ref_strand, id, div) {
 
     exons = jQuery.parseJSON(exons);
@@ -263,6 +285,24 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, stop, exons, temp
     }
 }
 
+
+/**
+ *
+ * @param g
+ * @param cigars CIGAR alignment
+ * @param start start position
+ * @param top top position
+ * @param max max width
+ * @param gene_start gene start position
+ * @param stop
+ * @param exons gene exon list
+ * @param temp_div div to draw CIGAR alignment
+ * @param ref_exons reference exon list
+ * @param transcript_start translation start
+ * @param transcript_end translation end
+ * @param id
+ * @param div
+ */
 function dispCigarLineRef(g, cigars, start, top, max, gene_start, stop, exons, temp_div, ref_exons, transcript_start, transcript_end, id, div) {
 
     exons = jQuery.parseJSON(exons);
@@ -431,12 +471,21 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, stop, exons, t
     }
 }
 
+
+/**
+ * on mouse over event for CIGARs toggle colours
+ * @param i colour
+ */
 function onMouseOver(i) {
     jQuery(".insert").attr('class', 'insert cigarover')
     jQuery(".match").attr('class', 'match cigarover')
     jQuery(".match[fill='" + i + "']").attr('class', 'match')
 }
 
+/**
+ * on mouse over event for CIGARs toggle colours
+ * @param i
+ */
 function onMouseOut(i) {
     jQuery(".insert").attr('class', 'insert')
     jQuery(".match").attr('class', 'match')
