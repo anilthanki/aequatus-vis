@@ -8,7 +8,6 @@
 
 
 function drawTree(json_tree, div, event) {
-    console.log("drawtree")
     var gene_width = jQuery(document).width() * 0.8
     var margin = {top: 0, right: 0, bottom: 0, left: 0},
         width = 400,
@@ -36,15 +35,17 @@ function drawTree(json_tree, div, event) {
         duration = 750,
         root;
 
-    var genome_list = []
+    var genome_list_all = []
+
 
     for (var key in syntenic_data.member) {
-        genome_list.push(syntenic_data.member[key].species)
+        genome_list_all.push(syntenic_data.member[key].species)
     }
 
-    genome_list = jQuery.unique( genome_list );
-
-    console.log(filter_div)
+    var genome_list = [];
+    jQuery.each(genome_list_all, function(i, el){
+        if(jQuery.inArray(el, genome_list) === -1) genome_list.push(el);
+    });
 
     d3.select(filter_div).selectAll("input")
         .data(genome_list)
@@ -176,13 +177,9 @@ function drawTree(json_tree, div, event) {
 
 
     function update(source, ref_member) {
-        console.log("update")
 
         // Compute the new tree layout.
-        var nodes = cluster.nodes(root).reverse(),
-            links = cluster.links(nodes);
-
-        var max = 0;
+        var nodes = cluster.nodes(root).reverse();
 
         // Normalize for fixed-depth.
         var count = 0;
@@ -217,14 +214,10 @@ function drawTree(json_tree, div, event) {
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
             .attr("class", "node")
-            // .attr("id", function (d, i) {
-            //     return "node" + i
-            // })
             .attr("transform", function (d) {
                 if (source.x0 > maxHeight) {
                     maxHeight = source.x0
                 }
-
                 return "translate(" + d.y+ "," + d.x + ")";
             })
             .attr("species", function (d) {
@@ -266,9 +259,6 @@ function drawTree(json_tree, div, event) {
                 }
             })
             .attr("r", function (d) {
-                //  if (d.close && d.close == true) {
-                //     return 6;
-                // } else 
                 if (d.sequence && d.id.accession == ref_member)// && d.children != null) {
                 {
                     return 6;
@@ -280,7 +270,6 @@ function drawTree(json_tree, div, event) {
             .style("fill", function (d) {
                 if (d.sequence) {
                     return "white";
-
                 }
                 else if(d.close && d.close == true){
                     return "white";
@@ -390,15 +379,12 @@ function drawTree(json_tree, div, event) {
 
         nodeEnter.filter(function (d) {
             if (d.sequence) {
-                return true; //This item will be included in the selection
+                return true;
             } else {
-                return false; //This item will be excluded, e.g. "cheese"
+                return false;
             }
         }).append("foreignObject")
             .attr("class", "node_gene_holder")
-            // .attr("id", function (d, i) {
-            //     return "node_gene_holder" + i
-            // })
             .attr('width', width)
             .attr('height', '40px')
             .attr('x', 20)
@@ -467,10 +453,6 @@ function drawTree(json_tree, div, event) {
                 else {
                     view_type = false;
                 }
-
-                var stable_display = "";
-                var info_display = "";
-
                 if (view_type == true) {
                     jQuery(".genelabel").hide();
                     jQuery(".stable").show();
