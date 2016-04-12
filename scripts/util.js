@@ -1,3 +1,10 @@
+/**
+ *
+ * @param string
+ * @param width
+ * @param newClass
+ * @returns {*}
+ */
 function stringTrim(string, width, newClass) {
     if (newClass) {
         jQuery("#ruler").addClass(newClass.toString())
@@ -30,6 +37,9 @@ function stringTrim(string, width, newClass) {
 
 }
 
+/**
+ *
+ */
 function checkVisuals() {
 
     if (jQuery("#deleteCheck").is(':checked'))
@@ -64,6 +74,9 @@ function checkVisuals() {
 }
 
 
+/**
+ * 
+ */
 function resize() {
     drawChromosome();
     drawMember();

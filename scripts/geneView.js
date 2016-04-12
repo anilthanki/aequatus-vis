@@ -22,6 +22,12 @@ var transcript_member_id = null;
 var ref_data = null;
 var filter_div = null;
 
+/**
+ *
+ * @param json
+ * @param control_div
+ * @param filter_spacer
+ */
 function init(json, control_div, filter_spacer) {
     member_id = json.ref;
 
@@ -61,6 +67,10 @@ function init(json, control_div, filter_spacer) {
 
 }
 
+/**
+ *
+ * @param tree
+ */
 function recursive_tree(tree) {
     var child_lenth = tree.children.length;
 
@@ -74,6 +84,10 @@ function recursive_tree(tree) {
 
 }
 
+/**
+ *
+ * @param child
+ */
 function addCigar(child) {
 
     var id = child.sequence.id[0].accession
@@ -82,6 +96,16 @@ function addCigar(child) {
 
 }
 
+/**
+ *
+ * @param ref_exons
+ * @param hit_cigar
+ * @param colours
+ * @param ref_cigar
+ * @param reverse
+ * @param ref_strand
+ * @returns {string}
+ */
 function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_strand) {
     var no_of_exons = ref_exons.length
     var hit_cigar_arr = [];
@@ -200,6 +224,11 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_stra
 }
 
 
+/**
+ *
+ * @param sequence
+ * @returns {string}
+ */
 function reverse_compliment(sequence) {
     var complimentry = ""
 
@@ -218,6 +247,9 @@ function reverse_compliment(sequence) {
 }
 
 
+/**
+ *
+ */
 function redrawCIGAR() {
     var count = 1;
     var json = syntenic_data;
@@ -337,6 +369,9 @@ function redrawCIGAR() {
     }
 }
 
+/**
+ *
+ */
 function resize_ref() {
 
     var exon_nu = 0
@@ -374,6 +409,9 @@ function resize_ref() {
 
 }
 
+/**
+ *
+ */
 function resize_ref_to_def() {
     var i = 10;
     jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
@@ -391,6 +429,11 @@ function resize_ref_to_def() {
     }
 }
 
+/**
+ *
+ * @param ref_cigar_string
+ * @returns {*}
+ */
 function checkCigar(ref_cigar_string) {
     var cigar_list = [];
     cigar_list.push(ref_cigar_string);
@@ -441,11 +484,23 @@ function checkCigar(ref_cigar_string) {
     return cigar_list[0];
 }
 
+/**
+ *
+ * @param str
+ * @param index
+ * @param character
+ * @returns {string}
+ */
 function replaceAt(str, index, character) {
     return str.substr(0, index) + character + str.substr(index + character.length);
 }
 
 
+/**
+ *
+ * @param new_gene_id
+ * @param new_protein_id
+ */
 function changeReference(new_gene_id, new_protein_id) {
     jQuery("#id" + member_id + "geneline").attr("stroke", "green")
     jQuery("." + member_id + "genetext").attr("fill", "gray")
@@ -504,6 +559,10 @@ var sort_by = function (field, reverse, primer) {
     }
 }
 
+/**
+ *
+ * @param control_div
+ */
 function setControls(control_div) {
 
     var table = jQuery("<table cellpadding='2px'></table>");
@@ -657,6 +716,10 @@ function setControls(control_div) {
 
 }
 
+/**
+ *
+ * @param kind
+ */
 function toggleCigar(kind) {
     jQuery(kind).toggle()
 }
