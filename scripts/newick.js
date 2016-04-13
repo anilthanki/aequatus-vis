@@ -94,19 +94,22 @@ function getGeneIDfromTranscript(token) {
 }
 
 /**
- * finds protein id for the provided transcript
+ * finds protein id for the provided transcript if no protein id found assigns transcript id as protein id
  * @param token
  * @returns {*}
  */
 function getProteinIDfromTranscript(token) {
     var id = null
-    jQuery.each(syntenic_data.member, function (i, obj) {
-        for (var j = 0; j < obj.Transcript.length; j++) {
-            if (obj.Transcript[j].id == token) {
+    jQuery.each(syntenic_data.member, function(i, obj) {
+        for(var j=0; j<obj.Transcript.length; j++){
+            if(obj.Transcript[j].id == token){
                 id = obj.Transcript[j].Translation.id.toString()
                 break;
             }
         }
     });
+    if(id == null){
+        id = token;
+    }
     return id;
 }
