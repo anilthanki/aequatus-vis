@@ -19,15 +19,16 @@
  * @param exons gene exon list
  * @param temp_div div to draw CIGAR alignment
  * @param ref_exons reference exon list
- * @param transcript_start translation start position
- * @param transcript_end translation end position
+ * @param translation_start translation start position
+ * @param translation_end translation end position
  * @param strand strand information forward or reverse
  * @param ref_cigar reference CIGAR string
  * @param ref_strand reference strand forward or reverse
- * @param id
- * @param div
+ * @param id protein id
+ * @param div gene view type suffix for gene model
  */
-function dispCigarLine(g, cigars, start, top, max, gene_start, stop, exons, temp_div, ref_exons, transcript_start, transcript_end, strand, ref_cigar, ref_strand, id, div) {
+
+function dispCigarLine(g, cigars, start, top, max, gene_start, exons, temp_div, ref_exons, translation_start, strand, ref_cigar, ref_strand, div) {
 
     exons = jQuery.parseJSON(exons);
 
@@ -39,13 +40,13 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, stop, exons, temp
     maxLentemp = parseInt(jQuery("#exon" + exons[exon_number].id+""+div).attr('width')) ;
 
 
-    var cigar_pos = (transcript_start - gene_start) ;
+    var cigar_pos = (translation_start - gene_start) ;
 
     var temp_start = 1;
 
     for (var e = 0; e < exons.length; e++) {
-        if (exons[e].end > transcript_start) {
-            cigar_pos = (transcript_start - exons[e].start);
+        if (exons[e].end > translation_start) {
+            cigar_pos = (translation_start - exons[e].start);
             temp_start = (exons[e].start - gene_start) ;
             exon_number = e
             max = exons[exon_number].end - exons[exon_number].start
@@ -292,18 +293,20 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, stop, exons, temp
  * @param cigars CIGAR alignment
  * @param start start position
  * @param top top position
- * @param max max width
+ * @param max gene length
  * @param gene_start gene start position
- * @param stop
+ * @param stop width of gene in pixels
  * @param exons gene exon list
  * @param temp_div div to draw CIGAR alignment
  * @param ref_exons reference exon list
- * @param transcript_start translation start
- * @param transcript_end translation end
+ * @param translation_start translation start
+ * @param translation_end translation end
  * @param id
- * @param div
+ * @param div gene view type suffix for gene model
  */
-function dispCigarLineRef(g, cigars, start, top, max, gene_start, stop, exons, temp_div, ref_exons, transcript_start, transcript_end, id, div) {
+
+
+function dispCigarLineRef(g, cigars, start, top, max, gene_start, exons, temp_div, ref_exons, translation_start, div) {
 
     exons = jQuery.parseJSON(exons);
     ref_exons = jQuery.parseJSON(ref_exons)
@@ -312,7 +315,7 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, stop, exons, t
     var trackClass = "";
     var exon_number = 0;
 
-    var cigar_pos = (transcript_start - gene_start) + 1;
+    var cigar_pos = (translation_start - gene_start) + 1;
     var temp_start = 1;
     var startposition;
     var stopposition;
@@ -322,8 +325,8 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, stop, exons, t
     maxLentemp = parseInt(jQuery(div + " #exon" +exons[exon_number].id+""+div).attr('width'));
 
     for (var e = 0; e < exons.length; e++) {
-        if (exons[e].end > transcript_start) {
-            cigar_pos = (transcript_start - exons[e].start) ;
+        if (exons[e].end > translation_start) {
+            cigar_pos = (translation_start - exons[e].start) ;
             temp_start = (exons[e].start - gene_start) ;
             exon_number = e
             max = exons[exon_number].end - exons[exon_number].start
