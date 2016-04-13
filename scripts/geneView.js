@@ -23,10 +23,10 @@ var ref_data = null;
 var filter_div = null;
 
 /**
- *
- * @param json
- * @param control_div
- * @param filter_spacer
+ * initialise aequatus-vis with setting up controls, filters parsing tree and cigar
+ * @param json aequatus JSON
+ * @param control_div controls place holder name
+ * @param filter_spacer filters place holder name
  */
 function init(json, control_div, filter_spacer) {
     member_id = json.ref;
@@ -68,8 +68,8 @@ function init(json, control_div, filter_spacer) {
 }
 
 /**
- *
- * @param tree
+ * recursively calls same function to retrieve cigar information from subnodes
+ * @param tree node_tree
  */
 function recursive_tree(tree) {
     var child_lenth = tree.children.length;
@@ -85,7 +85,7 @@ function recursive_tree(tree) {
 }
 
 /**
- *
+ * retrieves and stores cigar for each leaf
  * @param child
  */
 function addCigar(child) {
@@ -97,14 +97,14 @@ function addCigar(child) {
 }
 
 /**
- *
- * @param ref_exons
- * @param hit_cigar
- * @param colours
- * @param ref_cigar
- * @param reverse
- * @param ref_strand
- * @returns {string}
+ * formats hit cigar to match with reference cigar for drawing on genes
+ * @param ref_exons list of reference exons
+ * @param hit_cigar hit cigar string
+ * @param colours colour array
+ * @param ref_cigar reference cigar string
+ * @param reverse hit strand is reverse or not
+ * @param ref_strand reference strand
+ * @returns {string} formated cigar
  */
 function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_strand) {
     var no_of_exons = ref_exons.length
@@ -224,34 +224,33 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_stra
 }
 
 
+///**
+// *
+// * @param sequence
+// * @returns {string}
+// */
+//function reverse_compliment(sequence) {
+//    var complimentry = ""
+//
+//    for (var i = 0; i < sequence.length; i++) {
+//        if (sequence.charAt(i).toUpperCase() == "A") {
+//            complimentry = "T" + complimentry
+//        } else if (sequence.charAt(i).toUpperCase() == "G") {
+//            complimentry = "C" + complimentry
+//        } else if (sequence.charAt(i).toUpperCase() == "C") {
+//            complimentry = "G" + complimentry
+//        } else if (sequence.charAt(i).toUpperCase() == "T") {
+//            complimentry = "A" + complimentry
+//        }
+//    }
+//    return complimentry;
+//}
+
+
 /**
- *
- * @param sequence
- * @returns {string}
- */
-function reverse_compliment(sequence) {
-    var complimentry = ""
-
-    for (var i = 0; i < sequence.length; i++) {
-        if (sequence.charAt(i).toUpperCase() == "A") {
-            complimentry = "T" + complimentry
-        } else if (sequence.charAt(i).toUpperCase() == "G") {
-            complimentry = "C" + complimentry
-        } else if (sequence.charAt(i).toUpperCase() == "C") {
-            complimentry = "G" + complimentry
-        } else if (sequence.charAt(i).toUpperCase() == "T") {
-            complimentry = "A" + complimentry
-        }
-    }
-    return complimentry;
-}
-
-
-/**
- *
+ * redraws cigar lines on genes in case of reference gene changed
  */
 function redrawCIGAR() {
-    var count = 1;
     var json = syntenic_data;
     if (json.ref) {
 
@@ -370,7 +369,7 @@ function redrawCIGAR() {
 }
 
 /**
- *
+ * changes length of exons of reference gene based on transcript start and end position
  */
 function resize_ref() {
 
@@ -410,7 +409,7 @@ function resize_ref() {
 }
 
 /**
- *
+ * resets length of exons of reference gene
  */
 function resize_ref_to_def() {
     var i = 10;
@@ -430,8 +429,8 @@ function resize_ref_to_def() {
 }
 
 /**
- *
- * @param ref_cigar_string
+ * Useful when dealing with a subtree and deletion is present because of  absence member, replaces with it 'I' to ignore
+ * @param ref_cigar_string reference cigar string
  * @returns {*}
  */
 function checkCigar(ref_cigar_string) {
@@ -485,10 +484,10 @@ function checkCigar(ref_cigar_string) {
 }
 
 /**
- *
- * @param str
- * @param index
- * @param character
+ * replaces a character in string with index and alternative character
+ * @param str string
+ * @param index index of character to be replaced
+ * @param character alternative character
  * @returns {string}
  */
 function replaceAt(str, index, character) {
@@ -497,9 +496,9 @@ function replaceAt(str, index, character) {
 
 
 /**
- *
- * @param new_gene_id
- * @param new_protein_id
+ * updates reference gene information when reference change happens
+ * @param new_gene_id new reference gene id
+ * @param new_protein_id new reference protein id
  */
 function changeReference(new_gene_id, new_protein_id) {
     jQuery("#id" + member_id + "geneline").attr("stroke", "green")
@@ -560,8 +559,8 @@ var sort_by = function (field, reverse, primer) {
 }
 
 /**
- *
- * @param control_div
+ * set control elements in div
+ * @param control_div div name place holder
  */
 function setControls(control_div) {
 
@@ -717,7 +716,7 @@ function setControls(control_div) {
 }
 
 /**
- *
+ * toggles visuals elemets of gene viw depends on controls
  * @param kind
  */
 function toggleCigar(kind) {

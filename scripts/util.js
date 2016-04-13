@@ -1,8 +1,8 @@
 /**
- *
- * @param string
- * @param width
- * @param newClass
+ * This function trims long string to fit in parent div and add rest as a title
+ * @param string String to be trimmed
+ * @param width width of parent div
+ * @param newClass class to be added to set styling
  * @returns {*}
  */
 function stringTrim(string, width, newClass) {
@@ -38,7 +38,7 @@ function stringTrim(string, width, newClass) {
 }
 
 /**
- *
+ * This function chekcs visual settings before drawing genes and tree
  */
 function checkVisuals() {
 
@@ -71,29 +71,4 @@ function checkVisuals() {
     }
 
 
-}
-
-
-/**
- * 
- */
-function resize() {
-    drawChromosome();
-    drawMember();
-    select_chr();
-    if (member_id == undefined) {
-        select_member();
-        drawSelected();
-    } else {
-
-        var start = 0;
-        for (var i = 0; i < members.length; i++) {
-            if (members[i].id == member_id) {
-                start = members[i].start;
-            }
-        }
-        rearrange_selector(member_id, start, chr);
-        drawSelected();
-        drawSynteny(true);
-    }
 }

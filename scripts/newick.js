@@ -1,5 +1,6 @@
 /**
- *
+ * This function converts Newick tree into JSON format
+ * @param s Newick tree in string format
  */
 function NewickToJSON(s) {
 
@@ -75,8 +76,8 @@ function NewickToJSON(s) {
 }
 
 /**
- *
- * @param token
+ * finds gene id for the provided transcript
+ * @param token transcript_id
  * @returns {*}
  */
 function getGeneIDfromTranscript(token) {
@@ -93,7 +94,7 @@ function getGeneIDfromTranscript(token) {
 }
 
 /**
- *
+ * finds protein id for the provided transcript
  * @param token
  * @returns {*}
  */

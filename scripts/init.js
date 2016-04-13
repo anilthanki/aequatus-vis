@@ -3,7 +3,7 @@
  */
 
 /**
- *
+ * set up environment for aequatus-vis
  */
 function kickOff() {
     ajaxurl = '/' + jQuery('#title').text() + '/' + jQuery('#title').text() + '/fluxion.ajax';
