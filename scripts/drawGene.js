@@ -18,7 +18,9 @@
  * @param max_len maximum length information
  * @param id
  */
-function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len, id) {
+
+
+function dispGeneExon(g, svg, track, genestrand, gene_start, width, max_len) {
     var disp_exon = false;
     var geneexons = track.Exon;
 
@@ -201,29 +203,6 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
     var j = 0;
 
     var transcript_len = gene.Transcript.length;
-    var display = "";
-    var view_type = null
-    if (jQuery('input[name=view_type]:checked').val() == "with") {
-        view_type = true;
-    }
-    else {
-        view_type = false;
-    }
-
-    if (view_type == true) {
-        display = "display: block;"
-    } else {
-        display = "display: none;"
-    }
-
-    var view_type = null
-    if (jQuery('input[name=label_type]:radio:checked').val() == "stable") {
-        view_type = true;
-    }
-    else {
-        view_type = false;
-    }
-
 
     while (transcript_len--) {
 
@@ -306,7 +285,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                 gene.Transcript[transcript_len].Exon.sort(sort_by('start', true, parseInt));
 
                 var g = svg.group({class: 'style1'});
-                dispGeneExon(g, svg, gene.Transcript[transcript_len], gene.strand, temp_div, gene_start, stopposition, gene_length, transcript_len);
+                dispGeneExon(g, svg, gene.Transcript[transcript_len], gene.strand, gene_start, stopposition, gene_length);
 
                 var g = svg.group({id: 'id' + member_id + 'style1CIGAR', class: 'style1'});
 
@@ -331,7 +310,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     class: "geneinfo genelabel " + member_id + "genetext"
                 });
 
-                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].id
+                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].stable_id
 
                 svg.text(parseInt(stopposition) + 10, 10, text, {
                     fontFamily: 'Verdana',
@@ -349,14 +328,14 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
 
 
                 var g = svg.group({class: 'style1'});
-                dispGeneExon(g, svg, gene.Transcript[transcript_len], gene.strand, temp_div, gene_start, stopposition, gene_length);
+
+                dispGeneExon(g, svg, gene.Transcript[transcript_len], gene.strand, gene_start, stopposition, gene_length);
 
                 var g = svg.group({id: 'id' + member_id + 'style1CIGAR', class: 'style1 CIGAR'});
 
                 dispCigarLineRef(g, syntenic_data.cigar[protein_id], 1, top,  gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start,  "style1");
 
             }
-
 
         }
     }

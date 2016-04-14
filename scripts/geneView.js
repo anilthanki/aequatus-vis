@@ -251,6 +251,9 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_stra
  * redraws cigar lines on genes in case of reference gene changed
  */
 function redrawCIGAR() {
+
+
+
     var json = syntenic_data;
     if (json.ref) {
 
@@ -343,21 +346,7 @@ function redrawCIGAR() {
 
         }
 
-        var view_type = null
-        if (jQuery('input[name=view_type]:checked').val() == "with") {
-            view_type = true;
-        }
-        else {
-            view_type = false;
-        }
-
-        if (view_type == true) {
-            jQuery(".style1").show()
-            jQuery(".style2").hide()
-        } else {
-            jQuery(".style1").hide()
-            jQuery(".style2").show()
-        }
+        checkVisuals();
 
 
     } else {
@@ -640,6 +629,7 @@ function setControls(control_div) {
     var input = jQuery('<input>', {
         type: "radio",
         name: "label_type",
+        value:"gene_info",
         onclick: 'changeToGeneInfo()',
         "checked": "checked"
     });
@@ -659,7 +649,8 @@ function setControls(control_div) {
     var input = jQuery('<input>', {
         type: "radio",
         name: "label_type",
-        onclick: 'changeToStable()()',
+        value:"stable",
+        onclick: 'changeToStable()',
     });
     column3.html(input)
     row4.append(column3)

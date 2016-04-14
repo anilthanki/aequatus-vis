@@ -14,6 +14,7 @@
  * @param event event to be initialise for onclick on gene
  */
 function drawTree(json_tree, div, event) {
+
     var gene_width = jQuery(document).width() * 0.8
     var margin = {top: 0, right: 0, bottom: 0, left: 0},
         width = 400,
@@ -421,62 +422,15 @@ function drawTree(json_tree, div, event) {
                 jQuery("#id" + d.id.accession).svg()
                 dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession)
                 dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession)
-                var view_type = null
-                if (jQuery('input[name=view_type]:checked').val() == "with") {
-                    view_type = true;
-                }
-                else {
-                    view_type = false;
-                }
-
-                if (view_type == true) {
-                    jQuery(".style1").show()
-                    jQuery(".style2").hide()
-                    //display = "display: block;"
-                } else {
-                    jQuery(".style1").hide()
-                    jQuery(".style2").show()
-                    //display = "display: none;"
-                }
             } else if (d.sequence && syntenic_data.member[d.id.accession]) {
                 jQuery("#id" + d.id.accession).svg()
                 dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession, true)
                 dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession, true)
-                var view_type = null
-                if (jQuery('input[name=view_type]:checked').val() == "with") {
-                    view_type = true;
-                }
-                else {
-                    view_type = false;
-                }
-
-                if (view_type == true) {
-                    jQuery(".style1").show()
-                    jQuery(".style2").hide()
-                    //display = "display: block;"
-                } else {
-                    jQuery(".style1").hide()
-                    jQuery(".style2").show()
-                    //display = "display: none;"
-                }
-
-                var view_type = null
-                if (jQuery('input[name=label_type]:radio:checked').val() == "stable") {
-                    view_type = true;
-                }
-                else {
-                    view_type = false;
-                }
-                if (view_type == true) {
-                    jQuery(".genelabel").hide();
-                    jQuery(".stable").show();
-
-                } else {
-                    jQuery(".genelabel").hide();
-                    jQuery(".geneinfo").show();
-                }
-
             }
+
+
+
+            checkVisuals();
         });
 
         nodeUpdate.select("foreignObject")

@@ -70,5 +70,36 @@ function checkVisuals() {
         jQuery(".geneinfo").show();
     }
 
+    var view_type = null
+    if (jQuery('input[name=view_type]:checked').val() == "with") {
+        view_type = true;
+    }
+    else {
+        view_type = false;
+    }
+
+    if (view_type == true) {
+        jQuery(".style1").show()
+        jQuery(".style2").hide()
+    } else {
+        jQuery(".style1").hide()
+        jQuery(".style2").show()
+    }
+
+    var view_type = null
+    if (jQuery('input[name=label_type]:radio:checked').val() == "stable") {
+        view_type = true;
+    }
+    else {
+        view_type = false;
+    }
+    if (view_type == true) {
+        jQuery(".genelabel").hide();
+        jQuery(".stable").show();
+
+    } else {
+        jQuery(".genelabel").hide();
+        jQuery(".geneinfo").show();
+    }
 
 }
