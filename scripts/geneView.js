@@ -674,6 +674,7 @@ function setControls(control_div) {
     var input = jQuery('<input>', {
         type: "radio",
         name: "view_type",
+        value:"without",
         onclick: 'changeToNormal()'
     });
     column1.html(input)
@@ -689,6 +690,7 @@ function setControls(control_div) {
         type: "radio",
         name: "view_type",
         onclick: 'changeToExon()',
+        value:"with",
         "checked": "checked"
     });
     column3.html(input)
