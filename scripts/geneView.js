@@ -682,7 +682,7 @@ function setControls(control_div) {
 
     var column2 = jQuery("<td></td>");
 
-    column2.html("With")
+    column2.html("Full length")
     row6.append(column2)
 
     var column3 = jQuery("<td></td>");
@@ -698,7 +698,7 @@ function setControls(control_div) {
 
     var column4 = jQuery("<td></td>");
 
-    column4.html("Without")
+    column4.html("Fixed length")
     row6.append(column4)
 
     table.append(row6)
