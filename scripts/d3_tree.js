@@ -17,7 +17,7 @@ function drawTree(json_tree, div, event) {
 
     var gene_width = jQuery(document).width() * 0.8
     var margin = {top: 0, right: 0, bottom: 0, left: 0},
-        width = 400,
+        width = jQuery(document).width() * 0.2,
         height = 1000 - margin.top - margin.bottom;
 
     var maxHeight = 1000;
