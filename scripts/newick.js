@@ -3,6 +3,7 @@
  * @param s Newick tree in string format
  */
 function NewickToJSON(s) {
+    console.log("NewickToJSON")
 
     var ancestors = [];
     var tree = {};
@@ -37,12 +38,23 @@ function NewickToJSON(s) {
                 var x = tokens[i - 1];
                 if (x == ')' || x == '(' || x == ',') {
                     if (token.indexOf("_") > 0) {
+                    console.log(token)
+
                         tree.id = {}
                         tree.id.accession = getGeneIDfromTranscript(token.split("_")[0])
                         tree.sequence = {}
                         tree.sequence.id = [];
                         tree.sequence.id[0] = {}
                         tree.sequence.id[0].accession = getProteinIDfromTranscript(token.split("_")[0]);
+                    }else if(token.length > 0){
+                    console.log(token)
+                        
+                        tree.id = {}
+                        tree.id.accession = getGeneIDfromTranscript(token)
+                        tree.sequence = {}
+                        tree.sequence.id = [];
+                        tree.sequence.id[0] = {}
+                        tree.sequence.id[0].accession = getProteinIDfromTranscript(token);
                     }
 
 
@@ -72,6 +84,7 @@ function NewickToJSON(s) {
                 }
         }
     }
+    console.log(tree)
     return tree;
 }
 
@@ -81,6 +94,7 @@ function NewickToJSON(s) {
  * @returns {*}
  */
 function getGeneIDfromTranscript(token) {
+
     var id = null
     jQuery.each(syntenic_data.member, function (i, obj) {
         for (var j = 0; j < obj.Transcript.length; j++) {
@@ -90,6 +104,11 @@ function getGeneIDfromTranscript(token) {
             }
         }
     });
+
+    if(id == null){
+        id = token;
+    }
+    
     return id;
 }
 
@@ -99,6 +118,7 @@ function getGeneIDfromTranscript(token) {
  * @returns {*}
  */
 function getProteinIDfromTranscript(token) {
+
     var id = null
     jQuery.each(syntenic_data.member, function(i, obj) {
         for(var j=0; j<obj.Transcript.length; j++){
@@ -108,8 +128,10 @@ function getProteinIDfromTranscript(token) {
             }
         }
     });
+
     if(id == null){
         id = token;
     }
+    
     return id;
 }
