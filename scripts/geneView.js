@@ -319,24 +319,24 @@ function redrawCIGAR() {
                             });
 
 
-                            dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top,  gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), translation_start,  strand, syntenic_data.cigar[protein_member_id], ref_data.strand, "style1");
+                            dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top,  gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), translation_start,  strand, syntenic_data.cigar[protein_member_id], ref_data.strand, "style1",gene.Transcript[transcript_len].Translation.id);
 
 
                             var g = svg.group({class: 'style2'});
 
-                            dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), translation_start,  strand, syntenic_data.cigar[protein_member_id], ref_data.strand, "style2");
+                            dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), translation_start,  strand, syntenic_data.cigar[protein_member_id], ref_data.strand, "style2",gene.Transcript[transcript_len].Translation.id);
 
                         } else {
 
 
                             var g = svg.group({class: 'style1'});
 
-                            dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start, "style1");
+                            dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start, "style1",gene.Transcript[transcript_len].Translation.id);
 
 
                             var g = svg.group({class: 'style2'});
 
-                            dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start, "style2");
+                            dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start, "style2",gene.Transcript[transcript_len].Translation.id);
 
                         }
                     }
@@ -489,23 +489,23 @@ function replaceAt(str, index, character) {
  * @param new_protein_id new reference protein id
  */
 function changeReference(new_gene_id, new_protein_id) {
-    jQuery("#id" + member_id + "geneline").attr("stroke", "green")
-    jQuery("." + member_id + "genetext").attr("fill", "gray")
+    jQuery("#id" + protein_member_id + "geneline").attr("stroke", "green")
+    jQuery("." + protein_member_id + "genetext").attr("fill", "gray")
 
     resize_ref_to_def()
 
-    jQuery("#circle" + member_id).attr("r", 4)
-    jQuery("#circle" + new_gene_id).attr("r", 6)
+    jQuery("#circle" + protein_member_id).attr("r", 4)
+    jQuery("#circle" + new_protein_id).attr("r", 6)
 
 
-    jQuery("#circle" + member_id).css("stroke-width", "1px")
-    jQuery("#circle" + new_gene_id).css("stroke-width", "2px")
+    jQuery("#circle" + protein_member_id).css("stroke-width", "1px")
+    jQuery("#circle" + new_protein_id).css("stroke-width", "2px")
 
-    jQuery("#circle" + member_id).css("stroke", "steelblue")
-    jQuery("#circle" + new_gene_id).css("stroke", "black")
+    jQuery("#circle" + protein_member_id).css("stroke", "steelblue")
+    jQuery("#circle" + new_protein_id).css("stroke", "black")
 
-    jQuery("#id" + new_gene_id + "geneline").attr("stroke", "red")
-    jQuery("." + new_gene_id + "genetext").attr("fill", "red")
+    jQuery("#id" + new_protein_id + "geneline").attr("stroke", "red")
+    jQuery("." + new_protein_id + "genetext").attr("fill", "red")
 
     syntenic_data.ref = new_gene_id;
     protein_member_id = new_protein_id

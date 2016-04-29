@@ -197,7 +197,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
     }
 
 
-    var svg = jQuery("#id" + member_id).svg("get")
+    var svg = jQuery("#id" + protein_id).svg("get")
     var maxLentemp = jQuery(document).width() * 0.6;
     var label = "";
     var j = 0;
@@ -273,7 +273,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                 });
 
                 var temp_div = svg;
-                svg.line(0, 6, stopposition, 6, {id: 'id' + member_id + 'geneline', stroke: 'green', strokeWidth: 1});
+                svg.line(0, 6, stopposition, 6, {id: 'id' + protein_id + 'geneline', stroke: 'green', strokeWidth: 1});
 
                 var strand = 0;
 
@@ -287,7 +287,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                 var g = svg.group({class: 'style1'});
                 dispGeneExon(g, svg, gene.Transcript[transcript_len], gene.strand, gene_start, stopposition, gene_length);
 
-                var g = svg.group({id: 'id' + member_id + 'style1CIGAR', class: 'style1'});
+                var g = svg.group({id: 'id' + protein_id + 'style1CIGAR', class: 'style1'});
 
                 var ref_transcript = 0
                 jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
@@ -295,7 +295,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                         ref_transcript = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
                     }
                 });
-                dispCigarLine(g, syntenic_data.cigar[protein_id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), translation_start, strand, syntenic_data.cigar[protein_member_id] ? syntenic_data.cigar[protein_member_id] : syntenic_data.cigar[transcript_member_id], ref_data.strand,  "style1");
+                dispCigarLine(g, syntenic_data.cigar[protein_id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), translation_start, strand, syntenic_data.cigar[protein_member_id] ? syntenic_data.cigar[protein_member_id] : syntenic_data.cigar[transcript_member_id], ref_data.strand,  "style1", protein_id);
 
             }
             else {
@@ -321,7 +321,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                 });
 
 
-                svg.line(0, 6, stopposition, 6, {id: 'id' + member_id + 'geneline', stroke: 'red', strokeWidth: 2});
+                svg.line(0, 6, stopposition, 6, {id: 'id' + protein_id + 'geneline', stroke: 'red', strokeWidth: 2});
 
 
                 var temp_div = svg;
@@ -331,9 +331,9 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
 
                 dispGeneExon(g, svg, gene.Transcript[transcript_len], gene.strand, gene_start, stopposition, gene_length);
 
-                var g = svg.group({id: 'id' + member_id + 'style1CIGAR', class: 'style1 CIGAR'});
+                var g = svg.group({id: 'id' + protein_id + 'style1CIGAR', class: 'style1 CIGAR'});
 
-                dispCigarLineRef(g, syntenic_data.cigar[protein_id], 1, top,  gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start,  "style1");
+                dispCigarLineRef(g, syntenic_data.cigar[protein_id], 1, top,  gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start,  "style1", protein_id);
 
             }
 

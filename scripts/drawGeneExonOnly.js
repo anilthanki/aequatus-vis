@@ -19,7 +19,7 @@
  * @param id
  */
 
-function dispExon(g, svg, track, genestrand, gene_start, width, max_len) {
+function dispExon(g, svg, track, genestrand, gene_start, width, max_len, protein_id) {
 
     var disp_exon = false;
     var geneexons = track.Exon;
@@ -82,7 +82,7 @@ function dispExon(g, svg, track, genestrand, gene_start, width, max_len) {
             current = exon_start;
 
             if (geneexons[exon_len-1]) {
-                startposition = parseFloat(jQuery("#exon" + geneexons[exon_len-1].id  + "style2").attr("width")) + parseFloat(jQuery("#exon" + geneexons[exon_len-1].id + "style2").attr("x")) + 10//(exon_start - newStart_temp) * parseFloat(maxLentemp) / (max_len);
+                startposition = parseFloat(jQuery("#id"+protein_id+" #exon" + geneexons[exon_len-1].id  + "style2").attr("width")) + parseFloat(jQuery("#id"+protein_id+" #exon" + geneexons[exon_len-1].id + "style2").attr("x")) + 10//(exon_start - newStart_temp) * parseFloat(maxLentemp) / (max_len);
             } else {
                 startposition = 1
             }
@@ -132,7 +132,7 @@ function dispExon(g, svg, track, genestrand, gene_start, width, max_len) {
                 startposition = 0;
                 stopposition = (exon_stop - exon_start) * parseFloat(maxLentemp) / (max_len);
 
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id  + "style2").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#id"+protein_id+" #exon" + geneexons[exon_len].id  + "style2").attr("x"))
 
                 stopposition = parseInt(stopposition)
 
@@ -144,7 +144,7 @@ function dispExon(g, svg, track, genestrand, gene_start, width, max_len) {
             else if (exon_start < transcript_start && exon_stop > transcript_end) {
                 startposition = 0
                 stopposition = (transcript_start - exon_start) * parseFloat(maxLentemp) / (max_len);
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id  + "style2").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#id"+protein_id+" #exon" + geneexons[exon_len].id  + "style2").attr("x"))
                 stopposition = parseInt(stopposition)
 
                 svg.rect(g,startposition, 1, stopposition, 10, {class: 'utr2', fill:'gray'});
@@ -152,7 +152,7 @@ function dispExon(g, svg, track, genestrand, gene_start, width, max_len) {
                 startposition = ((transcript_end - exon_start) - 1) * parseFloat(maxLentemp) / (max_len);
                 stopposition = 0;//(exon_stop - transcript_end + 1) * parseFloat(maxLentemp) / (max_len);
                 stopposition = parseInt(stopposition)
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id  + "style2").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#id"+protein_id+" #exon" + geneexons[exon_len].id  + "style2").attr("x"))
 
                 svg.rect(g,startposition, 1, stopposition, 10, {class: 'utr3', fill:'gray'});
 
@@ -162,7 +162,7 @@ function dispExon(g, svg, track, genestrand, gene_start, width, max_len) {
                 startposition = 0;// ((exon_start - newStart_temp)) * parseFloat(maxLentemp) / (max_len);
                 stopposition = (transcript_start - exon_start) * parseFloat(maxLentemp) / (max_len);
                 stopposition = parseInt(stopposition)
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id  + "style2").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#id"+protein_id+" #exon" + geneexons[exon_len].id  + "style2").attr("x"))
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr4', fill: 'gray'});
 
                 last = current;
@@ -172,7 +172,7 @@ function dispExon(g, svg, track, genestrand, gene_start, width, max_len) {
                 startposition = ((transcript_end - exon_start)) * parseFloat(maxLentemp) / (max_len);
                 stopposition = (exon_stop - transcript_end) * parseFloat(maxLentemp) / (max_len);
                 stopposition = parseInt(stopposition)
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id  + "style2").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#id"+protein_id+" #exon" + geneexons[exon_len].id  + "style2").attr("x"))
 
                 svg.rect(g,startposition, 1, stopposition, 10, {class: 'utr5', fill:'gray'});
 
@@ -184,7 +184,7 @@ function dispExon(g, svg, track, genestrand, gene_start, width, max_len) {
                 startposition = 1;
                 stopposition = (exon_stop - exon_start) * parseFloat(maxLentemp) / (max_len);
                 stopposition = parseInt(stopposition)
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id  + "style2").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#id"+protein_id+" #exon" + geneexons[exon_len].id  + "style2").attr("x"))
 
                 svg.rect(g,startposition, 1, stopposition, 10, {class: 'utr6', fill:'gray'});
 
@@ -211,7 +211,7 @@ function dispGenesExonForMember_id(member_id, protein_id, ref) {
 
     }
 
-    var svg = jQuery("#id" + member_id).svg("get")
+    var svg = jQuery("#id" + protein_id).svg("get")
     var g = svg.group({class: 'style2'});
 
     var maxLentemp = jQuery(document).width() * 0.6;
@@ -299,9 +299,9 @@ function dispGenesExonForMember_id(member_id, protein_id, ref) {
 
                 gene.Transcript[transcript_len].Exon.sort(sort_by('start', true, parseInt));
 
-                dispExon(g, svg, gene.Transcript[transcript_len], gene.strand, gene_start, stopposition, gene_length);
+                dispExon(g, svg, gene.Transcript[transcript_len], gene.strand, gene_start, stopposition, gene_length, protein_id);
 
-                var g = svg.group({id: 'id' + member_id+'style2CIGAR' ,class: 'style2 CIGAR'});
+                var g = svg.group({id: 'id' + protein_id+'style2CIGAR' ,class: 'style2 CIGAR'});
 
                 var ref_cigar = syntenic_data.cigar[protein_member_id]
 
@@ -312,16 +312,16 @@ function dispGenesExonForMember_id(member_id, protein_id, ref) {
                     }
                 });
 
-                dispCigarLine(g, syntenic_data.cigar[protein_id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), transcript_start, strand, ref_cigar, ref_data.strand, "style2");
+                dispCigarLine(g, syntenic_data.cigar[protein_id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), transcript_start, strand, ref_cigar, ref_data.strand, "style2", protein_id);
             }
             else {
                 var temp_div = svg;
 
-                dispExon(g, svg, gene.Transcript[transcript_len], gene.strand, gene_start, stopposition, gene_length);
+                dispExon(g, svg, gene.Transcript[transcript_len], gene.strand, gene_start, stopposition, gene_length, protein_id);
 
-                var g = svg.group({id: 'id' + member_id+'style2CIGAR' ,class: 'style2 CIGAR'});
+                var g = svg.group({id: 'id' + protein_id+'style2CIGAR' ,class: 'style2 CIGAR'});
 
-                dispCigarLineRef(g, syntenic_data.cigar[protein_id], 1, top, ((gene_stop - gene_start) + 1), gene_start, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, "style2");
+                dispCigarLineRef(g, syntenic_data.cigar[protein_id], 1, top, ((gene_stop - gene_start) + 1), gene_start, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, "style2", protein_id);
             }
         }
     }
