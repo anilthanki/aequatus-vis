@@ -41,7 +41,9 @@ function checkVisuals() {
     if (jQuery('input[name=label_type]:radio:checked').val() == "stable") {
         changeToStable()
     }
-    else {
+    else  if (jQuery('input[name=label_type]:radio:checked').val() == "gene_info"){
         changeToGeneInfo()
+    } else{
+        changeToProteinId()
     }
 }

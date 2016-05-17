@@ -252,6 +252,14 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
 
                 ref = syntenic_data.ref
 
+                var ref_transcript = 0
+
+                jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
+                    if (obj.Translation && obj.Translation.id == protein_member_id) {
+                        ref_transcript = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
+                    }
+                });
+
                 var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].display_name
 
                 svg.text(parseInt(stopposition) + 10, 10, text, {
@@ -272,6 +280,17 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     class: "stable genelabel " + member_id + "genetext"
                 });
 
+                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].Transcript[transcript_len].Translation.id
+
+                svg.text(parseInt(stopposition) + 10, 10, text, {
+                    fontFamily: 'Verdana',
+                    fontSize: 10,
+                    textAnchor: 'begin',
+                    fill: "gray",
+                    class: "protein_id genelabel " + member_id + "genetext"
+                });
+
+
                 var temp_div = svg;
                 svg.line(0, 6, stopposition, 6, {id: 'id' + protein_id + 'geneline', stroke: 'green', strokeWidth: 1});
 
@@ -289,12 +308,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
 
                 var g = svg.group({id: 'id' + protein_id + 'style1CIGAR', class: 'style1'});
 
-                var ref_transcript = 0
-                jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
-                    if (obj.Translation && obj.Translation.id == protein_member_id) {
-                        ref_transcript = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
-                    }
-                });
+
                 dispCigarLine(g, syntenic_data.cigar[protein_id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), translation_start, strand, syntenic_data.cigar[protein_member_id] ? syntenic_data.cigar[protein_member_id] : syntenic_data.cigar[transcript_member_id], ref_data.strand,  "style1", protein_id);
 
             }
@@ -318,6 +332,16 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     textAnchor: 'begin',
                     fill: "red",
                     class: "stable genelabel " + member_id + "genetext"
+                });
+
+                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].Transcript[transcript_len].Translation.id
+
+                svg.text(parseInt(stopposition) + 10, 10, text, {
+                    fontFamily: 'Verdana',
+                    fontSize: 10,
+                    textAnchor: 'begin',
+                    fill: "red",
+                    class: "protein_id genelabel " + member_id + "genetext"
                 });
 
 

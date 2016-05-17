@@ -597,6 +597,7 @@ function changeToExon() {
  */
 function changeToStable() {
     jQuery(".genelabel").hide();
+    jQuery(".protein_id").hide();
     jQuery(".stable").show();
 }
 
@@ -605,5 +606,16 @@ function changeToStable() {
  */
 function changeToGeneInfo() {
     jQuery(".genelabel").hide();
+    jQuery(".protein_id").hide();
     jQuery(".geneinfo").show();
 }
+
+/**
+ * changes genes label to protein ids
+ */
+function changeToProteinId() {
+    jQuery(".genelabel").hide();
+    jQuery(".geneinfo").hide();
+    jQuery(".protein_id").show();
+}
+

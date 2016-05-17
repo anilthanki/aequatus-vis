@@ -40,11 +40,11 @@ function init(json, control_div, filter_spacer) {
         filter_div =  filter_spacer
     }
 
-    if (!syntenic_data.cigar) {
-        syntenic_data.cigar = {};
-        recursive_tree(syntenic_data.tree)
+    // if (!syntenic_data.cigar) {
+    //     syntenic_data.cigar = {};
+    //     recursive_tree(syntenic_data.tree)
 
-    }
+    // }
 
     if (jQuery.type(syntenic_data.tree) == 'object') {
     }
@@ -53,7 +53,11 @@ function init(json, control_div, filter_spacer) {
     }
 
     if (!syntenic_data.cigar) {
+        console.log("here")
         syntenic_data.cigar = {};
+        syntenic_data.sequence = {};
+        console.log(syntenic_data.sequence)
+
         recursive_tree(syntenic_data.tree)
 
     }
@@ -95,11 +99,10 @@ function recursive_tree(tree) {
  * @param child
  */
 function addCigar(child) {
-
     var id = child.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_')
     var cigar = child.sequence.mol_seq.cigar_line
     syntenic_data.cigar[id] = cigar;
-
+    syntenic_data.sequence[id] = child.sequence.mol_seq.seq ? child.sequence.mol_seq.seq : "No sequence available";
 }
 
 /**
@@ -582,7 +585,7 @@ function setControls(control_div) {
     var table = jQuery("<table cellpadding='2px'></table>");
 
     var row_spacing = jQuery("<tr></tr>");
-    var column_spanning = jQuery("<th colspan=2></th>");
+    var column_spanning = jQuery("<th colspan=6></th>");
     column_spanning.html("Visual Controls")
     row_spacing.append(column_spanning)
 
@@ -686,6 +689,22 @@ function setControls(control_div) {
 
     column4.html("Stable ID")
     row4.append(column4)
+
+    var column5 = jQuery("<td></td>");
+    var input = jQuery('<input>', {
+        type: "radio",
+        name: "label_type",
+        value:"stable",
+        onclick: 'changeToProteinId()',
+    });
+    column5.html(input)
+    row4.append(column5)
+
+    var column6 = jQuery("<td></td>");
+
+    column6.html("Protein ID")
+    row4.append(column6)
+
 
     table.append(row4)
 
