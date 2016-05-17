@@ -66,4 +66,8 @@ body {
      stroke: gray;
 }
 
+tr.border_bottom td {
+     border-bottom: 1pt solid white;
+}
+
 
