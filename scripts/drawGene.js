@@ -85,7 +85,7 @@ function dispGeneExon(g, svg, track, genestrand, gene_start, width, max_len) {
             startposition += 1
 
             svg.rect(g, startposition, 1, stopposition, 10, 2, 2, {
-                'id': "exon" + geneexons[exon_len].id + "style1",
+                'id': "exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1",
                 fill: 'white',
                 stroke: 'green',
                 strokeWidth: 2
@@ -119,7 +119,7 @@ function dispGeneExon(g, svg, track, genestrand, gene_start, width, max_len) {
                 startposition = 0;// ((exon_start - newStart_temp)) * parseFloat(maxLentemp) / (max_len);
                 stopposition = ((exon_stop - exon_start) + 1) * parseFloat(maxLentemp) / (max_len);
 
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id + "style1").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1").attr("x"))
 
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr1', fill: 'gray'});
 
@@ -131,13 +131,13 @@ function dispGeneExon(g, svg, track, genestrand, gene_start, width, max_len) {
 
                 startposition = 0;//((exon_start - newStart_temp)) * parseFloat(maxLentemp) / (max_len);
                 stopposition = (translation_start - exon_start) * parseFloat(maxLentemp) / (max_len);
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id + "style1").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1").attr("x"))
 
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr2', fill: 'gray'});
 
                 startposition = ((translation_end - exon_start) - 1) * parseFloat(maxLentemp) / (max_len);
                 stopposition = (exon_stop - translation_end + 1) * parseFloat(maxLentemp) / (max_len);
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id + "style1").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1").attr("x"))
 
 
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr3', fill: 'gray'});
@@ -148,7 +148,7 @@ function dispGeneExon(g, svg, track, genestrand, gene_start, width, max_len) {
 
                 startposition = 0;
                 stopposition = (translation_start - exon_start) * parseFloat(maxLentemp) / (max_len);
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id + "style1").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1").attr("x"))
 
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr4', fill: 'gray'});
 
@@ -159,7 +159,7 @@ function dispGeneExon(g, svg, track, genestrand, gene_start, width, max_len) {
 
                 startposition = ((translation_end - exon_start)) * parseFloat(maxLentemp) / (max_len);
                 stopposition = (exon_stop - translation_end) * parseFloat(maxLentemp) / (max_len);
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id + "style1").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1").attr("x"))
 
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr5', fill: 'gray'});
 
@@ -170,7 +170,7 @@ function dispGeneExon(g, svg, track, genestrand, gene_start, width, max_len) {
 
                 startposition = 1;
                 stopposition = (exon_stop - exon_start) * parseFloat(maxLentemp) / (max_len);
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id + "style1").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1").attr("x"))
 
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr6', fill: 'gray'});
 
