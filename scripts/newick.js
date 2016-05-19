@@ -65,16 +65,19 @@ function NewickToJSON(s) {
                 }
                 else if (tag == true && x == ':') {
                     if (token == "D=N") {
+                        tree.events = {}
 
-                        tree.type = "speciation";
+                        tree.events.type = "speciation";
 
                     } else if (token == "D=Y") {
+                        tree.events = {}
 
-                        tree.type = "duplication";
+                        tree.events.type = "duplication";
 
                     } else if (token == "DD=Y") {
+                        tree.event = {}
 
-                        tree.type = "dubious";
+                        tree.events.type = "dubious";
 
                     }
                     tag == false
