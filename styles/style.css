@@ -17,6 +17,7 @@ body {
      background-color: green;
      opacity: 0.7;
      position: absolute;
+     display: block;
 }
 
 .cigarover {
@@ -27,6 +28,7 @@ body {
      background-color: red;
      opacity: 0.7;
      position: absolute;
+     display: block;
 }
 
 .delete {
@@ -34,12 +36,14 @@ body {
      opacity: 0.7;
      position: absolute;
      z-index: 999;
+     display: block;
 }
 
 .insert {
      background-color: blue;
      opacity: 0.7;
      position: absolute;
+     display: block;
 }
 
 .node {
@@ -60,6 +64,10 @@ body {
      fill: none;
      stroke-width: 2px;
      stroke: gray;
+}
+
+tr.border_bottom td {
+     border-bottom: 1pt solid white;
 }
 
 

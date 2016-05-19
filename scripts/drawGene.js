@@ -6,11 +6,21 @@
  * To change this template use File | Settings | File Templates.
  */
 
-function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len, id) {
-    console.log("dispGeneExon")
-    var trackClass = "exon";
-    var utrtrackClass = "utr";
+/**
+ * draws exons on genes for normal view
+ * @param g group element of svg to draw genes
+ * @param svg svg to add group in
+ * @param track transcript information
+ * @param genestrand gene strand forward or reverse
+ * @param div
+ * @param gene_start gene start position
+ * @param width gene width
+ * @param max_len maximum length information
+ * @param id
+ */
 
+
+function dispGeneExon(g, svg, track, genestrand, gene_start, width, max_len) {
     var disp_exon = false;
     var geneexons = track.Exon;
 
@@ -30,21 +40,21 @@ function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len
         var exon_len = geneexons.length;
         var startposition = 0;
         var stopposition = 0;
-        var transcript_start;
-        var transcript_end;
+        var translation_start;
+        var translation_end;
 
         if (track.Translation) {
             if (track.Translation.start < track.Translation.end) {
-                transcript_start = track.Translation.start;
-                transcript_end = track.Translation.end;
+                translation_start = track.Translation.start;
+                translation_end = track.Translation.end;
             }
             else {
-                transcript_start = track.Translation.start;
-                transcript_end = track.Translation.end;
+                translation_start = track.Translation.start;
+                translation_end = track.Translation.end;
             }
         } else {
-            transcript_start = geneexons[0].start;
-            transcript_end = geneexons[exon_len - 1].end;
+            translation_start = geneexons[0].start;
+            translation_end = geneexons[exon_len - 1].end;
         }
 
         var last = null, current = null;
@@ -64,8 +74,6 @@ function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len
 
             current = exon_start;
 
-            var top = 0;
-
             startposition = (exon_start - newStart_temp) * parseFloat(maxLentemp) / (max_len);
             stopposition = ((exon_stop - exon_start) + 1) * parseFloat(maxLentemp) / (max_len);
 
@@ -77,7 +85,7 @@ function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len
             startposition += 1
 
             svg.rect(g, startposition, 1, stopposition, 10, 2, 2, {
-                'id': "exon" + geneexons[exon_len].id + "style1",
+                'id': "exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1",
                 fill: 'white',
                 stroke: 'green',
                 strokeWidth: 2
@@ -106,67 +114,63 @@ function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len
 
             current = exon_start;
 
-            var temp_div = ("#exon" + geneexons[exon_len].id + "style1")
-
-            var top = 0;
-
-            if (exon_start < transcript_start && exon_stop < transcript_start) {
+            if (exon_start < translation_start && exon_stop < translation_start) {
 
                 startposition = 0;// ((exon_start - newStart_temp)) * parseFloat(maxLentemp) / (max_len);
                 stopposition = ((exon_stop - exon_start) + 1) * parseFloat(maxLentemp) / (max_len);
 
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id + "style1").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1").attr("x"))
 
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr1', fill: 'gray'});
 
                 last = current;
 
             }
-            else if (exon_start < transcript_start && exon_stop > transcript_end) {
+            else if (exon_start < translation_start && exon_stop > translation_end) {
 
 
                 startposition = 0;//((exon_start - newStart_temp)) * parseFloat(maxLentemp) / (max_len);
-                stopposition = (transcript_start - exon_start) * parseFloat(maxLentemp) / (max_len);
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id + "style1").attr("x"))
+                stopposition = (translation_start - exon_start) * parseFloat(maxLentemp) / (max_len);
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1").attr("x"))
 
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr2', fill: 'gray'});
 
-                startposition = ((transcript_end - exon_start) - 1) * parseFloat(maxLentemp) / (max_len);
-                stopposition = (exon_stop - transcript_end + 1) * parseFloat(maxLentemp) / (max_len);
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id + "style1").attr("x"))
+                startposition = ((translation_end - exon_start) - 1) * parseFloat(maxLentemp) / (max_len);
+                stopposition = (exon_stop - translation_end + 1) * parseFloat(maxLentemp) / (max_len);
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1").attr("x"))
 
 
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr3', fill: 'gray'});
 
                 last = current;
             }
-            else if (exon_stop > transcript_start && exon_start < transcript_start) {
+            else if (exon_stop > translation_start && exon_start < translation_start) {
 
-                startposition = 0;//((exon_start - newStart_temp)) * parseFloat(maxLentemp) / (max_len);
-                stopposition = (transcript_start - exon_start) * parseFloat(maxLentemp) / (max_len);
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id + "style1").attr("x"))
+                startposition = 0;
+                stopposition = (translation_start - exon_start) * parseFloat(maxLentemp) / (max_len);
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1").attr("x"))
 
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr4', fill: 'gray'});
 
                 last = current;
 
             }
-            else if (exon_stop > transcript_end && exon_start < transcript_end) {
+            else if (exon_stop > translation_end && exon_start < translation_end) {
 
-                startposition = ((transcript_end - exon_start)) * parseFloat(maxLentemp) / (max_len);
-                stopposition = (exon_stop - transcript_end) * parseFloat(maxLentemp) / (max_len);
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id + "style1").attr("x"))
+                startposition = ((translation_end - exon_start)) * parseFloat(maxLentemp) / (max_len);
+                stopposition = (exon_stop - translation_end) * parseFloat(maxLentemp) / (max_len);
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1").attr("x"))
 
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr5', fill: 'gray'});
 
                 last = current;
             }
 
-            else if (exon_start > transcript_start && exon_stop > transcript_end) {
+            else if (exon_start > translation_start && exon_stop > translation_end) {
 
                 startposition = 1;
                 stopposition = (exon_stop - exon_start) * parseFloat(maxLentemp) / (max_len);
-                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id + "style1").attr("x"))
+                startposition = parseFloat(startposition) + parseFloat(jQuery("#exon" + geneexons[exon_len].id.replace(/[^a-zA-Z0-9]/g,'_') + "style1").attr("x"))
 
                 svg.rect(g, startposition, 1, stopposition, 10, {class: 'utr6', fill: 'gray'});
 
@@ -177,9 +181,13 @@ function dispGeneExon(g, svg, track, genestrand, div, gene_start, width, max_len
     }
 }
 
+/**
+ * draw normal view gene for specified member and protein id
+ * @param member_id member id for the gene to draw
+ * @param protein_id translation id for the member gene
+ * @param ref gene is reference or hit true or false
+ */
 function dispGenesForMember_id(member_id, protein_id, ref) {
-    console.log("dispGenesForMember_id " + member_id + " " + protein_id)
-    var count = 0
     var gene;
     if (ref) {
         gene = syntenic_data.member[member_id];
@@ -189,64 +197,27 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
     }
 
 
-    var svg = jQuery("#id" + member_id).svg("get")
-    var trackClass;
-    var newStart_temp = 1;
+    var svg = jQuery("#id" + protein_id).svg("get")
     var maxLentemp = jQuery(document).width() * 0.6;
     var label = "";
     var j = 0;
 
     var transcript_len = gene.Transcript.length;
-    var display = "";
-    var view_type = null
-    if (jQuery('input[name=view_type]:checked').val() == "with") {
-        view_type = true;
-    }
-    else {
-        view_type = false;
-    }
-
-    if (view_type == true) {
-        display = "display: block;"
-    } else {
-        display = "display: none;"
-    }
-
-    var view_type = null
-    if (jQuery('input[name=label_type]:radio:checked').val() == "stable") {
-        view_type = true;
-    }
-    else {
-        view_type = false;
-    }
-
-    var stable_display = "";
-    var info_display = "";
-
-    if (view_type == true) {
-        stable_display = "display: block;"
-        info_display = "display: none; "
-    } else {
-        info_display = "display: block;"
-
-        stable_display = "display: none;"
-    }
 
     while (transcript_len--) {
 
         if (gene.Transcript[transcript_len].Translation && (gene.Transcript[transcript_len].Translation.id == protein_id || gene.Transcript[transcript_len].id == protein_id)) {
 
             max = gene.Transcript[transcript_len].end - gene.Transcript[transcript_len].start
-            var newEnd_temp = max;
             var gene_start;
             var gene_stop;
             var gene_length = gene.Transcript[transcript_len].end - gene.Transcript[transcript_len].start
 
-            var transcript_start = gene.Transcript[transcript_len].start;
-            var transcript_end = gene.Transcript[transcript_len].end;
+            var translation_start = gene.Transcript[transcript_len].start;
+            var translation_end = gene.Transcript[transcript_len].end;
             if (gene.Transcript[transcript_len].Translation) {
-                transcript_start = gene.Transcript[transcript_len].Translation.start;
-                transcript_end = gene.Transcript[transcript_len].Translation.end;
+                translation_start = gene.Transcript[transcript_len].Translation.start;
+                translation_end = gene.Transcript[transcript_len].Translation.end;
             }
 
             if (gene.Transcript[transcript_len].start < gene.Transcript[transcript_len].end) {
@@ -267,7 +238,6 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                 j = gene.Transcript[transcript_len].layer;
             }
             var top = transcript_len * 25 + 25;
-            var startposition = 1;//(1) * parseFloat(maxLentemp) / (newEnd_temp - newStart_temp);
             var stopposition = maxLentemp;//((gene_stop - gene_start) + 1) * parseFloat(maxLentemp) / (newEnd_temp - newStart_temp);
             var margin = "margin-top:15px;margin-bottom:5px;";
 
@@ -282,7 +252,22 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
 
                 ref = syntenic_data.ref
 
-                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].display_name
+                var ref_transcript = 0
+
+                jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
+                    if (obj.Translation && obj.Translation.id == protein_member_id) {
+                        ref_transcript = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
+                    }
+                });
+
+                var text = syntenic_data.member[member_id].species;
+
+                if(syntenic_data.member[member_id].display_name){
+                    text += ":"+syntenic_data.member[member_id].display_name
+                }else if(syntenic_data.member[member_id].description){
+                    text += ":"+syntenic_data.member[member_id].description
+                } 
+                // var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].display_name ? "yes" : "no"//syntenic_data.member[member_id].description
 
                 svg.text(parseInt(stopposition) + 10, 10, text, {
                     fontFamily: 'Verdana',
@@ -292,7 +277,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     class: "geneinfo genelabel " + member_id + "genetext"
                 });
 
-                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].stable_id
+                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].id
 
                 svg.text(parseInt(stopposition) + 10, 10, text, {
                     fontFamily: 'Verdana',
@@ -302,8 +287,19 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     class: "stable genelabel " + member_id + "genetext"
                 });
 
+                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].Transcript[transcript_len].Translation.id
+
+                svg.text(parseInt(stopposition) + 10, 10, text, {
+                    fontFamily: 'Verdana',
+                    fontSize: 10,
+                    textAnchor: 'begin',
+                    fill: "gray",
+                    class: "protein_id genelabel " + member_id + "genetext"
+                });
+
+
                 var temp_div = svg;
-                svg.line(0, 6, stopposition, 6, {id: 'id' + member_id + 'geneline', stroke: 'green', strokeWidth: 1});
+                svg.line(0, 6, stopposition, 6, {id: 'id' + protein_id + 'geneline', stroke: 'green', strokeWidth: 1});
 
                 var strand = 0;
 
@@ -313,26 +309,25 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     strand = -1;
                 }
                 gene.Transcript[transcript_len].Exon.sort(sort_by('start', true, parseInt));
-                var temp_int;
 
                 var g = svg.group({class: 'style1'});
-                dispGeneExon(g, svg, gene.Transcript[transcript_len], gene.strand, temp_div, gene_start, stopposition, gene_length, transcript_len);
+                dispGeneExon(g, svg, gene.Transcript[transcript_len], gene.strand, gene_start, stopposition, gene_length);
 
-                var g = svg.group({id: 'id' + member_id + 'style1CIGAR', class: 'style1'});
+                var g = svg.group({id: 'id' + protein_id + 'style1CIGAR', class: 'style1'});
 
-                var ref_transcript = 0
-                jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
-                    if (obj.Translation && obj.Translation.id == protein_member_id) {
-                        console.log("drawgene here found id")
-                        ref_transcript = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
-                    }
-                });
-                dispCigarLine(g, syntenic_data.cigar[protein_id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), transcript_start, transcript_end, strand, syntenic_data.cigar[protein_member_id] ? syntenic_data.cigar[protein_member_id] : syntenic_data.cigar[transcript_member_id], ref_data.strand, gene.Transcript[transcript_len].id, "style1");
+
+                dispCigarLine(g, syntenic_data.cigar[protein_id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), translation_start, strand, syntenic_data.cigar[protein_member_id] ? syntenic_data.cigar[protein_member_id] : syntenic_data.cigar[transcript_member_id], ref_data.strand,  "style1", protein_id);
 
             }
             else {
 
-                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].display_name
+                var text = syntenic_data.member[member_id].species;
+
+                if(syntenic_data.member[member_id].display_name){
+                    text += ":"+syntenic_data.member[member_id].display_name
+                }else if(syntenic_data.member[member_id].description){
+                    text += ":"+syntenic_data.member[member_id].description
+                } 
 
                 svg.text(parseInt(stopposition) + 10, 10, text, {
                     fontFamily: 'Verdana',
@@ -352,22 +347,32 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     class: "stable genelabel " + member_id + "genetext"
                 });
 
+                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].Transcript[transcript_len].Translation.id
 
-                svg.line(0, 6, stopposition, 6, {id: 'id' + member_id + 'geneline', stroke: 'red', strokeWidth: 2});
+                svg.text(parseInt(stopposition) + 10, 10, text, {
+                    fontFamily: 'Verdana',
+                    fontSize: 10,
+                    textAnchor: 'begin',
+                    fill: "red",
+                    class: "protein_id genelabel " + member_id + "genetext"
+                });
+
+
+                svg.line(0, 6, stopposition, 6, {id: 'id' + protein_id + 'geneline', stroke: 'red', strokeWidth: 2});
 
 
                 var temp_div = svg;
 
 
                 var g = svg.group({class: 'style1'});
-                dispGeneExon(g, svg, gene.Transcript[transcript_len], gene.strand, temp_div, gene_start, stopposition, gene_length);
 
-                var g = svg.group({id: 'id' + member_id + 'style1CIGAR', class: 'style1 CIGAR'});
+                dispGeneExon(g, svg, gene.Transcript[transcript_len], gene.strand, gene_start, stopposition, gene_length);
 
-                dispCigarLineRef(g, syntenic_data.cigar[protein_id], 1, top, ((gene_stop - gene_start) + 1), gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, transcript_end, gene.Transcript[transcript_len].assembly_name, "style1");
+                var g = svg.group({id: 'id' + protein_id + 'style1CIGAR', class: 'style1 CIGAR'});
+
+                dispCigarLineRef(g, syntenic_data.cigar[protein_id], 1, top,  gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start,  "style1", protein_id);
 
             }
-
 
         }
     }

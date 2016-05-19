@@ -1,98 +1,140 @@
-function NewickToJSON (s) {
+/**
+ * This function converts Newick tree into JSON format
+ * @param s Newick tree in string format
+ */
+function NewickToJSON(s) {
+    console.log("NewickToJSON")
 
     var ancestors = [];
     var tree = {};
     var tokens = s.split(/\s*(;|\(|\)|,|:|\[|\])\s*/);
     var tag = false;
 
-    for (var i=0; i<tokens.length; i++) {
-      var token = tokens[i];
-      switch (token) {
-        case '(': // new branchset
-          var subtree = {};
-          tree.children = [subtree];
-          ancestors.push(tree);
-          tree = subtree;
-          break;
+    for (var i = 0; i < tokens.length; i++) {
+        var token = tokens[i];
+        switch (token) {
+            case '(': // new branchset
+                var subtree = {};
+                tree.children = [subtree];
+                ancestors.push(tree);
+                tree = subtree;
+                break;
 
-        case ',': // another branch
+            case ',': // another branch
 
-          var subtree = {};
-          ancestors[ancestors.length-1].children.push(subtree);
-          tree = subtree;
-          break;
+                var subtree = {};
+                ancestors[ancestors.length - 1].children.push(subtree);
+                tree = subtree;
+                break;
 
-        case ')': // optional name next
-          tree = ancestors.pop();
-          break;
+            case ')': // optional name next
+                tree = ancestors.pop();
+                break;
 
-        case ':': // optional length next
-          break;
+            case ':': // optional length next
+                break;
 
-        default:
-          var x = tokens[i-1];
-          if (x == ')' || x == '(' || x == ',') {
-            if(token.indexOf("_") > 0){
-              tree.id = {}
-            tree.id.accession = getGeneIDfromTranscript(token.split("_")[0])
-            tree.sequence = {}
-            tree.sequence.id = [];
-            tree.sequence.id[0] = {}
-            tree.sequence.id[0].accession = getProteinIDfromTranscript(token.split("_")[0]); 
-            }
-            
+            default:
+                var x = tokens[i - 1];
+                if (x == ')' || x == '(' || x == ',') {
+                    if (token.indexOf("_") > 0) {
+                    console.log(token)
 
-          } else if (x == '[') {
+                        tree.id = {}
+                        tree.id.accession = getGeneIDfromTranscript(token.split("_")[0])
+                        tree.sequence = {}
+                        tree.sequence.id = [];
+                        tree.sequence.id[0] = {}
+                        tree.sequence.id[0].accession = getProteinIDfromTranscript(token.split("_")[0]);
+                    }else if(token.length > 0){
+                    console.log(token)
+                        
+                        tree.id = {}
+                        tree.id.accession = getGeneIDfromTranscript(token)
+                        tree.sequence = {}
+                        tree.sequence.id = [];
+                        tree.sequence.id[0] = {}
+                        tree.sequence.id[0].accession = getProteinIDfromTranscript(token);
+                    }
 
-            tag = true;
 
-          }
-          else if (tag == true && x == ':') {
-            if(token == "D=N") {
+                } else if (x == '[') {
 
-              tree.type = "speciation";
+                    tag = true;
 
-            } else if(token == "D=Y") {
+                }
+                else if (tag == true && x == ':') {
+                    if (token == "D=N") {
+                        tree.events = {}
 
-              tree.type = "duplication";
+                        tree.events.type = "speciation";
 
-            } else if(token == "DD=Y") {
+                    } else if (token == "D=Y") {
+                        tree.events = {}
 
-              tree.type = "dubious";
+                        tree.events.type = "duplication";
 
-            }
-            tag == false
-          }else if (x == ':') {
+                    } else if (token == "DD=Y") {
+                        tree.event = {}
 
-            tree.branch_length = token;
-          }
-      }
+                        tree.events.type = "dubious";
+
+                    }
+                    tag == false
+                } else if (x == ':') {
+
+                    tree.branch_length = token;
+                }
+        }
     }
+    console.log(tree)
     return tree;
-  }
+}
 
-  function getGeneIDfromTranscript(token){
+/**
+ * finds gene id for the provided transcript
+ * @param token transcript_id
+ * @returns {*}
+ */
+function getGeneIDfromTranscript(token) {
+
     var id = null
-    jQuery.each(syntenic_data.member, function(i, obj) {
-        for(var j=0; j<obj.Transcript.length; j++){
-              if(obj.Transcript[j].id == token){
+    jQuery.each(syntenic_data.member, function (i, obj) {
+        for (var j = 0; j < obj.Transcript.length; j++) {
+            if (obj.Transcript[j].id == token) {
                 id = obj.id.toString()
                 break;
-              }
-        }   
+            }
+        }
     });
-    return id;
-  }
 
-  function getProteinIDfromTranscript(token){
+    if(id == null){
+        id = token;
+    }
+    
+    return id;
+}
+
+/**
+ * finds protein id for the provided transcript if no protein id found assigns transcript id as protein id
+ * @param token
+ * @returns {*}
+ */
+function getProteinIDfromTranscript(token) {
+
     var id = null
     jQuery.each(syntenic_data.member, function(i, obj) {
         for(var j=0; j<obj.Transcript.length; j++){
-              if(obj.Transcript[j].id == token){
+            if(obj.Transcript[j].id == token){
                 id = obj.Transcript[j].Translation.id.toString()
                 break;
-              }
-        }   
+            }
+        }
     });
+
+    if(id == null){
+        id = token;
+    }
+    
     return id;
-  }
+}

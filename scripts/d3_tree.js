@@ -7,11 +7,17 @@
  */
 
 
+/**
+ * Setup D3 to draw tree
+ * @param json_tree gene tree in JSON format
+ * @param div HTML div reference to draw tree
+ * @param event event to be initialise for onclick on gene
+ */
 function drawTree(json_tree, div, event) {
-    console.log("drawtree")
+    console.log("drawTree")
     var gene_width = jQuery(document).width() * 0.8
     var margin = {top: 0, right: 0, bottom: 0, left: 0},
-        width = 400,
+        width = jQuery(document).width() * 0.2,
         height = 1000 - margin.top - margin.bottom;
 
     var maxHeight = 1000;
@@ -36,15 +42,17 @@ function drawTree(json_tree, div, event) {
         duration = 750,
         root;
 
-    var genome_list = []
+    var genome_list_all = []
+
 
     for (var key in syntenic_data.member) {
-        genome_list.push(syntenic_data.member[key].species)
+        genome_list_all.push(syntenic_data.member[key].species)
     }
 
-    genome_list = jQuery.unique( genome_list );
-
-    console.log(filter_div)
+    var genome_list = [];
+    jQuery.each(genome_list_all, function(i, el){
+        if(jQuery.inArray(el, genome_list) === -1) genome_list.push(el);
+    });
 
     d3.select(filter_div).selectAll("input")
         .data(genome_list)
@@ -66,6 +74,10 @@ function drawTree(json_tree, div, event) {
         .on("click", filtercheck)
 
 
+    /**
+     * selects tree nodes for species
+     * @param de species name
+     */
     function filtercheck(de) {
         var selected = de;
         var display = this.checked;
@@ -73,8 +85,7 @@ function drawTree(json_tree, div, event) {
         svg.selectAll(".node")
             .filter(function (d) {
                 if (d.sequence && d.id.accession && display == false) {
-                    if (d.id.accession == member_id) {
-                        //return selected == syntenic_data.ref.genome;
+                    if (d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id) {
                     } else {
                         if (d._children) {
                             var children = d._children.size()
@@ -82,7 +93,7 @@ function drawTree(json_tree, div, event) {
                             }
                         }
 
-                        if (syntenic_data.member[d.id.accession] && selected == syntenic_data.member[d.id.accession].species) {
+                        if (syntenic_data.member[d.id.accession.replace(/[^a-zA-Z0-9]/g,'_')] && selected == syntenic_data.member[d.id.accession.replace(/[^a-zA-Z0-9]/g,'_')].species) {
                             if (display == true) {
 
 
@@ -138,12 +149,12 @@ function drawTree(json_tree, div, event) {
                                     if (!newObject.children) {
                                         newObject.children = []
                                     }
-                                    if (newObject._children[children].sequence && newObject._children[children].id.accession == member_id && selected == syntenic_data.member[syntenic_data.ref].species) {
+                                    if (newObject._children[children].sequence && newObject._children[children].id.accession.replace(/[^a-zA-Z0-9]/g,'_') == member_id && selected == syntenic_data.member[syntenic_data.ref].species) {
                                         newObject.children.push(newObject._children[children])
                                         newObject._children.splice(children, 1)
                                         cont = false;
                                         update(newObject, member_id);
-                                    } else if (newObject._children[children].sequence && newObject._children[children].id.accession && selected == syntenic_data.member[newObject._children[children].id.accession].species) {
+                                    } else if (newObject._children[children].sequence && newObject._children[children].id.accession.replace(/[^a-zA-Z0-9]/g,'_') && selected == syntenic_data.member[newObject._children[children].id.accession.replace(/[^a-zA-Z0-9]/g,'_')].species) {
                                         newObject.children.push(newObject._children[children])
                                         newObject._children.splice(children, 1)
                                         cont = false;
@@ -175,14 +186,18 @@ function drawTree(json_tree, div, event) {
     d3.select(self.frameElement).style("height", "800px");
 
 
+    /**
+     * updates tree layout
+     * @param source nodes
+     * @param ref_member reference member id
+     */
     function update(source, ref_member) {
         console.log("update")
 
-        // Compute the new tree layout.
-        var nodes = cluster.nodes(root).reverse(),
-            links = cluster.links(nodes);
+        console.log(protein_member_id)
 
-        var max = 0;
+        // Compute the new tree layout.
+        var nodes = cluster.nodes(root).reverse();
 
         // Normalize for fixed-depth.
         var count = 0;
@@ -217,22 +232,18 @@ function drawTree(json_tree, div, event) {
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
             .attr("class", "node")
-            // .attr("id", function (d, i) {
-            //     return "node" + i
-            // })
             .attr("transform", function (d) {
                 if (source.x0 > maxHeight) {
                     maxHeight = source.x0
                 }
-
                 return "translate(" + d.y+ "," + d.x + ")";
             })
             .attr("species", function (d) {
                 if (d.sequence) {
-                    if (d.id.accession == ref_member) {
+                    if (d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id) {
                         return syntenic_data.member[syntenic_data.ref].species;
                     } else {
-                        return syntenic_data.member[d.id.accession].species;
+                        return syntenic_data.member[d.id.accession.replace(/[^a-zA-Z0-9]/g,'_')].species;
                     }
                 }
                 else {
@@ -241,7 +252,7 @@ function drawTree(json_tree, div, event) {
             })
             .on("click", function (d) {
                 if (d.sequence) {
-                    event(d.id.accession, d.sequence.id[0].accession)
+                    event(d.id.accession.replace(/[^a-zA-Z0-9]/g,'_'), d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_'))
                 } else {
                     if (d.children && d.children != null) {
                         if (d.children.size() > 0) {
@@ -259,17 +270,14 @@ function drawTree(json_tree, div, event) {
             .attr("id", function (d, i) {
                 if (d.sequence)// && d.children != null) {
                 {
-                    return "circle" + d.id.accession;
+                    return "circle" + d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_');
                 }else{
                     return "circle" + d.node_id;
 
                 }
             })
             .attr("r", function (d) {
-                //  if (d.close && d.close == true) {
-                //     return 6;
-                // } else 
-                if (d.sequence && d.id.accession == ref_member)// && d.children != null) {
+                if (d.sequence && d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id)// && d.children != null) {
                 {
                     return 6;
                 }
@@ -280,7 +288,6 @@ function drawTree(json_tree, div, event) {
             .style("fill", function (d) {
                 if (d.sequence) {
                     return "white";
-
                 }
                 else if(d.close && d.close == true){
                     return "white";
@@ -299,14 +306,14 @@ function drawTree(json_tree, div, event) {
                 }
             })
             .style("stroke-width", function (d) {
-                if ((d.sequence && d.id.accession == ref_member) || (d.close && d.close == true)){
+                if ((d.sequence && d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id) || (d.close && d.close == true)){
                     return "2px";
                 }else{
                     return "1px";
                 }
             })
             .style("stroke", function (d) {
-                if ((d.sequence && d.id.accession == ref_member)) {
+                if ((d.sequence && d.id.accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id)) {
                     return "black";
                 }
             });
@@ -325,14 +332,14 @@ function drawTree(json_tree, div, event) {
             .attr("id", function (d, i) {
                 if (d.sequence)// && d.children != null) {
                 {
-                    return "circle" + d.id.accession;
+                    return "circle" + d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_');
                 }else{
                     return "circle" + d.node_id;
 
                 }
             })
             .attr("r", function (d) {
-                if (d.sequence && d.id.accession == ref_member)// && d.children != null) {
+                if (d.sequence && d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id)// && d.children != null) {
                 {
                     return 6;
                 }
@@ -361,14 +368,14 @@ function drawTree(json_tree, div, event) {
                 }
             })
             .style("stroke-width", function (d) {
-                if ((d.sequence && d.id.accession == ref_member) || (d.close && d.close == true)){
+                if ((d.sequence && d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_')== protein_member_id) || (d.close && d.close == true)){
                     return "2px";
                 }else{
                     return "1px";
                 }
             })
             .style("stroke", function (d) {
-                if ((d.sequence && d.id.accession == ref_member)) {
+                if ((d.sequence && d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id)) {
                     return "black";
                 }
             });
@@ -390,15 +397,12 @@ function drawTree(json_tree, div, event) {
 
         nodeEnter.filter(function (d) {
             if (d.sequence) {
-                return true; //This item will be included in the selection
+                return true;
             } else {
-                return false; //This item will be excluded, e.g. "cheese"
+                return false;
             }
         }).append("foreignObject")
             .attr("class", "node_gene_holder")
-            // .attr("id", function (d, i) {
-            //     return "node_gene_holder" + i
-            // })
             .attr('width', width)
             .attr('height', '40px')
             .attr('x', 20)
@@ -413,74 +417,25 @@ function drawTree(json_tree, div, event) {
             .style("left", "10px")
             .style("top", "10px")
             .html(function (d) {
-                return "<div id = 'id" + d.id.accession + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
+                if (d.sequence){
+                    return "<div id = 'id" + d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
+                }
             });
 
         nodeEnter.filter(function (d) {
-            if (d.sequence && d.id.accession == ref_member) {
-                jQuery("#id" + d.id.accession).svg()
-                dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession)
-                dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession)
-                var view_type = null
-                if (jQuery('input[name=view_type]:checked').val() == "with") {
-                    view_type = true;
-                }
-                else {
-                    view_type = false;
-                }
-
-                if (view_type == true) {
-                    jQuery(".style1").show()
-                    jQuery(".style2").hide()
-                    //display = "display: block;"
-                } else {
-                    jQuery(".style1").hide()
-                    jQuery(".style2").show()
-                    //display = "display: none;"
-                }
-            } else if (d.sequence && syntenic_data.member[d.id.accession]) {
-                jQuery("#id" + d.id.accession).svg()
-                dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession, true)
-                dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession, true)
-                var view_type = null
-                if (jQuery('input[name=view_type]:checked').val() == "with") {
-                    view_type = true;
-                }
-                else {
-                    view_type = false;
-                }
-
-                if (view_type == true) {
-                    jQuery(".style1").show()
-                    jQuery(".style2").hide()
-                    //display = "display: block;"
-                } else {
-                    jQuery(".style1").hide()
-                    jQuery(".style2").show()
-                    //display = "display: none;"
-                }
-
-                var view_type = null
-                if (jQuery('input[name=label_type]:radio:checked').val() == "stable") {
-                    view_type = true;
-                }
-                else {
-                    view_type = false;
-                }
-
-                var stable_display = "";
-                var info_display = "";
-
-                if (view_type == true) {
-                    jQuery(".genelabel").hide();
-                    jQuery(".stable").show();
-
-                } else {
-                    jQuery(".genelabel").hide();
-                    jQuery(".geneinfo").show();
-                }
-
+            if (d.sequence && d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id) {
+                jQuery("#id" + d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_')).svg()
+                dispGenesForMember_id(d.id.accession.replace(/[^a-zA-Z0-9]/g,'_'), d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_'))
+                dispGenesExonForMember_id(d.id.accession.replace(/[^a-zA-Z0-9]/g,'_'), d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_'))
+            } else if (d.sequence && syntenic_data.member[d.id.accession.replace(/[^a-zA-Z0-9]/g,'_')]) {
+                jQuery("#id" + d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_')).svg()
+                dispGenesForMember_id(d.id.accession.replace(/[^a-zA-Z0-9]/g,'_'), d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_'), true)
+                dispGenesExonForMember_id(d.id.accession.replace(/[^a-zA-Z0-9]/g,'_'), d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_'), true)
             }
+
+
+
+            checkVisuals();
         });
 
         nodeUpdate.select("foreignObject")
@@ -552,7 +507,10 @@ function drawTree(json_tree, div, event) {
         }
     }
 
-// Toggle children on click.
+    /**
+     * Toggle children on click.
+     * @param d clicked node
+     */
     function click(d) {
 
         if (d.children && d.children != null) {
@@ -617,31 +575,47 @@ function drawTree(json_tree, div, event) {
     }
 }
 
+/**
+ * changes genes view to normal view with full length introns
+ */
 function changeToNormal() {
     jQuery(".style1").show()
     jQuery(".style2").hide()
 
 }
+
+/**
+ * changes genes view to exon focused view with fixed length introns
+ */
 function changeToExon() {
     jQuery(".style2").show()
     jQuery(".style1").hide()
 }
 
+/**
+ * changes genes label to stable ids
+ */
 function changeToStable() {
     jQuery(".genelabel").hide();
+    jQuery(".protein_id").hide();
     jQuery(".stable").show();
 }
 
+/**
+ * changes genes label to gene names
+ */
 function changeToGeneInfo() {
     jQuery(".genelabel").hide();
+    jQuery(".protein_id").hide();
     jQuery(".geneinfo").show();
 }
 
-function unique(list) {
-    var result = [];
-    jQuery.each(list, function (i, e) {
-        if (jQuery.inArray(e, result) == -1) result.push(e);
-    });
-    return result;
+/**
+ * changes genes label to protein ids
+ */
+function changeToProteinId() {
+    jQuery(".genelabel").hide();
+    jQuery(".geneinfo").hide();
+    jQuery(".protein_id").show();
 }
 

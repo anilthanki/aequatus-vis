@@ -2,6 +2,9 @@
  * Created by thankia on 09/01/15.
  */
 
+/**
+ * set up environment for aequatus-vis
+ */
 function kickOff() {
     ajaxurl = '/' + jQuery('#title').text() + '/' + jQuery('#title').text() + '/fluxion.ajax';
 
