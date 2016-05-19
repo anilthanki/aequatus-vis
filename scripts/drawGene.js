@@ -260,7 +260,14 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     }
                 });
 
-                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].display_name
+                var text = syntenic_data.member[member_id].species;
+
+                if(syntenic_data.member[member_id].display_name){
+                    text += ":"+syntenic_data.member[member_id].display_name
+                }else if(syntenic_data.member[member_id].description){
+                    text += ":"+syntenic_data.member[member_id].description
+                } 
+                // var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].display_name ? "yes" : "no"//syntenic_data.member[member_id].description
 
                 svg.text(parseInt(stopposition) + 10, 10, text, {
                     fontFamily: 'Verdana',
@@ -314,7 +321,13 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
             }
             else {
 
-                var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].display_name
+                var text = syntenic_data.member[member_id].species;
+
+                if(syntenic_data.member[member_id].display_name){
+                    text += ":"+syntenic_data.member[member_id].display_name
+                }else if(syntenic_data.member[member_id].description){
+                    text += ":"+syntenic_data.member[member_id].description
+                } 
 
                 svg.text(parseInt(stopposition) + 10, 10, text, {
                     fontFamily: 'Verdana',
