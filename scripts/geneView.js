@@ -22,6 +22,44 @@ var transcript_member_id = null;
 var ref_data = null;
 var filter_div = null;
 
+
+function cleanTree(tree){
+    tree = JSON.parse(JSON.stringify(tree).replace(/[.-]/g,'_'))
+    
+    tree.children = JSON.parse(tree.children)
+
+    return tree;
+}
+
+function cleanGenes(member){
+
+    member = JSON.stringify(member).replace(/[.|-]/g,'_')  
+
+    member = member.replace(/:_1/g,":-1")
+
+    member = JSON.parse(member)   
+
+    jQuery.each(member, function(key, data){
+        var transcript = member[key].Transcript.replace(/:\s*_1/g,":-1")
+        member[key].Transcript = JSON.parse(transcript)
+    })
+
+    return member;
+
+}
+
+function cleanCIGARs(cigar){
+
+
+    jQuery.each(cigar, function(key, data){
+        var key = key.replace(/[^a-zA-Z0-9]/g,'_')
+        cigar[key] = data
+    })
+
+    return cigar;
+
+}
+
 /**
  * initialise aequatus-vis with setting up controls, filters parsing tree and cigar
  * @param json aequatus JSON
@@ -29,7 +67,7 @@ var filter_div = null;
  * @param filter_spacer filters place holder name
  */
 function init(json, control_div, filter_spacer) {
-    member_id = json.ref;
+    member_id = json.ref.replace(/[^a-zA-Z0-9]/g,'_');
 
     syntenic_data = json
     if (control_div) {
@@ -40,11 +78,6 @@ function init(json, control_div, filter_spacer) {
         filter_div =  filter_spacer
     }
 
-    // if (!syntenic_data.cigar) {
-    //     syntenic_data.cigar = {};
-    //     recursive_tree(syntenic_data.tree)
-
-    // }
 
     if (jQuery.type(syntenic_data.tree) == 'object') {
     }
@@ -52,25 +85,22 @@ function init(json, control_div, filter_spacer) {
         syntenic_data.tree = NewickToJSON(syntenic_data.tree)
     }
 
+    syntenic_data.tree = cleanTree(syntenic_data.tree)
+    
+    syntenic_data.member = cleanGenes(syntenic_data.member)
+
+
     if (!syntenic_data.cigar) {
-        console.log("here")
         syntenic_data.cigar = {};
         syntenic_data.sequence = {};
-        console.log(syntenic_data.sequence)
 
         recursive_tree(syntenic_data.tree)
-
     }
 
+    syntenic_data.cigar = cleanCIGARs(syntenic_data.cigar)
 
-    jQuery.each(syntenic_data.member, function(key, data){
-        for(var i=0; i<syntenic_data.member[key]["Transcript"].length; i++){
-            syntenic_data.member[key]["Transcript"][i].id = syntenic_data.member[key]["Transcript"][i].id.replace(/[^a-zA-Z0-9]/g,'_')
-            syntenic_data.member[key]["Transcript"][i]["Translation"].id = syntenic_data.member[key]["Transcript"][i]["Translation"].id.replace(/[^a-zA-Z0-9]/g,'_')
-        }
-    })
 
-    ref_data = syntenic_data.member[member_id.replace(/[^a-zA-Z0-9]/g,'_')]
+    ref_data = syntenic_data.member[member_id]
     protein_member_id = json.protein_id.replace(/[^a-zA-Z0-9]/g,'_')
     transcript_member_id = json.transcript_id
     resize_ref();

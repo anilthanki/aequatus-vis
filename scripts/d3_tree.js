@@ -85,7 +85,7 @@ function drawTree(json_tree, div, event) {
         svg.selectAll(".node")
             .filter(function (d) {
                 if (d.sequence && d.id.accession && display == false) {
-                    if (d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id) {
+                    if (d.sequence.id[0].accession == protein_member_id) {
                     } else {
                         if (d._children) {
                             var children = d._children.size()
@@ -93,7 +93,7 @@ function drawTree(json_tree, div, event) {
                             }
                         }
 
-                        if (syntenic_data.member[d.id.accession.replace(/[^a-zA-Z0-9]/g,'_')] && selected == syntenic_data.member[d.id.accession.replace(/[^a-zA-Z0-9]/g,'_')].species) {
+                        if (syntenic_data.member[d.id.accession] && selected == syntenic_data.member[d.id.accession].species) {
                             if (display == true) {
 
 
@@ -149,12 +149,12 @@ function drawTree(json_tree, div, event) {
                                     if (!newObject.children) {
                                         newObject.children = []
                                     }
-                                    if (newObject._children[children].sequence && newObject._children[children].id.accession.replace(/[^a-zA-Z0-9]/g,'_') == member_id && selected == syntenic_data.member[syntenic_data.ref].species) {
+                                    if (newObject._children[children].sequence && newObject._children[children].id.accession == member_id && selected == syntenic_data.member[syntenic_data.ref].species) {
                                         newObject.children.push(newObject._children[children])
                                         newObject._children.splice(children, 1)
                                         cont = false;
                                         update(newObject, member_id);
-                                    } else if (newObject._children[children].sequence && newObject._children[children].id.accession.replace(/[^a-zA-Z0-9]/g,'_') && selected == syntenic_data.member[newObject._children[children].id.accession.replace(/[^a-zA-Z0-9]/g,'_')].species) {
+                                    } else if (newObject._children[children].sequence && newObject._children[children].id.accession && selected == syntenic_data.member[newObject._children[children].id.accession].species) {
                                         newObject.children.push(newObject._children[children])
                                         newObject._children.splice(children, 1)
                                         cont = false;
@@ -240,10 +240,10 @@ function drawTree(json_tree, div, event) {
             })
             .attr("species", function (d) {
                 if (d.sequence) {
-                    if (d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id) {
+                    if (d.sequence.id[0].accession == protein_member_id) {
                         return syntenic_data.member[syntenic_data.ref].species;
                     } else {
-                        return syntenic_data.member[d.id.accession.replace(/[^a-zA-Z0-9]/g,'_')].species;
+                        return syntenic_data.member[d.id.accession].species;
                     }
                 }
                 else {
@@ -252,7 +252,7 @@ function drawTree(json_tree, div, event) {
             })
             .on("click", function (d) {
                 if (d.sequence) {
-                    event(d.id.accession.replace(/[^a-zA-Z0-9]/g,'_'), d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_'))
+                    event(d.id.accession, d.sequence.id[0].accession)
                 } else {
                     if (d.children && d.children != null) {
                         if (d.children.size() > 0) {
@@ -270,14 +270,14 @@ function drawTree(json_tree, div, event) {
             .attr("id", function (d, i) {
                 if (d.sequence)// && d.children != null) {
                 {
-                    return "circle" + d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_');
+                    return "circle" + d.sequence.id[0].accession;
                 }else{
                     return "circle" + d.node_id;
 
                 }
             })
             .attr("r", function (d) {
-                if (d.sequence && d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id)// && d.children != null) {
+                if (d.sequence && d.sequence.id[0].accession == protein_member_id)// && d.children != null) {
                 {
                     return 6;
                 }
@@ -306,14 +306,14 @@ function drawTree(json_tree, div, event) {
                 }
             })
             .style("stroke-width", function (d) {
-                if ((d.sequence && d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id) || (d.close && d.close == true)){
+                if ((d.sequence && d.sequence.id[0].accession == protein_member_id) || (d.close && d.close == true)){
                     return "2px";
                 }else{
                     return "1px";
                 }
             })
             .style("stroke", function (d) {
-                if ((d.sequence && d.id.accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id)) {
+                if ((d.sequence && d.id.accession == protein_member_id)) {
                     return "black";
                 }
             });
@@ -332,14 +332,14 @@ function drawTree(json_tree, div, event) {
             .attr("id", function (d, i) {
                 if (d.sequence)// && d.children != null) {
                 {
-                    return "circle" + d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_');
+                    return "circle" + d.sequence.id[0].accession;
                 }else{
                     return "circle" + d.node_id;
 
                 }
             })
             .attr("r", function (d) {
-                if (d.sequence && d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id)// && d.children != null) {
+                if (d.sequence && d.sequence.id[0].accession == protein_member_id)// && d.children != null) {
                 {
                     return 6;
                 }
@@ -368,14 +368,14 @@ function drawTree(json_tree, div, event) {
                 }
             })
             .style("stroke-width", function (d) {
-                if ((d.sequence && d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_')== protein_member_id) || (d.close && d.close == true)){
+                if ((d.sequence && d.sequence.id[0].accession== protein_member_id) || (d.close && d.close == true)){
                     return "2px";
                 }else{
                     return "1px";
                 }
             })
             .style("stroke", function (d) {
-                if ((d.sequence && d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id)) {
+                if ((d.sequence && d.sequence.id[0].accession == protein_member_id)) {
                     return "black";
                 }
             });
@@ -418,19 +418,19 @@ function drawTree(json_tree, div, event) {
             .style("top", "10px")
             .html(function (d) {
                 if (d.sequence){
-                    return "<div id = 'id" + d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
+                    return "<div id = 'id" + d.sequence.id[0].accession + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
                 }
             });
 
         nodeEnter.filter(function (d) {
-            if (d.sequence && d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_') == protein_member_id) {
-                jQuery("#id" + d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_')).svg()
-                dispGenesForMember_id(d.id.accession.replace(/[^a-zA-Z0-9]/g,'_'), d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_'))
-                dispGenesExonForMember_id(d.id.accession.replace(/[^a-zA-Z0-9]/g,'_'), d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_'))
-            } else if (d.sequence && syntenic_data.member[d.id.accession.replace(/[^a-zA-Z0-9]/g,'_')]) {
-                jQuery("#id" + d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_')).svg()
-                dispGenesForMember_id(d.id.accession.replace(/[^a-zA-Z0-9]/g,'_'), d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_'), true)
-                dispGenesExonForMember_id(d.id.accession.replace(/[^a-zA-Z0-9]/g,'_'), d.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g,'_'), true)
+            if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
+                jQuery("#id" + d.sequence.id[0].accession).svg()
+                dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession)
+                dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession)
+            } else if (d.sequence && syntenic_data.member[d.id.accession]) {
+                jQuery("#id" + d.sequence.id[0].accession).svg()
+                dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession, true)
+                dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession, true)
             }
 
 
