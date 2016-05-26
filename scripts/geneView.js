@@ -643,7 +643,7 @@ function setControls(control_div) {
     column1.html(input1)
     row1.append(column1)
 
-    var column2 = jQuery("<td></td>");
+    var column2 = jQuery("<td colspan='2'></td>");
     column2.html("Deletion")
     row1.append(column2)
     table.append(row1)
@@ -659,7 +659,7 @@ function setControls(control_div) {
     });
     column1.html(input)
     row2.append(column1)
-    var column2 = jQuery("<td></td>");
+    var column2 = jQuery("<td colspan='2'></td>");
 
     column2.html("Exon Match")
     row2.append(column2)
@@ -677,7 +677,7 @@ function setControls(control_div) {
     column1.html(input)
     row3.append(column1)
 
-    var column2 = jQuery("<td></td>");
+    var column2 = jQuery("<td colspan='2'></td>");
 
     column2.html("Insertion")
     row3.append(column2)
