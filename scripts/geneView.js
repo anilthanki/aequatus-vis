@@ -24,20 +24,34 @@ var filter_div = null;
 
 
 function cleanTree(tree){
-    tree = JSON.parse(JSON.stringify(tree).replace(/[.-]/g,'_'))
-    
-    tree.children = JSON.parse(tree.children)
+
+    var treestring = tree.toSource()
+
+    treestring = treestring.substring(1, treestring.length - 1)
+    treestring = treestring.replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:([^\/])/g, '"$2":$4');
+
+    var re = /"accession":"([a-z|0-9|_]*)([\.-])([a-z|0-9|_]*)"/gi;
+
+    var matches = [];
+    var match = re.exec(treestring);
+    while (match) {
+        matches.push(match[1]);
+        var matchString = match[1]+match[2]+match[3];
+        var replaceString = matchString.replace(/[\.-]/g, "_");
+        treestring = treestring.replace(matchString, replaceString)
+        match = re.exec(treestring);
+    }
+    tree = JSON.parse(treestring)
 
     return tree;
 }
 
 function cleanGenes(member){
-
-    member = JSON.stringify(member).replace(/[.|-]/g,'_')  
+    member = JSON.stringify(member).replace(/[.|-]/g,'_')
 
     member = member.replace(/:_1/g,":-1")
 
-    member = JSON.parse(member)   
+    member = JSON.parse(member)
 
     jQuery.each(member, function(key, data){
         var transcript = member[key].Transcript.replace(/:\s*_1/g,":-1")
@@ -50,14 +64,11 @@ function cleanGenes(member){
 
 function cleanCIGARs(cigar){
 
-
     jQuery.each(cigar, function(key, data){
         var key = key.replace(/[^a-zA-Z0-9]/g,'_')
         cigar[key] = data
     })
-
     return cigar;
-
 }
 
 /**
@@ -84,9 +95,7 @@ function init(json, control_div, filter_spacer) {
     else {
         syntenic_data.tree = NewickToJSON(syntenic_data.tree)
     }
-
     syntenic_data.tree = cleanTree(syntenic_data.tree)
-    
     syntenic_data.member = cleanGenes(syntenic_data.member)
 
 
@@ -652,7 +661,7 @@ function setControls(control_div) {
     row2.append(column1)
     var column2 = jQuery("<td></td>");
 
-    column2.html("Match")
+    column2.html("Exon Match")
     row2.append(column2)
 
     table.append(row2)
