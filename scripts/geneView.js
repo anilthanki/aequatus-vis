@@ -554,7 +554,7 @@ function replaceAt(str, index, character) {
  */
 function changeReference(new_gene_id, new_protein_id) {
     jQuery("#id" + protein_member_id + "geneline").attr("stroke", "green")
-    jQuery("." + protein_member_id + "genetext").attr("fill", "gray")
+    jQuery(".genelabel").attr("fill", "gray")
 
     resize_ref_to_def()
 
@@ -643,7 +643,7 @@ function setControls(control_div) {
     column1.html(input1)
     row1.append(column1)
 
-    var column2 = jQuery("<td colspan='2'></td>");
+    var column2 = jQuery("<td></td>");
     column2.html("Deletion")
     row1.append(column2)
     table.append(row1)
@@ -659,7 +659,7 @@ function setControls(control_div) {
     });
     column1.html(input)
     row2.append(column1)
-    var column2 = jQuery("<td colspan='2'></td>");
+    var column2 = jQuery("<td></td>");
 
     column2.html("Exon Match")
     row2.append(column2)
@@ -677,7 +677,7 @@ function setControls(control_div) {
     column1.html(input)
     row3.append(column1)
 
-    var column2 = jQuery("<td colspan='2'></td>");
+    var column2 = jQuery("<td></td>");
 
     column2.html("Insertion")
     row3.append(column2)

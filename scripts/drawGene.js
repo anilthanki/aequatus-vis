@@ -266,7 +266,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     text += ":"+syntenic_data.member[member_id].display_name
                 }else if(syntenic_data.member[member_id].description){
                     text += ":"+syntenic_data.member[member_id].description
-                } 
+                }
                 // var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].display_name ? "yes" : "no"//syntenic_data.member[member_id].description
 
                 svg.text(parseInt(stopposition) + 10, 10, text, {
@@ -274,7 +274,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     fontSize: 10,
                     textAnchor: 'begin',
                     fill: "gray",
-                    class: "geneinfo genelabel " + member_id + "genetext"
+                    class: "geneinfo genelabel " + protein_id + "genetext"
                 });
 
                 var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].id
@@ -284,7 +284,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     fontSize: 10,
                     textAnchor: 'begin',
                     fill: "gray",
-                    class: "stable genelabel " + member_id + "genetext"
+                    class: "stable genelabel " + protein_id + "genetext"
                 });
 
                 var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].Transcript[transcript_len].Translation.id
@@ -294,7 +294,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     fontSize: 10,
                     textAnchor: 'begin',
                     fill: "gray",
-                    class: "protein_id genelabel " + member_id + "genetext"
+                    class: "protein_id genelabel " + protein_id + "genetext"
                 });
 
 
@@ -327,14 +327,14 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     text += ":"+syntenic_data.member[member_id].display_name
                 }else if(syntenic_data.member[member_id].description){
                     text += ":"+syntenic_data.member[member_id].description
-                } 
+                }
 
                 svg.text(parseInt(stopposition) + 10, 10, text, {
                     fontFamily: 'Verdana',
                     fontSize: 10,
                     textAnchor: 'red',
                     fill: "red",
-                    class: "geneinfo genelabel " + member_id + "genetext"
+                    class: "geneinfo genelabel " + protein_id + "genetext"
                 });
 
                 var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].id
@@ -344,7 +344,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     fontSize: 10,
                     textAnchor: 'begin',
                     fill: "red",
-                    class: "stable genelabel " + member_id + "genetext"
+                    class: "stable genelabel " + protein_id + "genetext"
                 });
 
                 var text = syntenic_data.member[member_id].species + ":" + syntenic_data.member[member_id].Transcript[transcript_len].Translation.id
@@ -354,7 +354,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
                     fontSize: 10,
                     textAnchor: 'begin',
                     fill: "red",
-                    class: "protein_id genelabel " + member_id + "genetext"
+                    class: "protein_id genelabel " + protein_id + "genetext"
                 });
 
 
