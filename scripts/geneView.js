@@ -30,7 +30,7 @@ function cleanTree(tree){
     treestring = treestring.substring(1, treestring.length - 1)
     treestring = treestring.replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:([^\/])/g, '"$2":$4');
 
-    var re = /"accession":"([a-z|0-9|_]*)([\.-])([a-z|0-9|_]*)"/gi;
+    var re = /"accession":"([a-z0-9_]*)([\.-])([\.a-z0-9_-]*)"/gi;
 
     var matches = [];
     var match = re.exec(treestring);
@@ -55,8 +55,10 @@ function cleanGenes(member){
 
     jQuery.each(member, function(key, data){
         var transcript = member[key].Transcript.replace(/:\s*_1/g,":-1")
+        key = key.replace(/[.|-]/g,'_')
         member[key].Transcript = JSON.parse(transcript)
     })
+
 
     return member;
 
