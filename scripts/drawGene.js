@@ -198,7 +198,7 @@ function dispGenesForMember_id(member_id, protein_id, ref) {
 
 
     var svg = jQuery("#id" + protein_id).svg("get")
-    var maxLentemp = jQuery(document).width() * 0.6;
+    var maxLentemp = jQuery(window).width() * 0.6;
     var label = "";
     var j = 0;
 

@@ -23,6 +23,11 @@ var ref_data = null;
 var filter_div = null;
 
 
+/**
+ * cleans gene tree for . and -
+ * @param tree
+ * @returns {*}
+ */
 function cleanTree(tree){
 
     var treestring = tree.toSource()
@@ -46,6 +51,11 @@ function cleanTree(tree){
     return tree;
 }
 
+/**
+ * cleans genes and transcript ID for . and -
+ * @param member
+ * @returns {*}
+ */
 function cleanGenes(member){
     member = JSON.stringify(member).replace(/[.|-]/g,'_')
 
@@ -64,6 +74,11 @@ function cleanGenes(member){
 
 }
 
+/**
+ * cleans cigarIDs for . and -
+ * @param cigar
+ * @returns {*}
+ */
 function cleanCIGARs(cigar){
 
     jQuery.each(cigar, function(key, data){
@@ -361,7 +376,7 @@ function redrawCIGAR() {
                             gene_stop = gene.Transcript[transcript_len].start;
 
                         }
-                        var maxLentemp = jQuery(document).width() * 0.6;
+                        var maxLentemp = jQuery(window).width() * 0.6;
                         var newEnd_temp = max;
                         var stopposition = ((gene_stop - gene_start) + 1) * parseFloat(maxLentemp) / (newEnd_temp);
                         var temp_div = svg;

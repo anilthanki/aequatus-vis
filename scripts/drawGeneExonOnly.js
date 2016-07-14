@@ -214,7 +214,7 @@ function dispGenesExonForMember_id(member_id, protein_id, ref) {
     var svg = jQuery("#id" + protein_id).svg("get")
     var g = svg.group({class: 'style2'});
 
-    var maxLentemp = jQuery(document).width() * 0.6;
+    var maxLentemp = jQuery(window).width() * 0.6;
 
     var label = "";
     var j = 0;
