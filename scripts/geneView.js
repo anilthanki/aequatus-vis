@@ -85,6 +85,9 @@ function cleanCIGARs(cigar) {
         var key = key.replace(/[^a-zA-Z0-9]/g, '_')
         cigar[key] = data
     })
+
+
+
     return cigar;
 }
 
@@ -632,7 +635,16 @@ function checkCigar(ref_cigar_string) {
 
     var member = syntenic_data.cigar
 
-    for (var id in syntenic_data.member) {
+    var reverse_cigar = []
+    jQuery.map(syntenic_data.member, function (obj) {
+        if (syntenic_data.ref.strand != obj.strand) {
+            jQuery.map(obj.Transcript, function(transcript){
+                reverse_cigar.push(transcript.Translation.id)
+            })
+        }
+    });
+
+    for (var id in syntenic_data.cigar) {
 
         if (member.hasOwnProperty(id)) {
 
@@ -654,12 +666,14 @@ function checkCigar(ref_cigar_string) {
                 cigar_string += "";
             }
 
-            if (syntenic_data.member[id].strand != syntenic_data.ref.strand) {
+
+            if (reverse_cigar.indexOf(id) >= 0) {
                 cigar_string.split("").reverse().join()
             }
             cigar_list.push(cigar_string);
         }
     }
+    var pos = [];
     for (var i = 0; i < cigar_list[0].length; i++) {
         if (cigar_list[0][i] == 'D') {
             for (var j = 1; j < cigar_list.length; j++) {
@@ -668,6 +682,7 @@ function checkCigar(ref_cigar_string) {
                 }
                 if (j == cigar_list.length - 1) {
                     cigar_list[0] = replaceAt(cigar_list[0], i, "I")
+                    pos.push(i)
                 }
             }
         }
