@@ -76,35 +76,14 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, exons, temp_div, 
     if (cigars != '*') {
         cigars += 'M'
         ref_cigar += 'M';
-        cigars = cigars.replace(/([SIXMND])/g, ":$1,");
-        var cigars_array = cigars.split(',');
-        for (var i = 0; i < cigars_array.length - 1; i++) {
-
-            var cigar = cigars_array[i].split(":");
-            var key = cigar[1];
-            var length = cigar[0] * 3;
-            if (!length) {
-                length = 3
-            }
-            while (length--) {
-                cigar_string += key;
-            }
-
-            cigar_string += "";
-        }
-
-
+        cigar_string = expandCigar(cigars, "true")
 
         var temp_colours = colours.slice(0);
         if (strand == -1) {
             var noofrefexon =   ref_data.noofrefcds;//jQuery.parseJSON(ref_exons).length;
-            console.log(ref_exons)
 
-            console.log(noofrefexon)
             temp_colours = temp_colours.splice(0, noofrefexon)
-            console.log(temp_colours.toString())
             temp_colours = temp_colours.reverse();
-            console.log(temp_colours.toString())
 
             if (ref_exons) {
                 ref_exons = jQuery.parseJSON(ref_exons);
@@ -365,27 +344,9 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, exons, temp_di
 
         cigars += 'M'
 
-        cigars = cigars.replace(/([SIXMND])/g, ":$1,");
-        var cigars_array = cigars.split(',');
-        for (var i = 0; i < cigars_array.length - 1; i++) {
+        cigar_string = expandCigar(cigars, "true")
 
-            var cigar = cigars_array[i].split(":");
-            var key = cigar[1];
-            var length = cigar[0] * 3;
-            if (!length) {
-                length = 3
-            }
-
-            while (length--) {
-                cigar_string += key;
-            }
-
-            cigar_string += "";
-        }
-
-        cigar_string = checkCigar(cigar_string);
         cigar_string = cigar_string.replace(/(I)/g, "");
-
 
         cigar_string = cigar_string.replace(/(MD)/g, "M,D");
         cigar_string = cigar_string.replace(/(DM)/g, "D,M");

@@ -86,6 +86,7 @@ function cleanCIGARs(cigar) {
         cigar[key] = data
     })
 
+    cigar = checkCigar()
 
 
     return cigar;
@@ -209,25 +210,7 @@ function format_ref_cigar() {
     }
 
 
-
-    var cigar_string = "";
-    ref_cigar = ref_cigar.replace(/([SIXMND])/g, ":$1,");
-    var cigars_array = ref_cigar.split(',');
-
-    for (var i = 0; i < cigars_array.length - 1; i++) {
-
-        var cigar = cigars_array[i].split(":");
-        var key = cigar[1];
-        var length = cigar[0] * 3;
-        if (!length) {
-            length = 3
-        }
-        while (length--) {
-            cigar_string += key;
-        }
-
-        cigar_string += "";
-    }
+    var cigar_string = expandCigar(ref_cigar, "true")
 
 
     var i = 0
@@ -366,7 +349,7 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_stra
     // var from =0;
     // var test_array = [];
     // while (i < ref_cigar_array.length) {
-    //     var to = ref_cigar_array[i].length
+    //     var to = ref_cigar_array[i].replace(/I/g, "").length
     //     hit_cigar_arr.push(hit_cigar.substr(from, to));
     //     if (reverse && ref_strand == 1) {
     //         // console.log(from+":"+to)
@@ -389,7 +372,7 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_stra
                 count_match = 0;
                 last_pos += hit_position;
                 hit_position = 0;
-                if (reverse){
+                if (reverse) {
                 }
             }
             count_match++;
@@ -589,17 +572,14 @@ function resize_ref() {
     }
     syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff;
 
-    for(var exon_nu=0; exon_nu<syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.length; exon_nu++){
-        if(syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length > 0)
-        {
+    for (var exon_nu = 0; exon_nu < syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.length; exon_nu++) {
+        if (syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length > 0) {
             noofrefcds++;
         }
     }
 
     ref_data.formated_cigar = format_ref_cigar();
     ref_data.noofrefcds = noofrefcds;
-
-
 
 
 }
@@ -629,16 +609,18 @@ function resize_ref_to_def() {
  * @param ref_cigar_string reference cigar string
  * @returns {*}
  */
-function checkCigar(ref_cigar_string) {
+function checkCigar() {
     var cigar_list = [];
-    cigar_list.push(ref_cigar_string);
+    var cigar_id = [];
+    var cigars_json = {};
+    // cigar_list.push(ref_cigar_string);
 
     var member = syntenic_data.cigar
 
     var reverse_cigar = []
     jQuery.map(syntenic_data.member, function (obj) {
         if (syntenic_data.ref.strand != obj.strand) {
-            jQuery.map(obj.Transcript, function(transcript){
+            jQuery.map(obj.Transcript, function (transcript) {
                 reverse_cigar.push(transcript.Translation.id)
             })
         }
@@ -648,31 +630,19 @@ function checkCigar(ref_cigar_string) {
 
         if (member.hasOwnProperty(id)) {
 
-            var cigar_string = "";
-            var cigars = member[id].replace(/([SIXMND])/g, ":$1,");
-            var cigars_array = cigars.split(',');
-
-            for (var j = 0; j < cigars_array.length - 1; j++) {
-                var cigar = cigars_array[j].split(":");
-                var key = cigar[1];
-                var length = cigar[0] * 3;
-                if (!length) {
-                    length = 3
-                }
-                while (length--) {
-                    cigar_string += key;
-                }
-
-                cigar_string += "";
-            }
+            var cigar_string = expandCigar(member[id])
 
 
             if (reverse_cigar.indexOf(id) >= 0) {
                 cigar_string.split("").reverse().join()
             }
+            console.log("cigar_string " + cigar_string)
+
             cigar_list.push(cigar_string);
+            cigar_id.push(id)
         }
     }
+    console.log("check cigar ")
     var pos = [];
     for (var i = 0; i < cigar_list[0].length; i++) {
         if (cigar_list[0][i] == 'D') {
@@ -688,7 +658,82 @@ function checkCigar(ref_cigar_string) {
         }
     }
 
-    return cigar_list[0];
+    console.log(cigar_list.length)
+
+
+    // to clean all cigars...
+    for (var i = 0; i < cigar_list.length; i++) {
+        console.log(" cigar "+i+" length "+cigar_list[i].length)
+        cigar_list[i] = cigar_list[i].split("")
+
+        for (var j = pos.length - 1; j >= 0; j--) {
+            cigar_list[i].splice(pos[j], 1);
+        }
+
+        cigar_string = cigar_list[i].join("")
+
+        if (reverse_cigar.indexOf(cigar_id[i]) >= 0) {
+            cigar_string.split("").reverse().join()
+        }
+
+
+        var new_cigar = compressCigar(cigar_string)
+
+
+        cigars_json[cigar_id[i]] = new_cigar
+
+    }
+
+
+    console.log(cigars_json)
+    // return cigar_list[0].join("");
+    return cigars_json
+}
+
+function expandCigar(cigar, toNucleotide) {
+    var cigar_string = "";
+    var cigar = cigar.replace(/([SIXMND])/g, ":$1,");
+    var cigars_array = cigar.split(',');
+
+    var multiply = 1;
+    if(toNucleotide){
+        multiply = 3
+    }
+
+    for (var j = 0; j < cigars_array.length - 1; j++) {
+        var cigar = cigars_array[j].split(":");
+        var key = cigar[1];
+        var length = cigar[0] * multiply;
+        if (!length) {
+            length = multiply
+        }
+        while (length--) {
+            cigar_string += key;
+        }
+
+        cigar_string += "";
+    }
+
+    return cigar_string
+}
+
+function compressCigar(cigar_string) {
+    cigar_string = cigar_string.replace(/(MD)/g, "M,D");
+    cigar_string = cigar_string.replace(/(DM)/g, "D,M");
+    var cigar_array = cigar_string.split(",")
+    var new_cigar = ""
+
+    for (var a = 0; a < cigar_array.length; a++) {
+        var key = cigar_array[a].charAt(0)
+        var length = cigar_array[a].length;
+
+        if (length > 1) {
+            new_cigar += length
+        }
+        new_cigar += key
+    }
+
+    return new_cigar;
 }
 
 /**
