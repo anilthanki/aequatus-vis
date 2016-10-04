@@ -9,12 +9,16 @@ function NewickToJSON(s) {
     var tree = {};
     var tokens = s.split(/\s*(;|\(|\)|,|:|\[|\])\s*/);
     var tag = false;
-
+    var node_id = 1;
+    tree.node_id = node_id;
+    node_id++;
     for (var i = 0; i < tokens.length; i++) {
         var token = tokens[i];
         switch (token) {
             case '(': // new branchset
                 var subtree = {};
+                subtree.node_id = node_id;
+                node_id++;
                 tree.children = [subtree];
                 ancestors.push(tree);
                 tree = subtree;
