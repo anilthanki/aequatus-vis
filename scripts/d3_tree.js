@@ -13,6 +13,9 @@
  * @param div HTML div reference to draw tree
  * @param event event to be initialise for onclick on gene
  */
+
+var ranked = false;
+var last = 0;
 function drawTree(json_tree, div, event) {
     console.log("drawTree")
     var gene_width = jQuery(window).width() * 0.8
@@ -26,8 +29,12 @@ function drawTree(json_tree, div, event) {
         .size([height, width - 160]);
 
     var diagonal = d3.svg.line().interpolate('step-before')
-        .x(function (d) { return d.x; })
-        .y(function (d) { return d.y; });
+        .x(function (d) {
+            return d.x;
+        })
+        .y(function (d) {
+            return d.y;
+        });
 
 
     var svg = d3.select(div).append("svg")
@@ -50,15 +57,15 @@ function drawTree(json_tree, div, event) {
     }
 
     var genome_list = [];
-    jQuery.each(genome_list_all, function(i, el){
-        if(jQuery.inArray(el, genome_list) === -1) genome_list.push(el);
+    jQuery.each(genome_list_all, function (i, el) {
+        if (jQuery.inArray(el, genome_list) === -1) genome_list.push(el);
     });
 
     d3.select(filter_div).selectAll("input")
         .data(genome_list)
         .enter()
         .append('label')
-        .attr("class","filter")
+        .attr("class", "filter")
         .attr('for', function (d, i) {
             return 'a' + i;
         })
@@ -71,8 +78,121 @@ function drawTree(json_tree, div, event) {
         .attr("id", function (d, i) {
             return 'a' + i;
         })
-        .on("click", filtercheck)
+        .on("click", filtercheck);
+    jQuery("#sliderfilter").slider({
+        value: 20,
+        min: 1,
+        max: 10,
+        step: 1,
+        slide: function (event, ui) {
+            if (ui.value < last) filterRank(ui.value)//$("#amount").val("this is increasing");
+            if (ui.value > last) filterRankUP(ui.value)//$("#amount").val("this is decreasing");
+            last = ui.value;
+            jQuery("#percentage").val(ui.value);
+        }
+    });
 
+    last = jQuery("#sliderfilter").slider("value")
+    jQuery("#percentage").val(jQuery("#sliderfilter").slider("value"));
+
+    // jQuery("#sliderfilter").slider({
+    //     change: function (event, ui) {
+    //         filterRank(ui.value)
+    //     }
+    // });
+
+    jQuery("#percentage").on("change", function () {
+        jQuery("#sliderfilter").slider({
+            value: jQuery("#percentage").val()
+        })
+    })
+
+    function filterRank(rank) {
+        svg.selectAll(".node")
+            .filter(function (d) {
+                if (d.rank && d.rank > rank) {
+                    var newObject = d;
+                    newObject.children.forEach(function (e) {
+                        if (e.rank && e.rank <= rank) {
+
+                        } else if (e.rank && e.rank > rank) {
+                            recusrsiveCheck(e)
+                        } else {
+                            closeNode(d, e)
+                        }
+                    })
+                }
+
+
+                function recusrsiveCheck(node) {
+                    node.children.forEach(function (e) {
+                        if (e.rank && e.rank <= rank) {
+                        } else if (e.rank && e.rank > rank) {
+                            recusrsiveCheck(e)
+                        } else {
+                            closeNode(node, e)
+                        }
+                    })
+                }
+
+                function closeNode(node, childNode) {
+                    var temp_children = childNode.children
+                    if (temp_children) {
+                        if (!childNode._children)
+                            childNode._children = []
+                        temp_children.forEach(function (child) {
+                            childNode._children.push(child)
+                        })
+                        childNode.children = null
+                        update(node, member_id);
+                    }
+                }
+            });
+    }
+
+    function filterRankUP(rank) {
+        svg.selectAll(".node")
+            .filter(function (d) {
+                if (d.rank && d.rank <= rank) {
+                    var newObject = d;
+
+                    newObject.children.forEach(function (e) {
+                        if (e.rank) {
+
+                        } else {
+                            openNode(e)
+
+                        }
+                    })
+                }
+
+                function recusrsiveCheckOpen(node) {
+                    node.children.forEach(function (e) {
+                        if (e.rank && e.rank <= rank) {
+                            openNode(e)
+                            recusrsiveCheckOpen(e)
+                        }
+                    })
+                }
+
+
+                function openNode(node) {
+                    if (!node.children)
+                        node.children = []
+                    if (node._children && node._children.size() > 0) {
+                        node._children.forEach(function (e, i) {
+                            if (e.node_id) {
+                                node.children.push(e)
+                            }
+                        })
+                        node._children = null
+                    }
+                    update(node, member_id);
+                    return node;
+                }
+            });
+
+    }
 
     /**
      * selects tree nodes for species
@@ -140,7 +260,7 @@ function drawTree(json_tree, div, event) {
                         var newObject = d;//jQuery.extend(true, {}, d);
 
                         var cont = true;
-                        if(d.sequence){
+                        if (d.sequence) {
                         }
                         while (cont) {
                             if (newObject._children && newObject._children.size() > 0) {
@@ -172,6 +292,8 @@ function drawTree(json_tree, div, event) {
             });
     }
 
+    var nodes;
+    var count = 0;
 
     d3.json(json_tree, function () {
 
@@ -179,12 +301,39 @@ function drawTree(json_tree, div, event) {
 
         root.x0 = height / 2;
         root.y0 = 0;
+        root.children.forEach(function (d) {
+            recursiveChildren(d)
 
+        });
+        nodes = cluster.nodes(root).reverse();
+        nodes.forEach(function (d) {
+
+            if (d.children == null) {
+                count++;
+            }
+            count = count
+        });
         update(root, member_id);
     });
 
+
     d3.select(self.frameElement).style("height", "800px");
 
+
+    function recursiveChildren(d) {
+        if (d.children.size() == 1) {
+            // d._children = d.children;
+            var new_children = pack(d)
+            d.children = new_children.child;
+            d.close = true
+            d.type = new_children.type;
+        }
+        if (d.children) {
+            d.children.forEach(function (e) {
+                recursiveChildren(e)
+            })
+        }
+    }
 
     /**
      * updates tree layout
@@ -193,36 +342,26 @@ function drawTree(json_tree, div, event) {
      */
     function update(source, ref_member) {
         console.log("update")
-
-        console.log(protein_member_id)
-
         // Compute the new tree layout.
-        var nodes = cluster.nodes(root).reverse();
-
         // Normalize for fixed-depth.
-        var count = 0;
-        nodes.forEach(function (d) {
-            if (d.parent && d.parent.children.size() == 1 && d.children != null) {
-                if (!d.parent._children) {
-                    d.parent._children = []
+        var rank = 1;
 
+        if (ranked == false) {
+            nodes.forEach(function (d) {
+                if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
+                    d.parent['rank'] = rank;
                 }
-
-                d.parent._children.push(d)
-                d.parent.close = true
-                d.parent.children = d.children;
-            }
-            if (d.children == null)
-                count++;
-        });
-
-
-        //nodes.forEach(function(d) { d.y = d.depth * 180; });
-        updateWindow(count)
+                if (d.parent && d.rank > 0) {
+                    rank++;
+                    d.parent['rank'] = rank;
+                }
+            });
+            ranked = true;
+            updateWindow(count)
+        }
 
         nodes = cluster.nodes(root)
         var links = cluster.links(nodes);
-
 
         var node = svg.selectAll("g.node")
             .data(nodes, function (d) {
@@ -236,7 +375,7 @@ function drawTree(json_tree, div, event) {
                 if (source.x0 > maxHeight) {
                     maxHeight = source.x0
                 }
-                return "translate(" + d.y+ "," + d.x + ")";
+                return "translate(" + d.y + "," + d.x + ")";
             })
             .attr("species", function (d) {
                 if (d.sequence) {
@@ -249,6 +388,12 @@ function drawTree(json_tree, div, event) {
                 else {
                     return "";
                 }
+            })
+            .attr("rank", function (d) {
+                if (d.rank) {
+                    return d.rank;
+                }
+
             })
             .on("click", function (d) {
                 if (d.sequence) {
@@ -271,7 +416,7 @@ function drawTree(json_tree, div, event) {
                 if (d.sequence)// && d.children != null) {
                 {
                     return "circle" + d.sequence.id[0].accession;
-                }else{
+                } else {
                     return "circle" + d.node_id;
 
                 }
@@ -289,9 +434,9 @@ function drawTree(json_tree, div, event) {
                 if (d.sequence) {
                     return "white";
                 }
-                else if(d.close && d.close == true){
+                else if (d.close && d.close == true) {
                     return "white";
-                }else if (d.events) {
+                } else if (d.events) {
                     if (d.events.type == "duplication") {
                         return 'red';
                     } else if (d.events.type == "dubious") {
@@ -306,9 +451,9 @@ function drawTree(json_tree, div, event) {
                 }
             })
             .style("stroke-width", function (d) {
-                if ((d.sequence && d.sequence.id[0].accession == protein_member_id) || (d.close && d.close == true)){
+                if ((d.sequence && d.sequence.id[0].accession == protein_member_id) || (d.close && d.close == true)) {
                     return "2px";
-                }else{
+                } else {
                     return "1px";
                 }
             })
@@ -316,7 +461,12 @@ function drawTree(json_tree, div, event) {
                 if ((d.sequence && d.id.accession == protein_member_id)) {
                     return "black";
                 }
+            })
+            .append("svg:title")
+            .text(function (d, i) {
+                return d.node_id;
             });
+        ;
 
         // Transition nodes to their new position.
         var nodeUpdate = node.transition()
@@ -333,7 +483,7 @@ function drawTree(json_tree, div, event) {
                 if (d.sequence)// && d.children != null) {
                 {
                     return "circle" + d.sequence.id[0].accession;
-                }else{
+                } else {
                     return "circle" + d.node_id;
 
                 }
@@ -351,9 +501,9 @@ function drawTree(json_tree, div, event) {
                 if (d.sequence) {
                     return "white";
                 }
-                else if(d.close && d.close == true){
+                else if (d.close && d.close == true) {
                     return "white";
-                }else if (d.events) {
+                } else if (d.events) {
                     if (d.events.type == "duplication") {
                         return 'red';
                     } else if (d.events.type == "dubious") {
@@ -368,9 +518,9 @@ function drawTree(json_tree, div, event) {
                 }
             })
             .style("stroke-width", function (d) {
-                if ((d.sequence && d.sequence.id[0].accession== protein_member_id) || (d.close && d.close == true)){
+                if ((d.sequence && d.sequence.id[0].accession == protein_member_id) || (d.close && d.close == true)) {
                     return "2px";
-                }else{
+                } else {
                     return "1px";
                 }
             })
@@ -417,7 +567,7 @@ function drawTree(json_tree, div, event) {
             .style("left", "10px")
             .style("top", "10px")
             .html(function (d) {
-                if (d.sequence){
+                if (d.sequence) {
                     return "<div id = 'id" + d.sequence.id[0].accession + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
                 }
             });
@@ -432,7 +582,6 @@ function drawTree(json_tree, div, event) {
                 dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession, true)
                 dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession, true)
             }
-
 
 
             checkVisuals();
@@ -543,7 +692,6 @@ function drawTree(json_tree, div, event) {
     }
 
     function pack(d) {
-
         var cont = true;
         var child = d;
         var new_children = {}
@@ -551,7 +699,7 @@ function drawTree(json_tree, div, event) {
         var children = null;
 
         while (cont) {
-            if (child.children && child.children.size() == 1) {
+            if (child.children && child.children.size() == 1 && !child.children[0].sequence) {
                 child = (child.children[0])
                 if (child.type) {
                     new_children.type = new_children.type.concat(child.type)
