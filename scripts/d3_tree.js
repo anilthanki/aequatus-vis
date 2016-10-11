@@ -36,14 +36,12 @@ function drawTree(json_tree, div, event) {
             return d.y;
         });
 
-
     var svg = d3.select(div).append("svg")
         .attr("width", width + margin.right + margin.left)
         .attr("height", height + margin.top + margin.bottom)
         .style("overflow", "visible")
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 
     var i = 0,
         duration = 750,
@@ -55,7 +53,6 @@ function drawTree(json_tree, div, event) {
     for (var key in syntenic_data.member) {
         genome_list_all.push(syntenic_data.member[key].species)
     }
-
     var genome_list = [];
     jQuery.each(genome_list_all, function (i, el) {
         if (jQuery.inArray(el, genome_list) === -1) genome_list.push(el);
@@ -79,8 +76,11 @@ function drawTree(json_tree, div, event) {
             return 'a' + i;
         })
         .on("click", filtercheck);
-    jQuery("#sliderfilter").slider({
-        value: 20,
+
+    jQuery(slider_filter_div).html("<table width=100%><tr><td><div id='slider_div'></div><tr><td><input type='number' min='0' id='slider_percentage' style='border: 1px solid lightgray; font-weight: bold; margin-left: 10px; padding: 2px; width: 50px;'></div></tr></table>")
+
+    jQuery("#slider_div").slider({
+        value: 3,
         min: 1,
         max: 10,
         step: 1,
@@ -88,22 +88,23 @@ function drawTree(json_tree, div, event) {
             if (ui.value < last) filterRank(ui.value)//$("#amount").val("this is increasing");
             if (ui.value > last) filterRankUP(ui.value)//$("#amount").val("this is decreasing");
             last = ui.value;
-            jQuery("#percentage").val(ui.value);
+            jQuery("#slider_percentage").val(ui.value);
         }
     });
 
-    last = jQuery("#sliderfilter").slider("value")
-    jQuery("#percentage").val(jQuery("#sliderfilter").slider("value"));
+    last = jQuery("#slider_div").slider("value")
 
-    // jQuery("#sliderfilter").slider({
-    //     change: function (event, ui) {
-    //         filterRank(ui.value)
-    //     }
-    // });
+    jQuery("#slider_percentage").val(jQuery("#slider_div").slider("value"));
 
-    jQuery("#percentage").on("change", function () {
-        jQuery("#sliderfilter").slider({
-            value: jQuery("#percentage").val()
+
+    jQuery("#slider_percentage").on("change", function () {
+        var val = jQuery("#slider_percentage").val()
+        if (val < last) filterRank(val)//$("#amount").val("this is increasing");
+        if (val > last) filterRankUP(val)//$("#amount").val("this is decreasing");
+        last = val;
+
+        jQuery("#slider_div").slider({
+            value: val
         })
     })
 
@@ -151,11 +152,21 @@ function drawTree(json_tree, div, event) {
     }
 
     function filterRankUP(rank) {
+        console.log("rank " + rank)
         svg.selectAll(".node")
             .filter(function (d) {
-                if (d.rank && d.rank <= rank) {
-                    var newObject = d;
+                console.log(d.node_id)
 
+                if (d.rank && d.rank <= rank) {
+                    console.log("if " + d.node_id)
+                    var newObject = d;
+                    if (newObject._children && newObject._children.size() > 0) {
+                        newObject._children.forEach(function (e, i) {
+                            newObject.children.push(e)
+                            newObject._children.splice(i, 1)
+
+                        })
+                    }
                     newObject.children.forEach(function (e) {
                         if (e.rank) {
 
@@ -179,6 +190,7 @@ function drawTree(json_tree, div, event) {
                 function openNode(node) {
                     if (!node.children)
                         node.children = []
+
                     if (node._children && node._children.size() > 0) {
                         node._children.forEach(function (e, i) {
                             if (e.node_id) {
@@ -347,13 +359,26 @@ function drawTree(json_tree, div, event) {
         var rank = 1;
 
         if (ranked == false) {
-            nodes.forEach(function (d) {
+            nodes.forEach(function (d, i) {
                 if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
                     d.parent['rank'] = rank;
                 }
                 if (d.parent && d.rank > 0) {
                     rank++;
                     d.parent['rank'] = rank;
+                }
+
+
+                if (d.rank > jQuery("#slider_percentage").val()) {
+                    if (!d._children)
+                        d._children = []
+
+                    d.children.forEach(function (e, i) {
+                        if (!e.sequence && !e.rank) {
+                            d._children.push(e)
+                            d.children.splice(i, 1)
+                        }
+                    })
                 }
             });
             ranked = true;

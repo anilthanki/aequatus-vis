@@ -21,6 +21,7 @@ var protein_member_id = null;
 var transcript_member_id = null;
 var ref_data = null;
 var filter_div = null;
+var slider_filter_div = null;
 
 
 /**
@@ -98,7 +99,7 @@ function cleanCIGARs(cigar) {
  * @param control_div controls place holder name
  * @param filter_spacer filters place holder name
  */
-function init(json, control_div, filter_spacer) {
+function init(json, control_div, filter_spacer, slider_filter) {
     member_id = json.ref.replace(/[^a-zA-Z0-9]/g, '_');
 
     syntenic_data = json
@@ -108,6 +109,10 @@ function init(json, control_div, filter_spacer) {
 
     if (filter_spacer) {
         filter_div = filter_spacer
+    }
+
+    if (slider_filter) {
+        slider_filter_div = slider_filter
     }
 
 
