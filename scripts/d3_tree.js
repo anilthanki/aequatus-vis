@@ -21,7 +21,7 @@ function drawTree(json_tree, div, event) {
     var gene_width = jQuery(window).width() * 0.8
     var margin = {top: 0, right: 0, bottom: 0, left: 0},
         width = jQuery(window).width() * 0.2,
-        height = 1000 - margin.top - margin.bottom;
+        height = 800 - margin.top - margin.bottom;
 
     var maxHeight = 1000;
 
@@ -152,13 +152,9 @@ function drawTree(json_tree, div, event) {
     }
 
     function filterRankUP(rank) {
-        console.log("rank " + rank)
         svg.selectAll(".node")
             .filter(function (d) {
-                console.log(d.node_id)
-
                 if (d.rank && d.rank <= rank) {
-                    console.log("if " + d.node_id)
                     var newObject = d;
                     if (newObject._children && newObject._children.size() > 0) {
                         newObject._children.forEach(function (e, i) {
@@ -318,13 +314,7 @@ function drawTree(json_tree, div, event) {
 
         });
         nodes = cluster.nodes(root).reverse();
-        nodes.forEach(function (d) {
 
-            if (d.children == null) {
-                count++;
-            }
-            count = count
-        });
         update(root, member_id);
     });
 
@@ -374,18 +364,36 @@ function drawTree(json_tree, div, event) {
                         d._children = []
 
                     d.children.forEach(function (e, i) {
+
                         if (!e.sequence && !e.rank) {
-                            d._children.push(e)
-                            d.children.splice(i, 1)
+                            var temp_children = e.children
+                            if (temp_children) {
+                                if (!e._children)
+                                    e._children = []
+                                temp_children.forEach(function (child) {
+                                    e._children.push(child)
+                                })
+                                e.children = null
+                            }
                         }
                     })
                 }
             });
             ranked = true;
-            updateWindow(count)
         }
 
         nodes = cluster.nodes(root)
+
+        nodes.forEach(function (d) {
+
+            if (d.children == null) {
+                count++;
+            }
+            count = count
+        });
+
+        updateWindow(count)
+
         var links = cluster.links(nodes);
 
         var node = svg.selectAll("g.node")
@@ -709,11 +717,11 @@ function drawTree(json_tree, div, event) {
 
     function updateWindow(count) {
 
-        var y = count * 40;
+        // var y = count;
 
-        svg.attr("height", y);
-        cluster = d3.layout.cluster()
-            .size([y, width - 160]);
+        // svg.attr("height", y);
+        // cluster = d3.layout.cluster()
+        //     .size([y, width - 160]);
     }
 
     function pack(d) {
