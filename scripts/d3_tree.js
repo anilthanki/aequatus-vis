@@ -16,36 +16,43 @@
 
 var ranked = false;
 var last = 0;
+var nodes;
+var root;
+var cluster;
+var svg;
+var i = 0,
+    duration = 750;
+var diagonal = d3.svg.line().interpolate('step-before')
+    .x(function (d) {
+        return d.x;
+    })
+    .y(function (d) {
+        return d.y;
+    });
+var count = 0;
+var gene_width = jQuery(window).width() * 0.8
+var margin = {top: 0, right: 0, bottom: 0, left: 0},
+    width = jQuery(window).width() * 0.2,
+    height = 800 - margin.top - margin.bottom;
+
+var maxHeight = 1000;
+var event;
+
 function drawTree(json_tree, div, event) {
+    this.event = event;
     console.log("drawTree")
-    var gene_width = jQuery(window).width() * 0.8
-    var margin = {top: 0, right: 0, bottom: 0, left: 0},
-        width = jQuery(window).width() * 0.2,
-        height = 800 - margin.top - margin.bottom;
 
-    var maxHeight = 1000;
-
-    var cluster = d3.layout.cluster()
+    cluster = d3.layout.cluster()
         .size([height, width - 160]);
 
-    var diagonal = d3.svg.line().interpolate('step-before')
-        .x(function (d) {
-            return d.x;
-        })
-        .y(function (d) {
-            return d.y;
-        });
 
-    var svg = d3.select(div).append("svg")
+    svg = d3.select(div).append("svg")
         .attr("width", width + margin.right + margin.left)
         .attr("height", height + margin.top + margin.bottom)
         .style("overflow", "visible")
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var i = 0,
-        duration = 750,
-        root;
 
     var genome_list_all = []
 
@@ -83,14 +90,17 @@ function drawTree(json_tree, div, event) {
         value: 3,
         min: 1,
         max: 10,
-        step: 1,
-        slide: function (event, ui) {
-            if (ui.value < last) filterRank(ui.value)//$("#amount").val("this is increasing");
-            if (ui.value > last) filterRankUP(ui.value)//$("#amount").val("this is decreasing");
-            last = ui.value;
-            jQuery("#slider_percentage").val(ui.value);
-        }
+        step: 1
     });
+    jQuery("#slider_div").slider().bind({
+        slide: function (event, ui) {
+            var value = jQuery("#slider_div").slider("value")
+            if (value < last) filterRank(value)//$("#amount").val("this is increasing");
+            if (value > last) filterRankUP(value)//$("#amount").val("this is decreasing");
+            last = value;
+            jQuery("#slider_percentage").val(value);
+        }
+    })
 
     last = jQuery("#slider_div").slider("value")
 
@@ -300,8 +310,6 @@ function drawTree(json_tree, div, event) {
             });
     }
 
-    var nodes;
-    var count = 0;
 
     d3.json(json_tree, function () {
 
@@ -313,9 +321,10 @@ function drawTree(json_tree, div, event) {
             recursiveChildren(d)
 
         });
-        nodes = cluster.nodes(root).reverse();
+        nodes = cluster.nodes(root);
+        rank()
 
-        update(root, member_id);
+
     });
 
 
@@ -342,418 +351,8 @@ function drawTree(json_tree, div, event) {
      * @param source nodes
      * @param ref_member reference member id
      */
-    function update(source, ref_member) {
-        console.log("update")
-        // Compute the new tree layout.
-        // Normalize for fixed-depth.
-        var rank = 1;
-
-        if (ranked == false) {
-            nodes.forEach(function (d, i) {
-                if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
-                    d.parent['rank'] = rank;
-                }
-                if (d.parent && d.rank > 0) {
-                    rank++;
-                    d.parent['rank'] = rank;
-                }
 
 
-                if (d.rank > jQuery("#slider_percentage").val()) {
-                    if (!d._children)
-                        d._children = []
-
-                    d.children.forEach(function (e, i) {
-
-                        if (!e.sequence && !e.rank) {
-                            var temp_children = e.children
-                            if (temp_children) {
-                                if (!e._children)
-                                    e._children = []
-                                temp_children.forEach(function (child) {
-                                    e._children.push(child)
-                                })
-                                e.children = null
-                            }
-                        }
-                    })
-                }
-            });
-            ranked = true;
-        }
-
-        nodes = cluster.nodes(root)
-
-        nodes.forEach(function (d) {
-
-            if (d.children == null) {
-                count++;
-            }
-            count = count
-        });
-
-        updateWindow(count)
-
-        var links = cluster.links(nodes);
-
-        var node = svg.selectAll("g.node")
-            .data(nodes, function (d) {
-                return d.ID || (d.ID = ++i);
-            });
-
-        // Enter any new nodes at the parent's previous position.
-        var nodeEnter = node.enter().append("g")
-            .attr("class", "node")
-            .attr("transform", function (d) {
-                if (source.x0 > maxHeight) {
-                    maxHeight = source.x0
-                }
-                return "translate(" + d.y + "," + d.x + ")";
-            })
-            .attr("species", function (d) {
-                if (d.sequence) {
-                    if (d.sequence.id[0].accession == protein_member_id) {
-                        return syntenic_data.member[syntenic_data.ref].species;
-                    } else {
-                        return syntenic_data.member[d.id.accession].species;
-                    }
-                }
-                else {
-                    return "";
-                }
-            })
-            .attr("rank", function (d) {
-                if (d.rank) {
-                    return d.rank;
-                }
-
-            })
-            .on("click", function (d) {
-                if (d.sequence) {
-                    event(d.id.accession, d.sequence.id[0].accession)
-                } else {
-                    if (d.children && d.children != null) {
-                        if (d.children.size() > 0) {
-                            click(d)
-                        }
-                    } else {
-                        if (d._children.size() > 0) {
-                            click(d)
-                        }
-                    }
-                }
-            })
-
-        nodeEnter.append("circle")
-            .attr("id", function (d, i) {
-                if (d.sequence)// && d.children != null) {
-                {
-                    return "circle" + d.sequence.id[0].accession;
-                } else {
-                    return "circle" + d.node_id;
-
-                }
-            })
-            .attr("r", function (d) {
-                if (d.sequence && d.sequence.id[0].accession == protein_member_id)// && d.children != null) {
-                {
-                    return 6;
-                }
-                else {
-                    return 4;
-                }
-            })
-            .style("fill", function (d) {
-                if (d.sequence) {
-                    return "white";
-                }
-                else if (d.close && d.close == true) {
-                    return "white";
-                } else if (d.events) {
-                    if (d.events.type == "duplication") {
-                        return 'red';
-                    } else if (d.events.type == "dubious") {
-                        return "cyan";
-                    } else if (d.events.type == "speciation") {
-                        return 'blue';
-                    } else if (d.events.type == "gene_split") {
-                        return 'pink';
-                    } else {
-                        return "white";
-                    }
-                }
-            })
-            .style("stroke-width", function (d) {
-                if ((d.sequence && d.sequence.id[0].accession == protein_member_id) || (d.close && d.close == true)) {
-                    return "2px";
-                } else {
-                    return "1px";
-                }
-            })
-            .style("stroke", function (d) {
-                if ((d.sequence && d.id.accession == protein_member_id)) {
-                    return "black";
-                }
-            })
-            .append("svg:title")
-            .text(function (d, i) {
-                return d.node_id;
-            });
-        ;
-
-        // Transition nodes to their new position.
-        var nodeUpdate = node.transition()
-            .duration(duration)
-            .attr("transform", function (d) {
-                if (d.x > maxHeight) {
-                    maxHeight = d.x
-                }
-                return "translate(" + d.y + "," + d.x + ")";
-            });
-
-        nodeUpdate.select("circle")
-            .attr("id", function (d, i) {
-                if (d.sequence)// && d.children != null) {
-                {
-                    return "circle" + d.sequence.id[0].accession;
-                } else {
-                    return "circle" + d.node_id;
-
-                }
-            })
-            .attr("r", function (d) {
-                if (d.sequence && d.sequence.id[0].accession == protein_member_id)// && d.children != null) {
-                {
-                    return 6;
-                }
-                else {
-                    return 4;
-                }
-            })
-            .style("fill", function (d) {
-                if (d.sequence) {
-                    return "white";
-                }
-                else if (d.close && d.close == true) {
-                    return "white";
-                } else if (d.events) {
-                    if (d.events.type == "duplication") {
-                        return 'red';
-                    } else if (d.events.type == "dubious") {
-                        return "cyan";
-                    } else if (d.events.type == "speciation") {
-                        return 'blue';
-                    } else if (d.events.type == "gene_split") {
-                        return 'pink';
-                    } else {
-                        return "white";
-                    }
-                }
-            })
-            .style("stroke-width", function (d) {
-                if ((d.sequence && d.sequence.id[0].accession == protein_member_id) || (d.close && d.close == true)) {
-                    return "2px";
-                } else {
-                    return "1px";
-                }
-            })
-            .style("stroke", function (d) {
-                if ((d.sequence && d.sequence.id[0].accession == protein_member_id)) {
-                    return "black";
-                }
-            });
-
-        // Transition exiting nodes to the parent's new position.
-        var nodeExit = node.exit().transition()
-            .duration(duration)
-            .attr("transform", function (d) {
-                return "translate(" + source.y + "," + source.x + ")";
-            })
-            .remove();
-
-        nodeExit.select("circle")
-            .attr("r", 1e-6);
-
-        nodeExit.select("text")
-            .style("fill-opacity", 1e-6);
-
-
-        nodeEnter.filter(function (d) {
-            if (d.sequence) {
-                return true;
-            } else {
-                return false;
-            }
-        }).append("foreignObject")
-            .attr("class", "node_gene_holder")
-            .attr('width', width)
-            .attr('height', '40px')
-            .attr('x', 20)
-            .attr('y', -20)
-            .style("fill", "red")
-
-            .append('xhtml:div')
-            .style("width", gene_width)
-            .style("height", "50px")
-            .style("z-index", "999")
-            .style("position", "fixed")
-            .style("left", "10px")
-            .style("top", "10px")
-            .html(function (d) {
-                if (d.sequence) {
-                    return "<div id = 'id" + d.sequence.id[0].accession + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
-                }
-            });
-
-        nodeEnter.filter(function (d) {
-            if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
-                jQuery("#id" + d.sequence.id[0].accession).svg()
-                dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession)
-                dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession)
-            } else if (d.sequence && syntenic_data.member[d.id.accession]) {
-                jQuery("#id" + d.sequence.id[0].accession).svg()
-                dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession, true)
-                dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession, true)
-            }
-
-
-            checkVisuals();
-        });
-
-        nodeUpdate.select("foreignObject")
-            .attr('width', function (d) {
-                return jQuery(window).width() * 0.8;
-            })
-            .attr('height', '40px')
-            .attr('x', 10)
-            .attr('y', -20);
-
-
-        // Update the links…
-        var link = svg.selectAll("path.link")
-            .data(links, function (d, i) {
-                return d.target.ID;
-            });
-
-        // Enter any new links at the parent's previous position.
-        link.enter().insert("path", "g")
-            .attr("class", "link")
-            .attr("d", function (d) {
-                return diagonal([{
-                    y: d.source.x,
-                    x: d.source.y
-                }, {
-                    y: d.target.x,
-                    x: d.target.y
-                }]);
-            });
-
-        // Transition links to their new position.
-        link.transition()
-            .duration(duration)
-            .attr("d", function (d) {
-                return diagonal([{
-                    y: d.source.x,
-                    x: d.source.y
-                }, {
-                    y: d.target.x,
-                    x: d.target.y
-                }]);
-            });
-
-        // Transition exiting nodes to the parent's new position.
-        link.exit().transition()
-            .duration(duration)
-            .attr("d", function (d) {
-                return diagonal([{
-                    y: d.source.x,
-                    x: d.source.y
-                }, {
-                    y: d.target.x,
-                    x: d.target.y
-                }]);
-            })
-            .remove();
-
-        // Stash the old positions for transition.
-        nodes.forEach(function (d, i) {
-            d.x0 = d.x;
-            d.y0 = d.y;
-        });
-
-        if (maxHeight > height) {
-            var body = d3.select("body");
-            var temp_svg = body.select("svg")
-            temp_svg.attr("height", parseInt(maxHeight) + 100 + "px")
-
-        }
-    }
-
-    /**
-     * Toggle children on click.
-     * @param d clicked node
-     */
-    function click(d) {
-
-        if (d.children && d.children != null) {
-            if (d.children.size() == 1) {
-                d._children = d.children;
-                var new_children = pack(d)
-                d.children = new_children.child;
-                d.close = true
-                d.type = new_children.type;
-            } else {
-                d._children = d.children;
-                d.children = null;
-            }
-        } else {
-            d.children = d._children;
-            d._children = null;
-        }
-
-        update(d, member_id);
-
-    }
-
-    function updateWindow(count) {
-
-        // var y = count;
-
-        // svg.attr("height", y);
-        // cluster = d3.layout.cluster()
-        //     .size([y, width - 160]);
-    }
-
-    function pack(d) {
-        var cont = true;
-        var child = d;
-        var new_children = {}
-        new_children.type = []
-        var children = null;
-
-        while (cont) {
-            if (child.children && child.children.size() == 1 && !child.children[0].sequence) {
-                child = (child.children[0])
-                if (child.type) {
-                    new_children.type = new_children.type.concat(child.type)
-                } else {
-                    new_children.type.push(child.node_type)
-                }
-            } else {
-                if (child.children) {
-                    children = child.children
-                }
-                else {
-                    children = child.parent.children
-                }
-                cont = false;
-                break;
-            }
-        }
-
-        new_children.child = children;
-        return new_children;
-    }
 }
 
 /**
@@ -798,5 +397,490 @@ function changeToProteinId() {
     jQuery(".genelabel").hide();
     jQuery(".geneinfo").hide();
     jQuery(".protein_id").show();
+}
+
+/**
+ * Toggle children on click.
+ * @param d clicked node
+ */
+function click(d) {
+
+    if (d.children && d.children != null) {
+        if (d.children.size() == 1) {
+            d._children = d.children;
+            var new_children = pack(d)
+            d.children = new_children.child;
+            d.close = true
+            d.type = new_children.type;
+        } else {
+            d._children = d.children;
+            d.children = null;
+        }
+    } else {
+        d.children = d._children;
+        d._children = null;
+    }
+
+    update(d, member_id);
+
+}
+
+function updateWindow(count) {
+
+    // var y = count;
+
+    // svg.attr("height", y);
+    // cluster = d3.layout.cluster()
+    //     .size([y, width - 160]);
+}
+
+function pack(d) {
+    var cont = true;
+    var child = d;
+    var new_children = {}
+    new_children.type = []
+    var children = null;
+
+    while (cont) {
+        if (child.children && child.children.size() == 1 && !child.children[0].sequence) {
+            child = (child.children[0])
+            if (child.type) {
+                new_children.type = new_children.type.concat(child.type)
+            } else {
+                new_children.type.push(child.node_type)
+            }
+        } else {
+            if (child.children) {
+                children = child.children
+            }
+            else {
+                children = child.parent.children
+            }
+            cont = false;
+            break;
+        }
+    }
+
+    new_children.child = children;
+    return new_children;
+}
+function update(source, ref_member) {
+    console.log("update")
+    // Compute the new tree layout.
+    // Normalize for fixed-depth.
+
+    // if (ranked == false) {
+    //     nodes.forEach(function (d, i) {
+    //         if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
+    //             d.parent['rank'] = rank;
+    //         }
+    //         if (d.parent && d.rank > 0) {
+    //             rank++;
+    //             d.parent['rank'] = rank;
+    //         }
+
+
+    //         if (d.rank > jQuery("#slider_percentage").val()) {
+    //             if (!d._children)
+    //                 d._children = []
+
+    //             d.children.forEach(function (e, i) {
+
+    //              if (!e.sequence && !e.rank) {
+    //                    var temp_children = e.children
+    //                     if (temp_children) {
+    //                         if (!e._children)
+    //                             e._children = []
+    //                         temp_children.forEach(function (child) {
+    //                             e._children.push(child)
+    //                         })
+    //                         e.children = null
+    //                     }
+    //                 }
+    //             })
+    //         }
+    //     });
+    //     ranked = true;
+    // }
+
+    nodes = cluster.nodes(root)
+
+    nodes.forEach(function (d) {
+
+        if (d.children == null) {
+            count++;
+        }
+        count = count
+    });
+
+    updateWindow(count)
+
+    var links = cluster.links(nodes);
+
+    var node = svg.selectAll("g.node")
+        .data(nodes, function (d) {
+            return d.ID || (d.ID = ++i);
+        });
+
+    // Enter any new nodes at the parent's previous position.
+    var nodeEnter = node.enter().append("g")
+        .attr("class", "node")
+        .attr("transform", function (d) {
+            if (source.x0 > maxHeight) {
+                maxHeight = source.x0
+            }
+            return "translate(" + d.y + "," + d.x + ")";
+        })
+        .attr("species", function (d) {
+            if (d.sequence) {
+                if (d.sequence.id[0].accession == protein_member_id) {
+                    return syntenic_data.member[syntenic_data.ref].species;
+                } else {
+                    return syntenic_data.member[d.id.accession].species;
+                }
+            }
+            else {
+                return "";
+            }
+        })
+        .attr("rank", function (d) {
+            if (d.rank) {
+                return d.rank;
+            }
+
+        })
+        .on("click", function (d) {
+            if (d.sequence) {
+                event(d.id.accession, d.sequence.id[0].accession)
+            } else {
+                if (d.children && d.children != null) {
+                    if (d.children.size() > 0) {
+                        click(d)
+                    }
+                } else {
+                    if (d._children.size() > 0) {
+                        click(d)
+                    }
+                }
+            }
+        })
+
+    nodeEnter.append("circle")
+        .attr("id", function (d, i) {
+            if (d.sequence)// && d.children != null) {
+            {
+                return "circle" + d.sequence.id[0].accession;
+            } else {
+                return "circle" + d.node_id;
+
+            }
+        })
+        .attr("r", function (d) {
+            if (d.sequence && d.sequence.id[0].accession == protein_member_id)// && d.children != null) {
+            {
+                return 6;
+            }
+            else {
+                return 4;
+            }
+        })
+        .style("fill", function (d) {
+            if (d.sequence) {
+                return "white";
+            }
+            else if (d.close && d.close == true) {
+                return "white";
+            } else if (d.events) {
+                if (d.events.type == "duplication") {
+                    return 'red';
+                } else if (d.events.type == "dubious") {
+                    return "cyan";
+                } else if (d.events.type == "speciation") {
+                    return 'blue';
+                } else if (d.events.type == "gene_split") {
+                    return 'pink';
+                } else {
+                    return "white";
+                }
+            }
+        })
+        .style("stroke-width", function (d) {
+            if ((d.sequence && d.sequence.id[0].accession == protein_member_id) || (d.close && d.close == true)) {
+                return "2px";
+            } else {
+                return "1px";
+            }
+        })
+        .style("stroke", function (d) {
+            if ((d.sequence && d.id.accession == protein_member_id)) {
+                return "black";
+            }
+        })
+        .append("svg:title")
+        .text(function (d, i) {
+            return d.rank;
+        });
+    ;
+
+    // Transition nodes to their new position.
+    var nodeUpdate = node.transition()
+        .duration(duration)
+        .attr("transform", function (d) {
+            if (d.x > maxHeight) {
+                maxHeight = d.x
+            }
+            return "translate(" + d.y + "," + d.x + ")";
+        });
+
+    nodeUpdate.select("circle")
+        .attr("id", function (d, i) {
+            if (d.sequence)// && d.children != null) {
+            {
+                return "circle" + d.sequence.id[0].accession;
+            } else {
+                return "circle" + d.node_id;
+
+            }
+        })
+        .attr("r", function (d) {
+            if (d.sequence && d.sequence.id[0].accession == protein_member_id)// && d.children != null) {
+            {
+                return 6;
+            }
+            else {
+                return 4;
+            }
+        })
+        .style("fill", function (d) {
+            if (d.sequence) {
+                return "white";
+            }
+            else if (d.close && d.close == true) {
+                return "white";
+            } else if (d.events) {
+                if (d.events.type == "duplication") {
+                    return 'red';
+                } else if (d.events.type == "dubious") {
+                    return "cyan";
+                } else if (d.events.type == "speciation") {
+                    return 'blue';
+                } else if (d.events.type == "gene_split") {
+                    return 'pink';
+                } else {
+                    return "white";
+                }
+            }
+        })
+        .style("stroke-width", function (d) {
+            if ((d.sequence && d.sequence.id[0].accession == protein_member_id) || (d.close && d.close == true)) {
+                return "2px";
+            } else {
+                return "1px";
+            }
+        })
+        .style("stroke", function (d) {
+            if ((d.sequence && d.sequence.id[0].accession == protein_member_id)) {
+                return "black";
+            }
+        });
+
+    nodeUpdate.select("title")
+        .text(function (d, i) {
+            return d.rank;
+        });
+
+    // Transition exiting nodes to the parent's new position.
+    var nodeExit = node.exit().transition()
+        .duration(duration)
+        .attr("transform", function (d) {
+            return "translate(" + source.y + "," + source.x + ")";
+        })
+        .remove();
+
+    nodeExit.select("circle")
+        .attr("r", 1e-6);
+
+    nodeExit.select("text")
+        .style("fill-opacity", 1e-6);
+
+
+    nodeEnter.filter(function (d) {
+        if (d.sequence) {
+            return true;
+        } else {
+            return false;
+        }
+    }).append("foreignObject")
+        .attr("class", "node_gene_holder")
+        .attr('width', width)
+        .attr('height', '40px')
+        .attr('x', 20)
+        .attr('y', -20)
+        .style("fill", "red")
+
+        .append('xhtml:div')
+        .style("width", gene_width)
+        .style("height", "50px")
+        .style("z-index", "999")
+        .style("position", "fixed")
+        .style("left", "10px")
+        .style("top", "10px")
+        .html(function (d) {
+            if (d.sequence) {
+                return "<div id = 'id" + d.sequence.id[0].accession + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
+            }
+        });
+
+    nodeEnter.filter(function (d) {
+        if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
+            jQuery("#id" + d.sequence.id[0].accession).svg()
+            dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession)
+            dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession)
+        } else if (d.sequence && syntenic_data.member[d.id.accession]) {
+            jQuery("#id" + d.sequence.id[0].accession).svg()
+            dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession, true)
+            dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession, true)
+        }
+
+
+        checkVisuals();
+    });
+
+    nodeUpdate.select("foreignObject")
+        .attr('width', function (d) {
+            return jQuery(window).width() * 0.8;
+        })
+        .attr('height', '40px')
+        .attr('x', 10)
+        .attr('y', -20);
+
+
+    // Update the links…
+    var link = svg.selectAll("path.link")
+        .data(links, function (d, i) {
+            return d.target.ID;
+        });
+
+    // Enter any new links at the parent's previous position.
+    link.enter().insert("path", "g")
+        .attr("class", "link")
+        .attr("d", function (d) {
+            return diagonal([{
+                y: d.source.x,
+                x: d.source.y
+            }, {
+                y: d.target.x,
+                x: d.target.y
+            }]);
+        });
+
+    // Transition links to their new position.
+    link.transition()
+        .duration(duration)
+        .attr("d", function (d) {
+            return diagonal([{
+                y: d.source.x,
+                x: d.source.y
+            }, {
+                y: d.target.x,
+                x: d.target.y
+            }]);
+        });
+
+    // Transition exiting nodes to the parent's new position.
+    link.exit().transition()
+        .duration(duration)
+        .attr("d", function (d) {
+            return diagonal([{
+                y: d.source.x,
+                x: d.source.y
+            }, {
+                y: d.target.x,
+                x: d.target.y
+            }]);
+        })
+        .remove();
+
+    // Stash the old positions for transition.
+    nodes.forEach(function (d, i) {
+        d.x0 = d.x;
+        d.y0 = d.y;
+    });
+
+    if (maxHeight > height) {
+        var body = d3.select("body");
+        var temp_svg = body.select("svg")
+        temp_svg.attr("height", parseInt(maxHeight) + 100 + "px")
+
+    }
+}
+function rank() {
+    console.log("rank " + protein_member_id)
+    var rank = 1;
+    nodes.reverse()
+    if (ranked == false) {
+        nodes.forEach(function (d, i) {
+            if (d.rank) {
+                delete d.rank;
+                console.log(d.rank + " " + d.node_id)
+            }
+
+        })
+        nodes.forEach(function (d, i) {
+            if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
+                d.parent['rank'] = rank;
+                console.log(d.node_id)
+            }
+            if (d.parent && d.rank > 0) {
+                rank++;
+                d.parent['rank'] = rank;
+            }
+
+
+            if (d.rank > jQuery("#slider_percentage").val()) {
+                if (!d._children)
+                    d._children = []
+
+                d.children.forEach(function (e, i) {
+
+                    if (!e.sequence && !e.rank) {
+                        var temp_children = e.children
+                        if (temp_children) {
+                            if (!e._children)
+                                e._children = []
+                            temp_children.forEach(function (child) {
+                                e._children.push(child)
+                            })
+                            e.children = null
+                        }
+                    }
+                })
+            }
+            if (d.rank <= jQuery("#slider_percentage").val()) {
+                console.log(d.children)
+                d.children.forEach(function (e, i) {
+
+                    if (!e.sequence && !e.rank) {
+                        var temp_children = e._children
+                        if (temp_children) {
+                            if (!e.children)
+                                e.children = []
+                            temp_children.forEach(function (child) {
+                                e.children.push(child)
+                            })
+                            e._children = null
+                        }
+                    }
+                })
+            }
+        });
+        ranked = true;
+    }
+    // nodes.forEach(function (d, i) {
+    //     if (d.rank)
+    //         console.log(d.rank + " " + d.node_id)
+    // })
+
+    update(root, member_id);
 }
 

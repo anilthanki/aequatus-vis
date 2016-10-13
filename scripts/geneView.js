@@ -102,6 +102,8 @@ function cleanCIGARs(cigar) {
 function init(json, control_div, filter_spacer, slider_filter) {
     member_id = json.ref.replace(/[^a-zA-Z0-9]/g, '_');
 
+    ranked = false;
+
     syntenic_data = json
     if (control_div) {
         setControls(control_div)
@@ -188,6 +190,12 @@ function redrawCIGAR() {
 
 
     console.log("redrawCIGAR")
+
+    ranked = false;
+    rank()
+    // jQuery('#slider_div').slider('value',3);
+    // jQuery('#slider_div').trigger('slide');
+
     var json = syntenic_data;
     if (json.ref) {
 
@@ -391,6 +399,8 @@ function changeReference(new_gene_id, new_protein_id) {
     jQuery(".genelabel").attr("fill", "gray")
 
     resize_ref_to_def()
+
+    ranked = false;
 
     jQuery("#circle" + protein_member_id).attr("r", 4)
     jQuery("#circle" + new_protein_id).attr("r", 6)
