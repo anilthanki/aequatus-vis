@@ -785,7 +785,13 @@ function update(source, ref_member) {
                 y: d.target.x,
                 x: d.target.y
             }]);
-        });
+        })
+        .attr('stroke', function (d){
+        if(d.source.rank){
+            return colours[d.rank]
+        }
+
+    });
 
     // Transition exiting nodes to the parent's new position.
     link.exit().transition()
@@ -876,10 +882,7 @@ function rank() {
         });
         ranked = true;
     }
-    // nodes.forEach(function (d, i) {
-    //     if (d.rank)
-    //         console.log(d.rank + " " + d.node_id)
-    // })
+
 
     update(root, member_id);
 }

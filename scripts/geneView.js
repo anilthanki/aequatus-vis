@@ -1,642 +1,885 @@
 /**
  * Created with IntelliJ IDEA.
  * User: thankia
- * Date: 14/08/2013
- * Time: 11:17
+ * Date: 30/07/2014
+ * Time: 13:16
  * To change this template use File | Settings | File Templates.
  */
 
-var data = "";
-
-var colours = ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)', 'rgb(255,255,153)', 'rgb(177,89,40)', 'rgb(141,211,199)', 'rgb(255,255,179)', 'rgb(190,186,218)', 'rgb(251,128,114)', 'rgb(128,177,211)', 'rgb(253,180,98)', 'rgb(179,222,105)', 'rgb(252,205,229)', 'rgb(217,217,217)', 'rgb(188,128,189)', 'rgb(204,235,197)', 'rgb(255,237,111)']
-
-var gene_list_array = [];
-var ref_member = null
-var syntenic_data = null;
-var genome_db_id = null;
-var chr = null;
-var member_id = null;
-var members = null;
-var protein_member_id = null;
-var transcript_member_id = null;
-var ref_data = null;
-var filter_div = null;
-var slider_filter_div = null;
-
 
 /**
- * cleans gene tree for . and -
- * @param tree
- * @returns {*}
+ * Setup D3 to draw tree
+ * @param json_tree gene tree in JSON format
+ * @param div HTML div reference to draw tree
+ * @param event event to be initialise for onclick on gene
  */
-function cleanTree(tree) {
 
-    var treestring = tree.toSource()
-
-    treestring = treestring.substring(1, treestring.length - 1)
-    treestring = treestring.replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:([^\/])/g, '"$2":$4');
-
-    var re = /"accession":"([a-z0-9_]*)([\.-])([\.a-z0-9_-]*)"/gi;
-
-    var matches = [];
-    var match = re.exec(treestring);
-    while (match) {
-        matches.push(match[1]);
-        var matchString = match[1] + match[2] + match[3];
-        var replaceString = matchString.replace(/[\.-]/g, "_");
-        treestring = treestring.replace(matchString, replaceString)
-        match = re.exec(treestring);
-    }
-    tree = JSON.parse(treestring)
-
-    return tree;
-}
-
-/**
- * cleans genes and transcript ID for . and -
- * @param member
- * @returns {*}
- */
-function cleanGenes(member) {
-    member = JSON.stringify(member).replace(/[.|-]/g, '_')
-
-    member = member.replace(/:_1/g, ":-1")
-
-    member = JSON.parse(member)
-
-    jQuery.each(member, function (key, data) {
-        var transcript = member[key].Transcript.replace(/:\s*_1/g, ":-1")
-        key = key.replace(/[.|-]/g, '_')
-        member[key].Transcript = JSON.parse(transcript)
+var ranked = false;
+var last = 0;
+var nodes;
+var root;
+var cluster;
+var svg;
+var i = 0,
+    duration = 750;
+var diagonal = d3.svg.line().interpolate('step-before')
+    .x(function (d) {
+        return d.x;
     })
+    .y(function (d) {
+        return d.y;
+    });
+var count = 0;
+var gene_width = jQuery(window).width() * 0.8
+var margin = {top: 0, right: 0, bottom: 0, left: 0},
+    width = jQuery(window).width() * 0.2,
+    height = 800 - margin.top - margin.bottom;
+
+var maxHeight = 1000;
+var event;
+
+function drawTree(json_tree, div, event) {
+    this.event = event;
+    console.log("drawTree")
+
+    cluster = d3.layout.cluster()
+        .size([height, width - 160]);
 
 
-    return member;
-
-}
-
-/**
- * cleans cigarIDs for . and -
- * @param cigar
- * @returns {*}
- */
-function cleanCIGARs(cigar) {
-
-    jQuery.each(cigar, function (key, data) {
-        var key = key.replace(/[^a-zA-Z0-9]/g, '_')
-        cigar[key] = data
-    })
-
-    cigar = checkCigar()
+    svg = d3.select(div).append("svg")
+        .attr("width", width + margin.right + margin.left)
+        .attr("height", height + margin.top + margin.bottom)
+        .style("overflow", "visible")
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
-    return cigar;
-}
+    var genome_list_all = []
 
-/**
- * initialise aequatus-vis with setting up controls, filters parsing tree and cigar
- * @param json aequatus JSON
- * @param control_div controls place holder name
- * @param filter_spacer filters place holder name
- */
-function init(json, control_div, filter_spacer, slider_filter) {
-    member_id = json.ref.replace(/[^a-zA-Z0-9]/g, '_');
 
-    ranked = false;
-
-    syntenic_data = json
-    if (control_div) {
-        setControls(control_div)
+    for (var key in syntenic_data.member) {
+        genome_list_all.push(syntenic_data.member[key].species)
     }
+    var genome_list = [];
+    jQuery.each(genome_list_all, function (i, el) {
+        if (jQuery.inArray(el, genome_list) === -1) genome_list.push(el);
+    });
 
-    if (filter_spacer) {
-        filter_div = filter_spacer
-    }
+    d3.select(filter_div).selectAll("input")
+        .data(genome_list)
+        .enter()
+        .append('label')
+        .attr("class", "filter")
+        .attr('for', function (d, i) {
+            return 'a' + i;
+        })
+        .text(function (d) {
+            return d;
+        })
+        .append("input")
+        .attr("checked", true)
+        .attr("type", "checkbox")
+        .attr("id", function (d, i) {
+            return 'a' + i;
+        })
+        .on("click", filtercheck);
 
-    if (slider_filter) {
-        slider_filter_div = slider_filter
-    }
+    jQuery(slider_filter_div).html("<table width=100%><tr><td><div id='slider_div'></div><tr><td><input type='number' min='0' id='slider_percentage' style='border: 1px solid lightgray; font-weight: bold; margin-left: 10px; padding: 2px; width: 50px;'></div></tr></table>")
 
-
-    if (jQuery.type(syntenic_data.tree) == 'object') {
-    }
-    else {
-        syntenic_data.tree = NewickToJSON(syntenic_data.tree)
-    }
-    syntenic_data.tree = cleanTree(syntenic_data.tree)
-    syntenic_data.member = cleanGenes(syntenic_data.member)
-
-
-    if (!syntenic_data.cigar) {
-        syntenic_data.cigar = {};
-        syntenic_data.sequence = {};
-
-        recursive_tree(syntenic_data.tree)
-    }
-
-    syntenic_data.cigar = cleanCIGARs(syntenic_data.cigar)
-
-
-    ref_data = syntenic_data.member[member_id]
-    protein_member_id = json.protein_id.replace(/[^a-zA-Z0-9]/g, '_')
-    transcript_member_id = json.transcript_id
-    resize_ref();
-
-}
-
-/**
- * recursively calls same function to retrieve cigar information from subnodes
- * @param tree node_tree
- */
-function recursive_tree(tree) {
-    var child_lenth = tree.children.length;
-
-    while (child_lenth--) {
-        if (tree.children[child_lenth].sequence) {
-            addCigar(tree.children[child_lenth])
-        } else {
-            recursive_tree(tree.children[child_lenth])
+    jQuery("#slider_div").slider({
+        value: 3,
+        min: 1,
+        max: 10,
+        step: 1
+    });
+    jQuery("#slider_div").slider().bind({
+        slide: function (event, ui) {
+            var value = jQuery("#slider_div").slider("value")
+            if (value < last) filterRank(value)//$("#amount").val("this is increasing");
+            if (value > last) filterRankUP(value)//$("#amount").val("this is decreasing");
+            last = value;
+            jQuery("#slider_percentage").val(value);
         }
-    }
+    })
 
-}
+    last = jQuery("#slider_div").slider("value")
 
-/**
- * retrieves and stores cigar for each leaf
- * @param child
- */
-function addCigar(child) {
-    var id = child.sequence.id[0].accession.replace(/[^a-zA-Z0-9]/g, '_')
-    var cigar = child.sequence.mol_seq.cigar_line
-    syntenic_data.cigar[id] = cigar;
-    syntenic_data.sequence[id] = child.sequence.mol_seq.seq ? child.sequence.mol_seq.seq : "No sequence available";
-}
+    jQuery("#slider_percentage").val(jQuery("#slider_div").slider("value"));
 
 
+    jQuery("#slider_percentage").on("change", function () {
+        var val = jQuery("#slider_percentage").val()
+        if (val < last) filterRank(val)//$("#amount").val("this is increasing");
+        if (val > last) filterRankUP(val)//$("#amount").val("this is decreasing");
+        last = val;
 
+        jQuery("#slider_div").slider({
+            value: val
+        })
+    })
 
-function addZero(x, n) {
-    while (x.toString().length < n) {
-        x = "0" + x;
-    }
-    return x;
-}
+    function filterRank(rank) {
+        svg.selectAll(".node")
+            .filter(function (d) {
+                if (d.rank && d.rank > rank) {
+                    var newObject = d;
+                    newObject.children.forEach(function (e) {
+                        if (e.rank && e.rank <= rank) {
 
-
-/**
- * redraws cigar lines on genes in case of reference gene changed
- */
-function redrawCIGAR() {
-
-
-    console.log("redrawCIGAR")
-
-    ranked = false;
-    rank()
-    // jQuery('#slider_div').slider('value',3);
-    // jQuery('#slider_div').trigger('slide');
-
-    var json = syntenic_data;
-    if (json.ref) {
-
-        gene_list_array = []
-        var core_data = json.member;
-        var max = 0;
-        var keys = [];
-        var ptn_keys = [];
-
-        for (var k in core_data) keys.push(k);
-
-        for (var k in json.cigar) ptn_keys.push(k);
-
-        for (var i = 0; i < keys.length; i++) {
-
-            var gene_member_id = keys[i]
-
-            var gene = syntenic_data.member[gene_member_id];
-            if (max < gene.end - gene.start) {
-                max = gene.end - gene.start;
-            }
-
-
-            var transcript_len = gene.Transcript.length;
-            while (transcript_len--) {
-
-                if (gene.Transcript[transcript_len].Translation && ptn_keys.indexOf(gene.Transcript[transcript_len].Translation.id) >= 0) {
-
-                    var temp_member_id = gene.Transcript[transcript_len].Translation.id
-                    if (document.getElementById("id" + temp_member_id) !== null) {
-
-                        var gene_start;
-
-                        var gene_stop;
-                        var svg = jQuery("#id" + temp_member_id).svg("get")
-
-                        var translation_start = gene.Transcript[transcript_len].Translation.start;
-
-                        if (gene.Transcript[transcript_len].start < gene.Transcript[transcript_len].end) {
-                            gene_start = gene.Transcript[transcript_len].start;
-                            gene_stop = gene.Transcript[transcript_len].end;
-                        }
-                        else {
-                            gene_start = gene.Transcript[transcript_len].end;
-                            gene_stop = gene.Transcript[transcript_len].start;
-
-                        }
-                        var maxLentemp = jQuery(window).width() * 0.6;
-                        var newEnd_temp = max;
-                        var stopposition = ((gene_stop - gene_start) + 1) * parseFloat(maxLentemp) / (newEnd_temp);
-                        var temp_div = svg;
-
-                        var strand = 0;
-
-                        if (syntenic_data.member[syntenic_data.ref].strand == gene.Transcript[transcript_len].strand) {
-                            strand = 1;
+                        } else if (e.rank && e.rank > rank) {
+                            recusrsiveCheck(e)
                         } else {
-                            strand = -1;
+                            closeNode(d, e)
+                        }
+                    })
+                }
+
+
+                function recusrsiveCheck(node) {
+                    node.children.forEach(function (e) {
+                        if (e.rank && e.rank <= rank) {
+                        } else if (e.rank && e.rank > rank) {
+                            recusrsiveCheck(e)
+                        } else {
+                            closeNode(node, e)
+                        }
+                    })
+                }
+
+                function closeNode(node, childNode) {
+                    var temp_children = childNode.children
+                    if (temp_children) {
+                        if (!childNode._children)
+                            childNode._children = []
+                        temp_children.forEach(function (child) {
+                            childNode._children.push(child)
+                        })
+                        childNode.children = null
+                        update(node, member_id);
+                    }
+                }
+            });
+    }
+
+    function filterRankUP(rank) {
+        svg.selectAll(".node")
+            .filter(function (d) {
+                if (d.rank && d.rank <= rank) {
+                    var newObject = d;
+                    if (newObject._children && newObject._children.size() > 0) {
+                        newObject._children.forEach(function (e, i) {
+                            newObject.children.push(e)
+                            newObject._children.splice(i, 1)
+
+                        })
+                    }
+                    newObject.children.forEach(function (e) {
+                        if (e.rank) {
+
+                        } else {
+                            openNode(e)
+
+                        }
+                    })
+                }
+
+                function recusrsiveCheckOpen(node) {
+                    node.children.forEach(function (e) {
+                        if (e.rank && e.rank <= rank) {
+                            openNode(e)
+                            recusrsiveCheckOpen(e)
+                        }
+                    })
+                }
+
+
+                function openNode(node) {
+                    if (!node.children)
+                        node.children = []
+
+                    if (node._children && node._children.size() > 0) {
+                        node._children.forEach(function (e, i) {
+                            if (e.node_id) {
+                                node.children.push(e)
+                            }
+                        })
+                        node._children = null
+                    }
+                    update(node, member_id);
+                    return node;
+                }
+            });
+
+    }
+
+    /**
+     * selects tree nodes for species
+     * @param de species name
+     */
+    function filtercheck(de) {
+        var selected = de;
+        var display = this.checked;
+
+        svg.selectAll(".node")
+            .filter(function (d) {
+                if (d.sequence && d.id.accession && display == false) {
+                    if (d.sequence.id[0].accession == protein_member_id) {
+                    } else {
+                        if (d._children) {
+                            var children = d._children.size()
+                            while (children--) {
+                            }
                         }
 
-                        if (gene_member_id != member_id) {
+                        if (syntenic_data.member[d.id.accession] && selected == syntenic_data.member[d.id.accession].species) {
+                            if (display == true) {
 
-                            var g = svg.group({class: 'style1'});
 
-                            var ref_transcript = 0
-                            jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
-                                if (obj.Translation && obj.Translation.id == protein_member_id) {
-                                    ref_transcript = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
+                            } else {
+                                if (d.close && d.close == true) {
+
+                                } else {
+                                    if (!d.parent._children) {
+                                        d.parent._children = [];
+                                    }
+
+                                    if (d.parent.children.size() > 1) {
+                                        d.parent._children.push(d)
+                                        d.parent.children.splice(d.parent.children.indexOf(d), 1)
+                                        update(d, member_id);
+
+                                    } else {
+                                        var cont = true;
+                                        var child = d.parent
+                                        while (cont) {
+                                            if (!child._children) {
+                                                child._children = [];
+                                            }
+                                            child._children.push(child.children[0])
+
+                                            child.children.splice(0, 1)
+                                            if (child.parent.children.size() > 1) {
+                                                cont = false;
+                                            }
+
+                                            child = child.parent;
+
+                                        }
+                                        update(child, member_id);
+                                    }
                                 }
-                            });
-
-
-                            dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), translation_start, strand, syntenic_data.cigar[protein_member_id], ref_data.strand, "style1", gene.Transcript[transcript_len].Translation.id);
-
-
-                            var g = svg.group({class: 'style2'});
-
-                            dispCigarLine(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, stopposition, gene_start, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, ref_data.Transcript[ref_transcript].Exon.toJSON(), translation_start, strand, syntenic_data.cigar[protein_member_id], ref_data.strand, "style2", gene.Transcript[transcript_len].Translation.id);
-
-                        } else {
-
-
-                            var g = svg.group({class: 'style1'});
-
-                            dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start, "style1", gene.Transcript[transcript_len].Translation.id);
-
-
-                            var g = svg.group({class: 'style2'});
-
-                            dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, stopposition, gene_start, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start, "style2", gene.Transcript[transcript_len].Translation.id);
-
+                            }
                         }
                     }
                 }
+                else {
 
+                    if (d._children && d._children.size() > 0) {
+                        var newObject = d;//jQuery.extend(true, {}, d);
+
+                        var cont = true;
+                        if (d.sequence) {
+                        }
+                        while (cont) {
+                            if (newObject._children && newObject._children.size() > 0) {
+                                var children = newObject._children.size()
+                                while (children--) {
+                                    if (!newObject.children) {
+                                        newObject.children = []
+                                    }
+                                    if (newObject._children[children].sequence && newObject._children[children].id.accession == member_id && selected == syntenic_data.member[syntenic_data.ref].species) {
+                                        newObject.children.push(newObject._children[children])
+                                        newObject._children.splice(children, 1)
+                                        cont = false;
+                                        update(newObject, member_id);
+                                    } else if (newObject._children[children].sequence && newObject._children[children].id.accession && selected == syntenic_data.member[newObject._children[children].id.accession].species) {
+                                        newObject.children.push(newObject._children[children])
+                                        newObject._children.splice(children, 1)
+                                        cont = false;
+                                        update(newObject, member_id);
+                                    } else if (newObject._children[children]._children && newObject._children[children]._children.size() > 0) {
+                                        newObject = newObject._children[children]
+                                    } else {
+                                        cont = false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+    }
+
+
+    d3.json(json_tree, function () {
+
+        root = json_tree;
+
+        root.x0 = height / 2;
+        root.y0 = 0;
+        root.children.forEach(function (d) {
+            recursiveChildren(d)
+
+        });
+        nodes = cluster.nodes(root);
+        rank()
+
+
+    });
+
+
+    d3.select(self.frameElement).style("height", "800px");
+
+
+    function recursiveChildren(d) {
+        if (d.children.size() == 1) {
+            // d._children = d.children;
+            var new_children = pack(d)
+            d.children = new_children.child;
+            d.close = true
+            d.type = new_children.type;
+        }
+        if (d.children) {
+            d.children.forEach(function (e) {
+                recursiveChildren(e)
+            })
+        }
+    }
+
+    /**
+     * updates tree layout
+     * @param source nodes
+     * @param ref_member reference member id
+     */
+
+
+}
+
+/**
+ * changes genes view to normal view with full length introns
+ */
+function changeToNormal() {
+    jQuery(".style1").show()
+    jQuery(".style2").hide()
+
+}
+
+/**
+ * changes genes view to exon focused view with fixed length introns
+ */
+function changeToExon() {
+    jQuery(".style2").show()
+    jQuery(".style1").hide()
+}
+
+/**
+ * changes genes label to stable ids
+ */
+function changeToStable() {
+    jQuery(".genelabel").hide();
+    jQuery(".protein_id").hide();
+    jQuery(".stable").show();
+}
+
+/**
+ * changes genes label to gene names
+ */
+function changeToGeneInfo() {
+    jQuery(".genelabel").hide();
+    jQuery(".protein_id").hide();
+    jQuery(".geneinfo").show();
+}
+
+/**
+ * changes genes label to protein ids
+ */
+function changeToProteinId() {
+    jQuery(".genelabel").hide();
+    jQuery(".geneinfo").hide();
+    jQuery(".protein_id").show();
+}
+
+/**
+ * Toggle children on click.
+ * @param d clicked node
+ */
+function click(d) {
+
+    if (d.children && d.children != null) {
+        if (d.children.size() == 1) {
+            d._children = d.children;
+            var new_children = pack(d)
+            d.children = new_children.child;
+            d.close = true
+            d.type = new_children.type;
+        } else {
+            d._children = d.children;
+            d.children = null;
+        }
+    } else {
+        d.children = d._children;
+        d._children = null;
+    }
+
+    update(d, member_id);
+
+}
+
+function updateWindow(count) {
+
+    // var y = count;
+
+    // svg.attr("height", y);
+    // cluster = d3.layout.cluster()
+    //     .size([y, width - 160]);
+}
+
+function pack(d) {
+    var cont = true;
+    var child = d;
+    var new_children = {}
+    new_children.type = []
+    var children = null;
+
+    while (cont) {
+        if (child.children && child.children.size() == 1 && !child.children[0].sequence) {
+            child = (child.children[0])
+            if (child.type) {
+                new_children.type = new_children.type.concat(child.type)
+            } else {
+                new_children.type.push(child.node_type)
+            }
+        } else {
+            if (child.children) {
+                children = child.children
+            }
+            else {
+                children = child.parent.children
+            }
+            cont = false;
+            break;
+        }
+    }
+
+    new_children.child = children;
+    return new_children;
+}
+function update(source, ref_member) {
+    console.log("update")
+    // Compute the new tree layout.
+    // Normalize for fixed-depth.
+
+    // if (ranked == false) {
+    //     nodes.forEach(function (d, i) {
+    //         if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
+    //             d.parent['rank'] = rank;
+    //         }
+    //         if (d.parent && d.rank > 0) {
+    //             rank++;
+    //             d.parent['rank'] = rank;
+    //         }
+
+
+    //         if (d.rank > jQuery("#slider_percentage").val()) {
+    //             if (!d._children)
+    //                 d._children = []
+
+    //             d.children.forEach(function (e, i) {
+
+    //              if (!e.sequence && !e.rank) {
+    //                    var temp_children = e.children
+    //                     if (temp_children) {
+    //                         if (!e._children)
+    //                             e._children = []
+    //                         temp_children.forEach(function (child) {
+    //                             e._children.push(child)
+    //                         })
+    //                         e.children = null
+    //                     }
+    //                 }
+    //             })
+    //         }
+    //     });
+    //     ranked = true;
+    // }
+
+    nodes = cluster.nodes(root)
+
+    nodes.forEach(function (d) {
+
+        if (d.children == null) {
+            count++;
+        }
+        count = count
+    });
+
+    updateWindow(count)
+
+    var links = cluster.links(nodes);
+
+    var node = svg.selectAll("g.node")
+        .data(nodes, function (d) {
+            return d.ID || (d.ID = ++i);
+        });
+
+    // Enter any new nodes at the parent's previous position.
+    var nodeEnter = node.enter().append("g")
+        .attr("class", "node")
+        .attr("transform", function (d) {
+            if (source.x0 > maxHeight) {
+                maxHeight = source.x0
+            }
+            return "translate(" + d.y + "," + d.x + ")";
+        })
+        .attr("species", function (d) {
+            if (d.sequence) {
+                if (d.sequence.id[0].accession == protein_member_id) {
+                    return syntenic_data.member[syntenic_data.ref].species;
+                } else {
+                    return syntenic_data.member[d.id.accession].species;
+                }
+            }
+            else {
+                return "";
+            }
+        })
+        .attr("rank", function (d) {
+            if (d.rank) {
+                return d.rank;
             }
 
+        })
+        .on("click", function (d) {
+            if (d.sequence) {
+                event(d.id.accession, d.sequence.id[0].accession)
+            } else {
+                if (d.children && d.children != null) {
+                    if (d.children.size() > 0) {
+                        click(d)
+                    }
+                } else {
+                    if (d._children.size() > 0) {
+                        click(d)
+                    }
+                }
+            }
+        })
+
+    nodeEnter.append("circle")
+        .attr("id", function (d, i) {
+            if (d.sequence)// && d.children != null) {
+            {
+                return "circle" + d.sequence.id[0].accession;
+            } else {
+                return "circle" + d.node_id;
+
+            }
+        })
+        .attr("r", function (d) {
+            if (d.sequence && d.sequence.id[0].accession == protein_member_id)// && d.children != null) {
+            {
+                return 6;
+            }
+            else {
+                return 4;
+            }
+        })
+        .style("fill", function (d) {
+            if (d.sequence) {
+                return "white";
+            }
+            else if (d.close && d.close == true) {
+                return "white";
+            } else if (d.events) {
+                if (d.events.type == "duplication") {
+                    return 'red';
+                } else if (d.events.type == "dubious") {
+                    return "cyan";
+                } else if (d.events.type == "speciation") {
+                    return 'blue';
+                } else if (d.events.type == "gene_split") {
+                    return 'pink';
+                } else {
+                    return "white";
+                }
+            }
+        })
+        .style("stroke-width", function (d) {
+            if ((d.sequence && d.sequence.id[0].accession == protein_member_id) || (d.close && d.close == true)) {
+                return "2px";
+            } else {
+                return "1px";
+            }
+        })
+        .style("stroke", function (d) {
+            if ((d.sequence && d.id.accession == protein_member_id)) {
+                return "black";
+            }
+        })
+        .append("svg:title")
+        .text(function (d, i) {
+            return d.rank;
+        });
+    ;
+
+    // Transition nodes to their new position.
+    var nodeUpdate = node.transition()
+        .duration(duration)
+        .attr("transform", function (d) {
+            if (d.x > maxHeight) {
+                maxHeight = d.x
+            }
+            return "translate(" + d.y + "," + d.x + ")";
+        });
+
+    nodeUpdate.select("circle")
+        .attr("id", function (d, i) {
+            if (d.sequence)// && d.children != null) {
+            {
+                return "circle" + d.sequence.id[0].accession;
+            } else {
+                return "circle" + d.node_id;
+
+            }
+        })
+        .attr("r", function (d) {
+            if (d.sequence && d.sequence.id[0].accession == protein_member_id)// && d.children != null) {
+            {
+                return 6;
+            }
+            else {
+                return 4;
+            }
+        })
+        .style("fill", function (d) {
+            if (d.sequence) {
+                return "white";
+            }
+            else if (d.close && d.close == true) {
+                return "white";
+            } else if (d.events) {
+                if (d.events.type == "duplication") {
+                    return 'red';
+                } else if (d.events.type == "dubious") {
+                    return "cyan";
+                } else if (d.events.type == "speciation") {
+                    return 'blue';
+                } else if (d.events.type == "gene_split") {
+                    return 'pink';
+                } else {
+                    return "white";
+                }
+            }
+        })
+        .style("stroke-width", function (d) {
+            if ((d.sequence && d.sequence.id[0].accession == protein_member_id) || (d.close && d.close == true)) {
+                return "2px";
+            } else {
+                return "1px";
+            }
+        })
+        .style("stroke", function (d) {
+            if ((d.sequence && d.sequence.id[0].accession == protein_member_id)) {
+                return "black";
+            }
+        });
+
+    nodeUpdate.select("title")
+        .text(function (d, i) {
+            return d.rank;
+        });
+
+    // Transition exiting nodes to the parent's new position.
+    var nodeExit = node.exit().transition()
+        .duration(duration)
+        .attr("transform", function (d) {
+            return "translate(" + source.y + "," + source.x + ")";
+        })
+        .remove();
+
+    nodeExit.select("circle")
+        .attr("r", 1e-6);
+
+    nodeExit.select("text")
+        .style("fill-opacity", 1e-6);
+
+
+    nodeEnter.filter(function (d) {
+        if (d.sequence) {
+            return true;
+        } else {
+            return false;
         }
+    }).append("foreignObject")
+        .attr("class", "node_gene_holder")
+        .attr('width', width)
+        .attr('height', '40px')
+        .attr('x', 20)
+        .attr('y', -20)
+        .style("fill", "red")
+
+        .append('xhtml:div')
+        .style("width", gene_width)
+        .style("height", "50px")
+        .style("z-index", "999")
+        .style("position", "fixed")
+        .style("left", "10px")
+        .style("top", "10px")
+        .html(function (d) {
+            if (d.sequence) {
+                return "<div id = 'id" + d.sequence.id[0].accession + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
+            }
+        });
+
+    nodeEnter.filter(function (d) {
+        if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
+            jQuery("#id" + d.sequence.id[0].accession).svg()
+            dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession)
+            dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession)
+        } else if (d.sequence && syntenic_data.member[d.id.accession]) {
+            jQuery("#id" + d.sequence.id[0].accession).svg()
+            dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession, true)
+            dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession, true)
+        }
+
 
         checkVisuals();
+    });
+
+    nodeUpdate.select("foreignObject")
+        .attr('width', function (d) {
+            return jQuery(window).width() * 0.8;
+        })
+        .attr('height', '40px')
+        .attr('x', 10)
+        .attr('y', -20);
 
 
-    } else {
-        jQuery("#gene_widget").html("")
-        jQuery("#gene_widget").html("Selected Gene not found.")
-        jQuery("#gene_tree_nj").html("<span style='font-size: large; text-align: center'>Selected Gene not found.</span>")
+    // Update the links…
+    var link = svg.selectAll("path.link")
+        .data(links, function (d, i) {
+            return d.target.ID;
+        });
+
+    // Enter any new links at the parent's previous position.
+    link.enter().insert("path", "g")
+        .attr("class", "link")
+        .attr("d", function (d) {
+            return diagonal([{
+                y: d.source.x,
+                x: d.source.y
+            }, {
+                y: d.target.x,
+                x: d.target.y
+            }]);
+        });
+
+    // Transition links to their new position.
+    link.transition()
+        .duration(duration)
+        .attr("d", function (d) {
+            return diagonal([{
+                y: d.source.x,
+                x: d.source.y
+            }, {
+                y: d.target.x,
+                x: d.target.y
+            }]);
+        });
+
+    // Transition exiting nodes to the parent's new position.
+    link.exit().transition()
+        .duration(duration)
+        .attr("d", function (d) {
+            return diagonal([{
+                y: d.source.x,
+                x: d.source.y
+            }, {
+                y: d.target.x,
+                x: d.target.y
+            }]);
+        })
+        .remove();
+
+    // Stash the old positions for transition.
+    nodes.forEach(function (d, i) {
+        d.x0 = d.x;
+        d.y0 = d.y;
+    });
+
+    if (maxHeight > height) {
+        var body = d3.select("body");
+        var temp_svg = body.select("svg")
+        temp_svg.attr("height", parseInt(maxHeight) + 100 + "px")
+
     }
 }
+function rank() {
+    console.log("rank " + protein_member_id)
+    var rank = 1;
+    nodes.reverse()
+    if (ranked == false) {
+        nodes.forEach(function (d, i) {
+            if (d.rank) {
+                delete d.rank;
+                console.log(d.rank + " " + d.node_id)
+            }
 
-/**
- * changes length of exons of reference gene based on transcript start and end position
- */
-function resize_ref() {
-    var exon_nu = 0
-    var noofrefcds = 0;
+        })
+        nodes.forEach(function (d, i) {
+            if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
+                d.parent['rank'] = rank;
+                console.log(d.node_id)
+            }
+            if (d.parent && d.rank > 0) {
+                rank++;
+                d.parent['rank'] = rank;
+            }
 
-    var i = null;
-    jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
-        if (obj.Translation && obj.Translation.id == protein_member_id) {
-            i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
-        }
-    });
 
-    syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.sort(sort_by('start', true, parseInt));
+            if (d.rank > jQuery("#slider_percentage").val()) {
+                if (!d._children)
+                    d._children = []
 
-    var diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.start) + parseInt(1)
+                d.children.forEach(function (e, i) {
 
-    while (diff < 0) {
-        syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = 0
-        exon_nu++;
-        diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.start) + parseInt(1)
+                    if (!e.sequence && !e.rank) {
+                        var temp_children = e.children
+                        if (temp_children) {
+                            if (!e._children)
+                                e._children = []
+                            temp_children.forEach(function (child) {
+                                e._children.push(child)
+                            })
+                            e.children = null
+                        }
+                    }
+                })
+            }
+            if (d.rank <= jQuery("#slider_percentage").val()) {
+                console.log(d.children)
+                d.children.forEach(function (e, i) {
+
+                    if (!e.sequence && !e.rank) {
+                        var temp_children = e._children
+                        if (temp_children) {
+                            if (!e.children)
+                                e.children = []
+                            temp_children.forEach(function (child) {
+                                e.children.push(child)
+                            })
+                            e._children = null
+                        }
+                    }
+                })
+            }
+        });
+
+        jQuery('#slider_div').slider("option", "max", rank);
+        ranked = true;
     }
 
-    syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff;
-    syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu]._start += syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.start - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start;
 
-
-    var exon_nu = syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.length - 1
-    var diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu]._start) + parseInt(1)
-    while (diff < 0) {
-        syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = 0
-        exon_nu--;
-        diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu]._start) + parseInt(1)
-    }
-    syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff;
-
-    for (var exon_nu = 0; exon_nu < syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.length; exon_nu++) {
-        if (syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length > 0) {
-            noofrefcds++;
-        }
-    }
-
-    ref_data.formated_cigar = format_ref_cigar();
-    ref_data.noofrefcds = noofrefcds;
-
-
-}
-
-/**
- * resets length of exons of reference gene
- */
-function resize_ref_to_def() {
-    var i = 10;
-    jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
-
-        if (obj.Translation && (obj.Translation.id == protein_member_id)) {
-            i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
-        }
-    });
-
-
-    var exon_nu = syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.length;
-
-    while (exon_nu--) {
-        syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = (syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start) + 1
-    }
-}
-
-
-
-
-/**
- * replaces a character in string with index and alternative character
- * @param str string
- * @param index index of character to be replaced
- * @param character alternative character
- * @returns {string}
- */
-function replaceAt(str, index, character) {
-    return str.substr(0, index) + character + str.substr(index + character.length);
-}
-
-
-/**
- * updates reference gene information when reference change happens
- * @param new_gene_id new reference gene id
- * @param new_protein_id new reference protein id
- */
-function changeReference(new_gene_id, new_protein_id) {
-    jQuery("#id" + protein_member_id + "geneline").attr("stroke", "green")
-    jQuery(".genelabel").attr("fill", "gray")
-
-    resize_ref_to_def()
-
-    ranked = false;
-
-    jQuery("#circle" + protein_member_id).attr("r", 4)
-    jQuery("#circle" + new_protein_id).attr("r", 6)
-
-
-    jQuery("#circle" + protein_member_id).css("stroke-width", "1px")
-    jQuery("#circle" + new_protein_id).css("stroke-width", "2px")
-
-    jQuery("#circle" + protein_member_id).css("stroke", "steelblue")
-    jQuery("#circle" + new_protein_id).css("stroke", "black")
-
-    jQuery("#id" + new_protein_id + "geneline").attr("stroke", "red")
-    jQuery("." + new_protein_id + "genetext").attr("fill", "red")
-
-    syntenic_data.ref = new_gene_id;
-    protein_member_id = new_protein_id
-    syntenic_data.protein_id = new_protein_id;
-
-    jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
-        if (obj.Translation && obj.Translation.id == protein_member_id) {
-            var i = syntenic_data.member[syntenic_data.ref].Transcript.indexOf(obj)
-            syntenic_data.transcript_id = syntenic_data.member[syntenic_data.ref].Transcript[i].id;
-        }
-    });
-
-    jQuery(".match").remove()
-    jQuery(".insert").remove()
-    jQuery(".delete").remove()
-
-    member_id = new_gene_id;
-    ref_data = syntenic_data.member[member_id]
-
-
-    resize_ref();
-    redrawCIGAR()
-}
-
-var sort_by = function (field, reverse, primer) {
-
-    var key = primer ?
-        function (x) {
-            return primer(x[field])
-        } :
-        function (x) {
-            return x[field]
-        };
-
-    reverse = [1, 1][+!!reverse];
-
-    return function (a, b) {
-        return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
-    }
-}
-
-/**
- * set control elements in div
- * @param control_div div name place holder
- */
-function setControls(control_div) {
-
-    var table = jQuery("<table cellpadding='2px'></table>");
-
-    var row_spacing = jQuery("<tr></tr>");
-    var column_spanning = jQuery("<th colspan=6></th>");
-    column_spanning.html("Visual Controls")
-    row_spacing.append(column_spanning)
-
-    table.append(row_spacing)
-
-
-    var row1 = jQuery("<tr></tr>");
-    var column1 = jQuery("<td></td>");
-
-    var input1 = jQuery('<input>', {
-        type: "checkbox",
-        id: "deleteCheck",
-        onclick: 'toggleCigar(".delete")',
-        "checked": "checked"
-    });
-    column1.html(input1)
-    row1.append(column1)
-
-    var column2 = jQuery("<td></td>");
-    column2.html("Deletion")
-    row1.append(column2)
-    table.append(row1)
-
-    var row2 = jQuery("<tr></tr>");
-    var column1 = jQuery("<td></td>");
-
-    var input = jQuery('<input>', {
-        type: "checkbox",
-        id: "matchCheck",
-        onclick: 'toggleCigar(".match")',
-        "checked": "checked"
-    });
-    column1.html(input)
-    row2.append(column1)
-    var column2 = jQuery("<td></td>");
-
-    column2.html("Exon Match")
-    row2.append(column2)
-
-    table.append(row2)
-
-    var row3 = jQuery("<tr></tr>");
-    var column1 = jQuery("<td></td>");
-    var input = jQuery('<input>', {
-        type: "checkbox",
-        id: "insertCheck",
-        onclick: 'toggleCigar(".insert")',
-        "checked": "checked"
-    });
-    column1.html(input)
-    row3.append(column1)
-
-    var column2 = jQuery("<td></td>");
-
-    column2.html("Insertion")
-    row3.append(column2)
-
-    table.append(row3)
-
-
-    var row_spacing = jQuery("<tr></tr>");
-    var column_spanning = jQuery("<th colspan=4></th>");
-    column_spanning.html("Label")
-    row_spacing.append(column_spanning)
-
-    table.append(row_spacing)
-
-
-    var row4 = jQuery("<tr></tr>");
-    var column1 = jQuery("<td></td>");
-    var input = jQuery('<input>', {
-        type: "radio",
-        name: "label_type",
-        value: "gene_info",
-        onclick: 'changeToGeneInfo()',
-        "checked": "checked"
-    });
-    column1.html(input)
-    row4.append(column1)
-
-    var column2 = jQuery("<td></td>");
-
-    column2.html("Gene Info")
-    row4.append(column2)
-
-    // table.append(row4)
-
-
-    // var row5 = jQuery("<tr></tr>");
-    var column3 = jQuery("<td></td>");
-    var input = jQuery('<input>', {
-        type: "radio",
-        name: "label_type",
-        value: "stable",
-        onclick: 'changeToStable()',
-    });
-    column3.html(input)
-    row4.append(column3)
-
-    var column4 = jQuery("<td></td>");
-
-    column4.html("Stable ID")
-    row4.append(column4)
-
-    var column5 = jQuery("<td></td>");
-    var input = jQuery('<input>', {
-        type: "radio",
-        name: "label_type",
-        value: "stable",
-        onclick: 'changeToProteinId()',
-    });
-    column5.html(input)
-    row4.append(column5)
-
-    var column6 = jQuery("<td></td>");
-
-    column6.html("Protein ID")
-    row4.append(column6)
-
-
-    table.append(row4)
-
-    var row_spacing = jQuery("<tr></tr>");
-    var column_spanning = jQuery("<th colspan=4></th>");
-    column_spanning.html("Introns")
-    row_spacing.append(column_spanning)
-
-    table.append(row_spacing)
-
-    var row6 = jQuery("<tr></tr>");
-    var column1 = jQuery("<td></td>");
-    var input = jQuery('<input>', {
-        type: "radio",
-        name: "view_type",
-        value: "without",
-        onclick: 'changeToNormal()'
-    });
-    column1.html(input)
-    row6.append(column1)
-
-    var column2 = jQuery("<td></td>");
-
-    column2.html("Full length")
-    row6.append(column2)
-
-    var column3 = jQuery("<td></td>");
-    var input = jQuery('<input>', {
-        type: "radio",
-        name: "view_type",
-        onclick: 'changeToExon()',
-        value: "with",
-        "checked": "checked"
-    });
-    column3.html(input)
-    row6.append(column3)
-
-    var column4 = jQuery("<td></td>");
-
-    column4.html("Fixed length")
-    row6.append(column4)
-
-    table.append(row6)
-
-    jQuery(control_div).html(table)
-
-}
-
-/**
- * toggles visuals elemets of gene viw depends on controls
- * @param kind
- */
-function toggleCigar(kind) {
-    jQuery(kind).toggle()
+    update(root, member_id);
 }
 
