@@ -84,7 +84,15 @@ function drawTree(json_tree, div, event) {
         })
         .on("click", filtercheck);
 
-    jQuery(slider_filter_div).html("<table width=100%><tr><td><div id='slider_div'></div><tr><td><input type='number' min='0' id='slider_percentage' style='border: 1px solid lightgray; font-weight: bold; margin-left: 10px; padding: 2px; width: 50px;'></div></tr></table>")
+    jQuery(slider_filter_div).html("<table width=90%>" +
+        "<tr>" +
+        "<td><b><center>Filter Tree by distance</center></b></td>" +
+        "</tr>" +
+        "<tr>" +
+        "<td><div id='slider_div'></div>" +
+        "<td><input type='number' min='0' id='slider_percentage' style='border: 1px solid lightgray; font-weight: bold; margin-left: 10px; padding: 2px; width: 50px;'>" +
+        "</tr>" +
+        "</table>")
 
     jQuery("#slider_div").slider({
         value: 3,
