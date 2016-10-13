@@ -498,11 +498,11 @@ function setControls(control_div) {
         "checked": "checked"
     });
     column1.html(input)
-    row2.append(column1)
+    row1.append(column1)
     var column2 = jQuery("<td></td>");
 
     column2.html("Exon Match")
-    row2.append(column2)
+    row1.append(column2)
 
     table.append(row2)
 
@@ -515,12 +515,12 @@ function setControls(control_div) {
         "checked": "checked"
     });
     column1.html(input)
-    row3.append(column1)
+    row1.append(column1)
 
     var column2 = jQuery("<td></td>");
 
     column2.html("Insertion")
-    row3.append(column2)
+    row1.append(column2)
 
     table.append(row3)
 

@@ -33,13 +33,10 @@ function checkCigar() {
             if (reverse_cigar.indexOf(id) >= 0) {
                 cigar_string.split("").reverse().join()
             }
-            console.log("cigar_string " + cigar_string)
-
             cigar_list.push(cigar_string);
             cigar_id.push(id)
         }
     }
-    console.log("check cigar ")
     var pos = [];
     for (var i = 0; i < cigar_list[0].length; i++) {
         if (cigar_list[0][i] == 'D') {
@@ -55,12 +52,8 @@ function checkCigar() {
         }
     }
 
-    console.log(cigar_list.length)
-
-
     // to clean all cigars...
     for (var i = 0; i < cigar_list.length; i++) {
-        console.log(" cigar "+i+" length "+cigar_list[i].length)
         cigar_list[i] = cigar_list[i].split("")
 
         for (var j = pos.length - 1; j >= 0; j--) {
@@ -82,8 +75,6 @@ function checkCigar() {
     }
 
 
-    console.log(cigars_json)
-    // return cigar_list[0].join("");
     return cigars_json
 }
 
@@ -309,22 +300,6 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, reverse, ref_stra
     var count_match = 0;
 
     var temp_array = [];
-    // console.log(cigar_string.length)
-    // console.log(cigar_string.replace(/I/g, "").length)
-    // console.log(hit_cigar.length)
-
-    // var i=0;
-    // var from =0;
-    // var test_array = [];
-    // while (i < ref_cigar_array.length) {
-    //     var to = ref_cigar_array[i].replace(/I/g, "").length
-    //     hit_cigar_arr.push(hit_cigar.substr(from, to));
-    //     if (reverse && ref_strand == 1) {
-    //         // console.log(from+":"+to)
-    //     }
-    //     from += to;
-    //     i++;
-    // }
 
     // dividing reference cigar into chunks based on exon length (ignoring deletions)
     while (ref_cigar_count < cigar_string.length) {
