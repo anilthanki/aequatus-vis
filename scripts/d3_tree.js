@@ -753,7 +753,8 @@ function update(source, ref_member) {
         .attr('height', '40px')
         .attr('x', 10)
         .attr('y', -20);
-
+    var width = 1;
+    var max_width =  jQuery('#slider_div').slider("option", "max");
 
     // Update the links…
     var link = svg.selectAll("path.link")
@@ -764,19 +765,9 @@ function update(source, ref_member) {
     // Enter any new links at the parent's previous position.
     link.enter().insert("path", "g")
         .attr("class", "link")
-        .attr("d", function (d) {
-            return diagonal([{
-                y: d.source.x,
-                x: d.source.y
-            }, {
-                y: d.target.x,
-                x: d.target.y
-            }]);
-        });
-
-    // Transition links to their new position.
-    link.transition()
-        .duration(duration)
+        .attr('id', function(d){
+            return "link"+d.target.node_id
+        })
         .attr("d", function (d) {
             return diagonal([{
                 y: d.source.x,
@@ -786,12 +777,41 @@ function update(source, ref_member) {
                 x: d.target.y
             }]);
         })
-        .attr('stroke', function (d){
-        if(d.source.rank){
-            return colours[d.rank]
-        }
-
-    });
+        .attr('stroke-width', function(d){
+            if(d.source.rank){
+                width = (max_width - d.source.rank) + 1
+                console.log("if "+width)
+            }
+            else{
+                width = jQuery("#link"+d.source.node_id).attr('stroke-width')
+            }
+            return width
+        });
+    // Transition links to their new position.
+    link.transition()
+        .duration(duration)
+        .attr('id', function(d){
+            return "link"+d.target.node_id
+        })
+        .attr("d", function (d) {
+            return diagonal([{
+                y: d.source.x,
+                x: d.source.y
+            }, {
+                y: d.target.x,
+                x: d.target.y
+            }]);
+        })
+        .attr('stroke-width', function(d){
+            if(d.source.rank){
+                width = (max_width - d.source.rank) + 1
+                console.log("if "+width)
+            }
+            else{
+                width = jQuery("#link"+d.source.node_id).attr('stroke-width')
+            }
+            return width
+        });
 
     // Transition exiting nodes to the parent's new position.
     link.exit().transition()
@@ -880,6 +900,8 @@ function rank() {
                 })
             }
         });
+
+        jQuery('#slider_div').slider("option", "max", rank);
         ranked = true;
     }
 
