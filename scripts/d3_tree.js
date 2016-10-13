@@ -90,8 +90,18 @@ function drawTree(json_tree, div, event) {
         value: 3,
         min: 1,
         max: 10,
-        step: 1
+        step: 1,
+        slide: function (event, ui) {
+            if (ui.value < last) filterRank(ui.value)//$("#amount").val("this is increasing");
+            if (ui.value > last) filterRankUP(ui.value)//$("#amount").val("this is decreasing");
+            last = ui.value;
+            jQuery("#slider_percentage").val(ui.value);
+        }
     });
+
+    last = jQuery("#slider_div").slider("value")
+
+
     jQuery("#slider_div").slider().bind({
         slide: function (event, ui) {
             var value = jQuery("#slider_div").slider("value")
@@ -102,7 +112,6 @@ function drawTree(json_tree, div, event) {
         }
     })
 
-    last = jQuery("#slider_div").slider("value")
 
     jQuery("#slider_percentage").val(jQuery("#slider_div").slider("value"));
 
@@ -426,12 +435,11 @@ function click(d) {
 }
 
 function updateWindow(count) {
+    var y = count * 40;
 
-    // var y = count;
-
-    // svg.attr("height", y);
-    // cluster = d3.layout.cluster()
-    //     .size([y, width - 160]);
+    svg.attr("height", y);
+    cluster = d3.layout.cluster()
+        .size([y, width - 160]);
 }
 
 function pack(d) {
@@ -468,52 +476,18 @@ function update(source, ref_member) {
     console.log("update")
     // Compute the new tree layout.
     // Normalize for fixed-depth.
-
-    // if (ranked == false) {
-    //     nodes.forEach(function (d, i) {
-    //         if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
-    //             d.parent['rank'] = rank;
-    //         }
-    //         if (d.parent && d.rank > 0) {
-    //             rank++;
-    //             d.parent['rank'] = rank;
-    //         }
-
-
-    //         if (d.rank > jQuery("#slider_percentage").val()) {
-    //             if (!d._children)
-    //                 d._children = []
-
-    //             d.children.forEach(function (e, i) {
-
-    //              if (!e.sequence && !e.rank) {
-    //                    var temp_children = e.children
-    //                     if (temp_children) {
-    //                         if (!e._children)
-    //                             e._children = []
-    //                         temp_children.forEach(function (child) {
-    //                             e._children.push(child)
-    //                         })
-    //                         e.children = null
-    //                     }
-    //                 }
-    //             })
-    //         }
-    //     });
-    //     ranked = true;
-    // }
-
     nodes = cluster.nodes(root)
+    count = 0
 
     nodes.forEach(function (d) {
-
-        if (d.children == null) {
+        if (d.children == null)
             count++;
-        }
-        count = count
     });
 
     updateWindow(count)
+
+
+    nodes = cluster.nodes(root)
 
     var links = cluster.links(nodes);
 
@@ -754,7 +728,7 @@ function update(source, ref_member) {
         .attr('x', 10)
         .attr('y', -20);
     var width = 1;
-    var max_width =  jQuery('#slider_div').slider("option", "max");
+    var max_width = jQuery('#slider_div').slider("option", "max");
 
     // Update the links…
     var link = svg.selectAll("path.link")
@@ -765,8 +739,8 @@ function update(source, ref_member) {
     // Enter any new links at the parent's previous position.
     link.enter().insert("path", "g")
         .attr("class", "link")
-        .attr('id', function(d){
-            return "link"+d.target.node_id
+        .attr('id', function (d) {
+            return "link" + d.target.node_id
         })
         .attr("d", function (d) {
             return diagonal([{
@@ -777,21 +751,20 @@ function update(source, ref_member) {
                 x: d.target.y
             }]);
         })
-        .attr('stroke-width', function(d){
-            if(d.source.rank){
+        .attr('stroke-width', function (d) {
+            if (d.source.rank) {
                 width = (max_width - d.source.rank) + 1
-                console.log("if "+width)
             }
-            else{
-                width = jQuery("#link"+d.source.node_id).attr('stroke-width')
+            else {
+                width = jQuery("#link" + d.source.node_id).attr('stroke-width')
             }
             return width
         });
     // Transition links to their new position.
     link.transition()
         .duration(duration)
-        .attr('id', function(d){
-            return "link"+d.target.node_id
+        .attr('id', function (d) {
+            return "link" + d.target.node_id
         })
         .attr("d", function (d) {
             return diagonal([{
@@ -802,13 +775,12 @@ function update(source, ref_member) {
                 x: d.target.y
             }]);
         })
-        .attr('stroke-width', function(d){
-            if(d.source.rank){
+        .attr('stroke-width', function (d) {
+            if (d.source.rank) {
                 width = (max_width - d.source.rank) + 1
-                console.log("if "+width)
             }
-            else{
-                width = jQuery("#link"+d.source.node_id).attr('stroke-width')
+            else {
+                width = jQuery("#link" + d.source.node_id).attr('stroke-width')
             }
             return width
         });
@@ -841,21 +813,17 @@ function update(source, ref_member) {
     }
 }
 function rank() {
-    console.log("rank " + protein_member_id)
     var rank = 1;
     nodes.reverse()
     if (ranked == false) {
         nodes.forEach(function (d, i) {
             if (d.rank) {
                 delete d.rank;
-                console.log(d.rank + " " + d.node_id)
             }
-
         })
         nodes.forEach(function (d, i) {
             if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
                 d.parent['rank'] = rank;
-                console.log(d.node_id)
             }
             if (d.parent && d.rank > 0) {
                 rank++;
@@ -883,9 +851,7 @@ function rank() {
                 })
             }
             if (d.rank <= jQuery("#slider_percentage").val()) {
-                console.log(d.children)
                 d.children.forEach(function (e, i) {
-
                     if (!e.sequence && !e.rank) {
                         var temp_children = e._children
                         if (temp_children) {
