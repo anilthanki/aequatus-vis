@@ -108,6 +108,9 @@ function getGeneIDfromTranscript(token) {
             if (obj.Transcript[j].id == token) {
                 id = obj.id.toString()
                 break;
+            }else if(obj.Transcript[j].Translation && obj.Transcript[j].Translation.id == token) {
+                id = obj.id.toString()
+                break;
             }
         }
     });
