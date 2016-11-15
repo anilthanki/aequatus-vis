@@ -248,13 +248,7 @@ function redrawCIGAR() {
                         var stopposition = ((gene_stop - gene_start) + 1) * parseFloat(maxLentemp) / (newEnd_temp);
                         var temp_div = svg;
 
-                        var strand = 0;
-
-                        if (syntenic_data.member[syntenic_data.ref].strand == gene.Transcript[transcript_len].strand) {
-                            strand = 1;
-                        } else {
-                            strand = -1;
-                        }
+                        var strand = gene.Transcript[transcript_len].strand
 
                         if (gene_member_id != member_id) {
 
@@ -280,12 +274,12 @@ function redrawCIGAR() {
 
                             var g = svg.group({class: 'style1'});
 
-                            dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start, "style1", gene.Transcript[transcript_len].Translation.id);
+                            dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, gene_start, stopposition, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start, "style1", gene.Transcript[transcript_len].Translation.id, gene.strand);
 
 
                             var g = svg.group({class: 'style2'});
 
-                            dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, stopposition, gene_start, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start, "style2", gene.Transcript[transcript_len].Translation.id);
+                            dispCigarLineRef(g, syntenic_data.cigar[gene.Transcript[transcript_len].Translation.id], 1, top, stopposition, gene_start, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), translation_start, "style2", gene.Transcript[transcript_len].Translation.id, gene.strand);
 
                         }
                     }

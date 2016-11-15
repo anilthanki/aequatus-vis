@@ -290,12 +290,8 @@ function dispGenesExonForMember_id(member_id, protein_id, ref) {
 
                 ref = syntenic_data.ref
                 var temp_div = svg;
-                var strand = 0;
-                if (syntenic_data.member[syntenic_data.ref].strand == gene.Transcript[transcript_len].strand) {
-                    strand = 1;
-                } else {
-                    strand = -1;
-                }
+                var strand = gene.Transcript[transcript_len].strand;
+
 
                 gene.Transcript[transcript_len].Exon.sort(sort_by('start', true, parseInt));
 
@@ -321,7 +317,7 @@ function dispGenesExonForMember_id(member_id, protein_id, ref) {
 
                 var g = svg.group({id: 'id' + protein_id+'style2CIGAR' ,class: 'style2 CIGAR'});
 
-                dispCigarLineRef(g, syntenic_data.cigar[protein_id], 1, top, stopposition, gene_start, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, "style2", protein_id);
+                dispCigarLineRef(g, syntenic_data.cigar[protein_id], 1, top, stopposition, gene_start, gene.Transcript[transcript_len].Exon.toJSON(), temp_div, gene.Transcript[transcript_len].Exon.toJSON(), transcript_start, "style2", protein_id, gene.strand);
             }
         }
     }
