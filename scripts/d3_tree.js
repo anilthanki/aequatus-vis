@@ -711,16 +711,16 @@ function update(source, ref_member) {
         .attr('width', width)
         .attr('height', '40px')
         .attr('x', 20)
-        .attr('y', -20)
+        .attr('y', -5)
         .style("fill", "red")
 
         .append('xhtml:div')
         .style("width", gene_width)
-        .style("height", "50px")
+        .style("height", "0px")
         .style("z-index", "999")
         .style("position", "fixed")
         .style("left", "10px")
-        .style("top", "10px")
+        .style("top", "0px")
         .html(function (d) {
             if (d.sequence) {
                 return "<div id = 'id" + d.sequence.id[0].accession + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
@@ -730,12 +730,14 @@ function update(source, ref_member) {
     nodeEnter.filter(function (d) {
         if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
             jQuery("#id" + d.sequence.id[0].accession).svg()
-            dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession)
-            dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession)
+            dispGenesForMember_id("#id" + d.sequence.id[0].accession, syntenic_data.cigar[d.sequence.id[0].accession], d.id.accession, d.sequence.id[0].accession)
+            dispGenesExonForMember_id("#id" + d.sequence.id[0].accession, syntenic_data.cigar[d.sequence.id[0].accession], d.id.accession, d.sequence.id[0].accession)
         } else if (d.sequence && syntenic_data.member[d.id.accession]) {
             jQuery("#id" + d.sequence.id[0].accession).svg()
-            dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession, true)
-            dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession, true)
+
+            var ref_gicar = syntenic_data.cigar[d.sequence.id[0].accession]
+            dispGenesForMember_id("#id" + d.sequence.id[0].accession, syntenic_data.cigar[d.sequence.id[0].accession], d.id.accession, d.sequence.id[0].accession, ref_gicar)
+            dispGenesExonForMember_id("#id" + d.sequence.id[0].accession, syntenic_data.cigar[d.sequence.id[0].accession], d.id.accession, d.sequence.id[0].accession, ref_gicar)
         }
 
 
@@ -748,7 +750,7 @@ function update(source, ref_member) {
         })
         .attr('height', '40px')
         .attr('x', 10)
-        .attr('y', -20);
+        .attr('y', -5);
     var width = 1;
     var max_width = jQuery('#slider_div').slider("option", "max");
 
