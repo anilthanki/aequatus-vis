@@ -50,6 +50,8 @@ function drawTree(json_tree, div, event) {
         .attr("width", width + margin.right + margin.left)
         .attr("height", height + margin.top + margin.bottom)
         .style("overflow", "visible")
+        .style("left", "100px")
+        .style("position", "relative")
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -245,7 +247,7 @@ function drawTree(json_tree, div, event) {
             recursiveChildren(d)
         });
         nodes = cluster.nodes(root);
-        rank()
+        rank();
 
 
     });
@@ -255,8 +257,7 @@ function drawTree(json_tree, div, event) {
 
 
     function recursiveChildren(d) {
-        if (d.children.size() == 1) {
-            // d._children = d.children;
+        if (d.children && d.children.size() == 1) {
             var new_children = pack(d)
             d.children = new_children.child;
             d.close = true
@@ -735,7 +736,7 @@ function update(source, ref_member) {
         } else if (d.sequence && syntenic_data.member[d.id.accession]) {
             jQuery("#id" + d.sequence.id[0].accession).svg()
 
-            var ref_gicar = syntenic_data.cigar[d.sequence.id[0].accession]
+            var ref_gicar = syntenic_data.cigar[protein_member_id]
             dispGenesForMember_id("#id" + d.sequence.id[0].accession, syntenic_data.cigar[d.sequence.id[0].accession], d.id.accession, d.sequence.id[0].accession, ref_gicar)
             dispGenesExonForMember_id("#id" + d.sequence.id[0].accession, syntenic_data.cigar[d.sequence.id[0].accession], d.id.accession, d.sequence.id[0].accession, ref_gicar)
         }
@@ -894,6 +895,14 @@ function rank() {
 
         jQuery('#slider_div').slider("option", "max", rank);
         ranked = true;
+    }
+    else{
+        nodes.forEach(function (d, i) {
+            if (d.rank >= rank) {
+                rank = d.rank;
+            }
+        })
+        jQuery('#slider_div').slider("option", "max", rank);
     }
     jQuery(filter_div).children("label").each(function () {
         filtercheck(jQuery(this).text())
