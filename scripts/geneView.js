@@ -552,7 +552,7 @@ function setControls(control_div) {
     var input = jQuery('<input>', {
         type: "radio",
         name: "label_type",
-        value: "stable",
+        value: "gene_stable",
         onclick: 'changeToStable()',
     });
     column3.html(input)
@@ -567,7 +567,7 @@ function setControls(control_div) {
     var input = jQuery('<input>', {
         type: "radio",
         name: "label_type",
-        value: "stable",
+        value: "ptn_stable",
         onclick: 'changeToProteinId()',
     });
     column5.html(input)

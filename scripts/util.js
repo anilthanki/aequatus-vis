@@ -23,12 +23,12 @@ function checkVisuals() {
     else
         jQuery(".utr").hide();  // unchecked jQuery('.utr').toggle()
 
-    if (jQuery('input[name=label_type]:radio:checked').val() == "stable") {
-        jQuery(".genelabel").hide();
-        jQuery(".stable").show();
+    if (jQuery('input[name=label_type]:radio:checked').val() == "gene_stable") {
+        changeToStable()
+    } else if (jQuery('input[name=label_type]:radio:checked').val() == "ptn_stable") {
+        changeToProteinId()
     } else {
-        jQuery(".genelabel").hide();
-        jQuery(".geneinfo").show();
+        changeToGeneInfo()
     }
 
     if (jQuery('input[name=view_type]:checked').val() == "with") {
@@ -36,15 +36,6 @@ function checkVisuals() {
     }
     else {
         changeToNormal();
-    }
-
-    if (jQuery('input[name=label_type]:radio:checked').val() == "stable") {
-        changeToStable()
-    }
-    else  if (jQuery('input[name=label_type]:radio:checked').val() == "gene_info"){
-        changeToGeneInfo()
-    } else{
-        changeToProteinId()
     }
 }
 
