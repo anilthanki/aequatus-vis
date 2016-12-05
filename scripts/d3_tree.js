@@ -104,7 +104,7 @@ function drawTree(json_tree, div, event) {
         min: 1,
         max: 10,
         step: 1,
-        slide: function (event, ui) {
+        stop: function (event, ui) {
             if (ui.value < last) filterRank(ui.value)//$("#amount").val("this is increasing");
             if (ui.value > last) filterRankUP(ui.value)//$("#amount").val("this is decreasing");
             last = ui.value;
@@ -116,7 +116,7 @@ function drawTree(json_tree, div, event) {
 
 
     jQuery("#slider_div").slider().bind({
-        slide: function (event, ui) {
+        stop: function (event, ui) {
             var value = jQuery("#slider_div").slider("value")
             if (value < last) filterRank(value)//$("#amount").val("this is increasing");
             if (value > last) filterRankUP(value)//$("#amount").val("this is decreasing");
