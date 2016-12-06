@@ -158,11 +158,11 @@ function format_ref_cigar() {
 
     while (i < no_of_exons) {
         var length = ref_exons[i].length
-        if (ref_exons[i].length == null) {
-            length = (ref_exons[i].end - ref_exons[i].start) + 1
-        }
+        // if (ref_exons[i].length == null) {
+        //     length = (ref_exons[i].end - ref_exons[i].start) + 1
+        // }
         var ref_exon = length
-        if (parseInt(ref_exon) >= 0) {
+        if (parseInt(length) >= 0) {
             ref_exon_array.push(ref_exon)
         }
         i++;
@@ -256,10 +256,11 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
 
     while (i < ref_cigar_array.length) {
         ref_exon_array.push(ref_cigar_array[i].replace(/D/g, "").length)
-        ref_exons[i] = ref_exons[i].length ? ref_exons[i].length : ref_exons[i].end - ref_exons[i].start
+        ref_exons[i] = ref_exons[i].length// ? ref_exons[i].length : ref_exons[i].end - ref_exons[i].start
         i++;
     }
 
+console.log(ref_exons)
     if (hit_strand != ref_strand) {
         //ref_exon_array = ref_exon_array.reverse();
         ref_exons = ref_exons.reverse();

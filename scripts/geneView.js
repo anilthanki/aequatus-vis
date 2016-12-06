@@ -193,8 +193,6 @@ function redrawCIGAR() {
 
     ranked = false;
     rank()
-    // jQuery('#slider_div').slider('value',3);
-    // jQuery('#slider_div').trigger('slide');
 
     var json = syntenic_data;
     if (json.ref) {
@@ -338,7 +336,6 @@ function resize_ref() {
     }
 
     var diff  = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start)
-    console.log(diff)
     syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff
     exon_nu++;
 
