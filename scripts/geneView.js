@@ -250,7 +250,7 @@ function redrawCIGAR() {
 
                         var strand = gene.Transcript[transcript_len].strand
 
-                        if (gene_member_id != member_id) {
+                        if (temp_member_id != protein_member_id) {
 
                             var g = svg.group({class: 'style1'});
 
