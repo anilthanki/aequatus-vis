@@ -26,7 +26,6 @@
  */
 
 function dispCigarLine(g, cigars, start, top, max, gene_start, exons, temp_div, ref_exons, translation_start, strand, ref_cigar, ref_strand, div, protein_id) {
-console.log(protein_id)
     exons = jQuery.parseJSON(exons);
 
     exons.sort(sort_by('start', true, parseInt));
@@ -80,21 +79,20 @@ console.log(protein_id)
         var temp_colours = colours.slice(0);
         if (strand != ref_strand) {
             var noofrefexon =   ref_data.noofrefcds;//jQuery.parseJSON(ref_exons).length;
-
             temp_colours = temp_colours.splice(0, noofrefexon)
             temp_colours = temp_colours.reverse();
 
             if (ref_exons) {
                 ref_exons = jQuery.parseJSON(ref_exons);
                 ref_exons.sort(sort_by('start', true, parseInt));
-                cigar_string = formatCigar(ref_exons, cigar_string, colours, ref_cigar, strand, ref_strand)
+                cigar_string = formatCigar(ref_exons, cigars, colours, ref_cigar, strand, ref_strand)
             }
         } else {
 
             if (ref_exons) {
                 ref_exons = jQuery.parseJSON(ref_exons);
                 ref_exons.sort(sort_by('start', true, parseInt));
-                cigar_string = formatCigar(ref_exons, cigar_string, colours, ref_cigar, strand, ref_strand)
+                cigar_string = formatCigar(ref_exons, cigars, colours, ref_cigar, strand, ref_strand)
             }
         }
         cigar_string = cigar_string.replace(/(I)/g, "");
