@@ -149,7 +149,7 @@ function drawTree(json_tree, div, event) {
                         if (e.rank && e.rank <= rank) {
 
                         } else if (e.rank && e.rank > rank) {
-                            recusrsiveCheck(e)
+                            recursiveCheck(e)
                         } else {
                             closeNode(d, e)
                         }
@@ -157,11 +157,11 @@ function drawTree(json_tree, div, event) {
                 }
 
 
-                function recusrsiveCheck(node) {
+                function recursiveCheck(node) {
                     node.children.forEach(function (e) {
                         if (e.rank && e.rank <= rank) {
                         } else if (e.rank && e.rank > rank) {
-                            recusrsiveCheck(e)
+                            recursiveCheck(e)
                         } else {
                             closeNode(node, e)
                         }
@@ -169,14 +169,13 @@ function drawTree(json_tree, div, event) {
                 }
 
                 function closeNode(node, childNode) {
-                    var temp_children = childNode.children
+                    var temp_children = childNode
                     if (temp_children) {
-                        if (!childNode._children)
-                            childNode._children = []
-                        temp_children.forEach(function (child) {
-                            childNode._children.push(child)
-                        })
-                        childNode.children = null
+                        if (!node._children)
+                            node._children = []
+                        node._children.push(temp_children)
+                        var i = node.children.indexOf(childNode);
+                        node.children.splice(i, 1)
                         update(node, member_id);
                     }
                 }
@@ -184,51 +183,46 @@ function drawTree(json_tree, div, event) {
     }
 
     function filterRankUP(rank) {
+        console.log("filterRankUP")
         svg.selectAll(".node")
             .filter(function (d) {
                 if (d.rank && d.rank <= rank) {
                     var newObject = d;
                     if (newObject._children && newObject._children.size() > 0) {
                         newObject._children.forEach(function (e, i) {
-                            newObject.children.push(e)
-                            newObject._children.splice(i, 1)
-
+                            if (e.rank && e.rank <= rank) {
+                            } else if (e.rank && e.rank <= rank) {
+                                recusrsiveCheckOpen(e)
+                            } else {
+                                openNode(d, e)
+                            }
                         })
                     }
-                    newObject.children.forEach(function (e) {
-                        if (e.rank) {
-
-                        } else {
-                            openNode(e)
-
-                        }
-                    })
                 }
 
                 function recusrsiveCheckOpen(node) {
                     node.children.forEach(function (e) {
                         if (e.rank && e.rank <= rank) {
-                            openNode(e)
-                            recusrsiveCheckOpen(e)
-                        }
+                            } else if (e.rank && e.rank <= rank) {
+                                recusrsiveCheckOpen(e)
+                            } else {
+                                openNode(node, e)
+                            }
                     })
                 }
 
 
-                function openNode(node) {
-                    if (!node.children)
-                        node.children = []
+                function openNode(node, childNode) {
+                    var temp_children = childNode
+                     if (temp_children) {
+                        if (!node.children)
+                            node.children = []
 
-                    if (node._children && node._children.size() > 0) {
-                        node._children.forEach(function (e, i) {
-                            if (e.node_id) {
-                                node.children.push(e)
-                            }
-                        })
-                        node._children = null
+                        node.children.push(temp_children)
+                        var i = node._children.indexOf(childNode);
+                        node._children.splice(i, 1)
+                        update(node, member_id);
                     }
-                    update(node, member_id);
-                    return node;
                 }
             });
 
