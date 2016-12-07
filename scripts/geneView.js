@@ -193,8 +193,6 @@ function redrawCIGAR() {
 
     ranked = false;
     rank()
-    // jQuery('#slider_div').slider('value',3);
-    // jQuery('#slider_div').trigger('slide');
 
     var json = syntenic_data;
     if (json.ref) {
@@ -250,7 +248,7 @@ function redrawCIGAR() {
 
                         var strand = gene.Transcript[transcript_len].strand
 
-                        if (gene_member_id != member_id) {
+                        if (temp_member_id != protein_member_id) {
 
                             var g = svg.group({class: 'style1'});
 
@@ -325,16 +323,25 @@ function resize_ref() {
 
     syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff;
     syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu]._start += syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.start - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start;
+    exon_nu++;
+    
 
-
-    var exon_nu = syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.length - 1
-    var diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu]._start) + parseInt(1)
-    while (diff < 0) {
-        syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = 0
-        exon_nu--;
-        diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu]._start) + parseInt(1)
+    var check = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end)
+   
+    while (check > 0) {
+        diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start) + parseInt(1)
+        syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff;
+        exon_nu++;
+        check = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end)
     }
-    syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff;
+
+    var diff  = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start)
+    syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff
+    exon_nu++;
+
+    for (var exon_nu; exon_nu < syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.length-1; exon_nu++) {
+        syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = 0
+    }
 
     for (var exon_nu = 0; exon_nu < syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.length; exon_nu++) {
         if (syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length > 0) {
@@ -344,8 +351,6 @@ function resize_ref() {
 
     ref_data.formated_cigar = format_ref_cigar();
     ref_data.noofrefcds = noofrefcds;
-
-
 }
 
 /**
