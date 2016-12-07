@@ -72,8 +72,6 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, exons, temp_div, 
     var cigar_string = "";
 
     if (cigars != '*') {
-        cigars += 'M'
-        ref_cigar += 'M';
         cigar_string = expandCigar(cigars, "true")
 
         var temp_colours = colours.slice(0);
@@ -96,7 +94,6 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, exons, temp_div, 
             }
         }
         cigar_string = cigar_string.replace(/(I)/g, "");
-
         cigar_string = cigar_string.replace(/(MD)/g, "M,D");
         cigar_string = cigar_string.replace(/(DM)/g, "D,M");
         cigar_string = cigar_string.replace(/(D_)/g, "D,_");
@@ -325,7 +322,7 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, exons, temp_di
             break;
         }
     }
-
+  
     var temp_end = (exons[exon_number].end - gene_start) + 1;
 
     if (temp_end < cigar_pos) {
@@ -338,8 +335,6 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, exons, temp_di
     }
 
     if (cigars != '*') {
-
-        cigars += 'M'
 
         cigar_string = expandCigar(cigars, "true")
 
