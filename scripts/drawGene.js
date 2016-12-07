@@ -92,7 +92,7 @@ function dispGeneExon(g, svg, track, genestrand, gene_start, width, max_len) {
             });
 
             if (exon_len > 0) {
-                svg.text(g, startposition - 20, 10, spanclass, {stroke: 'green'});
+                svg.text(g, startposition - 20, 8, spanclass, {stroke: 'green'});
             }
             disp_exon = true;
         }

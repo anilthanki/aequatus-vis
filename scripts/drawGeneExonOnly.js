@@ -102,7 +102,7 @@ function dispExon(g, svg, track, genestrand, gene_start, width, max_len, protein
             });
 
             if (exon_len < geneexons.length-1 && disp_exon) {
-                svg.text(g, startposition+stopposition+1, 10,  spanclass, {stroke: 'green'});
+                svg.text(g, startposition+stopposition+1, 8,  spanclass, {stroke: 'green'});
                 disp_exon = false
             }else{
                 disp_exon = true;
