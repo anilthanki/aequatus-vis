@@ -339,7 +339,7 @@ function resize_ref() {
     syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff
     exon_nu++;
 
-    for (var exon_nu; exon_nu < syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.length-1; exon_nu++) {
+    for (var exon_nu; exon_nu < syntenic_data.member[syntenic_data.ref].Transcript[i].Exon.length; exon_nu++) {
         syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = 0
     }
 
