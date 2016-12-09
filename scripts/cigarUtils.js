@@ -254,10 +254,16 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
 
     while (i < ref_cigar_array.length) {
         ref_exon_array.push(ref_cigar_array[i].replace(/D/g, "").length)
-        ref_exons[i] = ref_exons[i].length;
+        // ref_exons[i] = ref_exons[i].length;
         i++;
     }
 
+    var i = 0
+    while (i < ref_exons.length) {
+        // ref_exon_array.push(ref_cigar_array[i].replace(/D/g, "").length)
+        ref_exons[i] = ref_exons[i].length;
+        i++;
+    }
     if (hit_strand != ref_strand) {
         ref_exons = ref_exons.reverse();
         var sum = 0;
@@ -310,7 +316,6 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
         if (cigar_string.charAt(ref_cigar_count) == 'M') {
 
             if (count_match == ref_exons[ref_exon_number]) {
-
                 ref_exon_number++;
                 hit_cigar_arr.push(hit_cigar.substr(last_pos, hit_position));
                 temp_array.push(hit_position + " : " + ref_exon_number)
@@ -324,10 +329,10 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
             }
             count_match++;
         }
+      
         hit_position++;
         ref_cigar_count++;
     }
-
     hit_cigar_arr.push(hit_cigar.substr(last_pos, hit_position));
     return hit_cigar_arr.join("-");
 
