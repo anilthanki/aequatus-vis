@@ -3,8 +3,6 @@
  * @param s Newick tree in string format
  */
 function NewickToJSON(s) {
-    console.log("NewickToJSON")
-
     var ancestors = [];
     var tree = {};
     var tokens = s.split(/\s*(;|\(|\)|,|:|\[|\])\s*/);
@@ -42,8 +40,6 @@ function NewickToJSON(s) {
                 var x = tokens[i - 1];
                 if (x == ')' || x == '(' || x == ',') {
                     if (token.indexOf("_") > 0) {
-                    console.log(token)
-
                         tree.id = {}
                         tree.id.accession = getGeneIDfromTranscript(token.split("_")[0])
                         tree.sequence = {}
@@ -51,8 +47,6 @@ function NewickToJSON(s) {
                         tree.sequence.id[0] = {}
                         tree.sequence.id[0].accession = getProteinIDfromTranscript(token.split("_")[0]);
                     }else if(token.length > 0){
-                    console.log(token)
-                        
                         tree.id = {}
                         tree.id.accession = getGeneIDfromTranscript(token)
                         tree.sequence = {}
@@ -69,16 +63,22 @@ function NewickToJSON(s) {
                 }
                 else if (tag == true && x == ':') {
                     if (token == "D=N") {
+                        tree.node_id = node_id;
+                        node_id++;
                         tree.events = {}
 
                         tree.events.type = "speciation";
 
                     } else if (token == "D=Y") {
+                        tree.node_id = node_id;
+                        node_id++;
                         tree.events = {}
 
                         tree.events.type = "duplication";
 
                     } else if (token == "DD=Y") {
+                        tree.node_id = node_id;
+                        node_id++;
                         tree.event = {}
 
                         tree.events.type = "dubious";
