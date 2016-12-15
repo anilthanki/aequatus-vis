@@ -515,6 +515,10 @@ function update(source, ref_member) {
 
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
+    .attr("id", function (d, i) {
+            
+                return "node" + d.node_id;
+        })
         .attr("class", "node")
         .attr("transform", function (d) {
             if (source.x0 > maxHeight) {
@@ -615,7 +619,11 @@ function update(source, ref_member) {
 
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
-        .duration(duration)
+         .attr("id", function (d, i) {
+            
+                return "node" + d.node_id;
+        })
+         .duration(duration)
         .attr("transform", function (d) {
             if (d.x > maxHeight) {
                 maxHeight = d.x
@@ -743,6 +751,14 @@ function update(source, ref_member) {
         .attr('width', function (d) {
             return jQuery(window).width() * 0.8;
         })
+        .attr("rank", function (d) {
+            if (d.rank) {
+                return d.rank;
+            }else{
+                return null;
+            }
+
+        })
         .attr('height', '40px')
         .attr('x', 10)
         .attr('y', -5);
@@ -857,32 +873,16 @@ function rank() {
 
                 d.children.forEach(function (e, i) {
 
-                    if (!e.sequence && !e.rank) {
-                        var temp_children = e.children
-                        if (temp_children) {
-                            if (!e._children)
-                                e._children = []
-                            temp_children.forEach(function (child) {
-                                e._children.push(child)
-                            })
-                            e.children = null
-                        }
+                    if (!e.rank) {
+                        d._children.push(e)
+                        d.children.splice(i, 1)
                     }
                 })
             }
-            if (d.rank <= jQuery("#slider_percentage").val()) {
-                d.children.forEach(function (e, i) {
-                    if (!e.sequence && !e.rank) {
-                        var temp_children = e._children
-                        if (temp_children) {
-                            if (!e.children)
-                                e.children = []
-                            temp_children.forEach(function (child) {
-                                e.children.push(child)
-                            })
-                            e._children = null
-                        }
-                    }
+            if (d.rank <= jQuery("#slider_percentage").val() && d._children) {
+                d._children.forEach(function (e, i) {
+                     d.children.push(e)
+                        d._children.splice(i, 1)
                 })
             }
         });
