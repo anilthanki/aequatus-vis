@@ -72,6 +72,9 @@ function drawTree(json_tree, div, event) {
         .enter()
         .append('label')
         .attr("class", "filter")
+        .style("font-size", "12px")
+        .style("text-align", "left")
+        .style("display", "table-row")
         .attr('for', function (d, i) {
             return 'checkbox' + d;
         })
