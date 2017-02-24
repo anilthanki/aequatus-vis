@@ -29,12 +29,14 @@ var slider_filter_div = null;
  * @param tree
  * @returns {*}
  */
+
+
 function cleanTree(tree) {
+    var treestring = JSON.stringify(tree)
 
-    var treestring = tree.toSource()
-
-    treestring = treestring.substring(1, treestring.length - 1)
-    treestring = treestring.replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:([^\/])/g, '"$2":$4');
+    treestring = treestring.replace(/\"\[/g, '\[');
+    treestring = treestring.replace(/\\\"/g, '\"');
+    treestring = treestring.replace(/\]\"/g, '\]');
 
     var re = /"accession":"([a-z0-9_]*)([\.-])([\.a-z0-9_-]*)"/gi;
 
@@ -47,6 +49,7 @@ function cleanTree(tree) {
         treestring = treestring.replace(matchString, replaceString)
         match = re.exec(treestring);
     }
+
     tree = JSON.parse(treestring)
 
     return tree;
@@ -100,6 +103,7 @@ function cleanCIGARs(cigar) {
  * @param filter_spacer filters place holder name
  */
 function init(json, control_div, filter_spacer, slider_filter) {
+
     member_id = json.ref.replace(/[^a-zA-Z0-9]/g, '_');
 
     ranked = false;
@@ -324,10 +328,10 @@ function resize_ref() {
     syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff;
     syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu]._start += syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.start - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start;
     exon_nu++;
-    
+
 
     var check = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end)
-   
+
     while (check > 0) {
         diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start) + parseInt(1)
         syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff;
