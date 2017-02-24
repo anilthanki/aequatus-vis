@@ -87,7 +87,7 @@ function drawTree(json_tree, div, event) {
         .attr("id", function (d, i) {
             return 'checkbox' + d;
         })
-        .on("click", function(d){
+        .on("click", function (d) {
             filtercheck(d)
             update(root, member_id);
         });
@@ -143,96 +143,6 @@ function drawTree(json_tree, div, event) {
         })
     })
 
-    function filterRank(rank) {
-        svg.selectAll(".node")
-            .filter(function (d) {
-                if (d.rank && d.rank > rank) {
-                    var newObject = d;
-                    newObject.children.forEach(function (e) {
-                        if (e.rank && e.rank <= rank) {
-
-                        } else if (e.rank && e.rank > rank) {
-                            recursiveCheck(e)
-                        } else {
-                            closeNode(d, e)
-                        }
-                    })
-                }
-
-
-                function recursiveCheck(node) {
-                    node.children.forEach(function (e) {
-                        if (e.rank && e.rank <= rank) {
-                        } else if (e.rank && e.rank > rank) {
-                            recursiveCheck(e)
-                        } else {
-                            closeNode(node, e)
-                        }
-                    })
-                }
-
-                function closeNode(node, childNode) {
-                    var temp_children = childNode
-                    if (temp_children) {
-                        if (!node._children)
-                            node._children = []
-                        node._children.push(temp_children)
-                        var i = node.children.indexOf(childNode);
-                        node.children.splice(i, 1)
-                        update(node, member_id);
-                    }
-                }
-            });
-    }
-
-    function filterRankUP(rank) {
-        console.log("filterRankUP")
-        svg.selectAll(".node")
-            .filter(function (d) {
-                if (d.rank && d.rank <= rank) {
-                    var newObject = d;
-                    if (newObject._children && newObject._children.size() > 0) {
-                        newObject._children.forEach(function (e, i) {
-                            if (e.rank && e.rank <= rank) {
-                            } else if (e.rank && e.rank <= rank) {
-                                recusrsiveCheckOpen(e)
-                            } else {
-                                openNode(d, e)
-                            }
-                        })
-                    }
-                }
-
-                function recusrsiveCheckOpen(node) {
-                    node.children.forEach(function (e) {
-                        if (e.rank && e.rank <= rank) {
-                            } else if (e.rank && e.rank <= rank) {
-                                recusrsiveCheckOpen(e)
-                            } else {
-                                openNode(node, e)
-                            }
-                    })
-                }
-
-
-                function openNode(node, childNode) {
-                    var temp_children = childNode
-                     if (temp_children) {
-                        if (!node.children)
-                            node.children = []
-
-                        node.children.push(temp_children)
-                        var i = node._children.indexOf(childNode);
-                        node._children.splice(i, 1)
-                        update(node, member_id);
-                    }
-                }
-            });
-
-    }
-
-
-
 
     d3.json(json_tree, function () {
 
@@ -282,7 +192,7 @@ function drawTree(json_tree, div, event) {
  */
 function filtercheck(de) {
     var selected = de;
-    var display = jQuery("#checkbox"+de).is(":checked")
+    var display = jQuery("#checkbox" + de).is(":checked")
 
     root.children.forEach(function (d, i) {
         recursiveChildren(d)
@@ -384,6 +294,95 @@ function filtercheck(de) {
     }
 }
 
+
+function filterRank(rank) {
+    svg.selectAll(".node")
+        .filter(function (d) {
+            if (d.rank && d.rank > rank) {
+                var newObject = d;
+                newObject.children.forEach(function (e) {
+                    if (e.rank && e.rank <= rank) {
+
+                    } else if (e.rank && e.rank > rank) {
+                        recursiveCheck(e)
+                    } else {
+                        closeNode(d, e)
+                    }
+                })
+            }
+
+
+            function recursiveCheck(node) {
+                node.children.forEach(function (e) {
+                    if (e.rank && e.rank <= rank) {
+                    } else if (e.rank && e.rank > rank) {
+                        recursiveCheck(e)
+                    } else {
+                        closeNode(node, e)
+                    }
+                })
+            }
+
+            function closeNode(node, childNode) {
+                var temp_children = childNode
+                if (temp_children) {
+                    if (!node._children)
+                        node._children = []
+                    node._children.push(temp_children)
+                    var i = node.children.indexOf(childNode);
+                    node.children.splice(i, 1)
+                    update(node, member_id);
+                }
+            }
+        });
+}
+
+function filterRankUP(rank) {
+    console.log("filterRankUP")
+    svg.selectAll(".node")
+        .filter(function (d) {
+            if (d.rank && d.rank <= rank) {
+                var newObject = d;
+                if (newObject._children && newObject._children.size() > 0) {
+                    newObject._children.forEach(function (e, i) {
+                        if (e.rank && e.rank <= rank) {
+                        } else if (e.rank && e.rank <= rank) {
+                            recusrsiveCheckOpen(e)
+                        } else {
+                            openNode(d, e)
+                        }
+                    })
+                }
+            }
+
+            function recusrsiveCheckOpen(node) {
+                node.children.forEach(function (e) {
+                    if (e.rank && e.rank <= rank) {
+                    } else if (e.rank && e.rank <= rank) {
+                        recusrsiveCheckOpen(e)
+                    } else {
+                        openNode(node, e)
+                    }
+                })
+            }
+
+
+            function openNode(node, childNode) {
+                var temp_children = childNode
+                if (temp_children) {
+                    if (!node.children)
+                        node.children = []
+
+                    node.children.push(temp_children)
+                    var i = node._children.indexOf(childNode);
+                    node._children.splice(i, 1)
+                    update(node, member_id);
+                }
+            }
+        });
+
+}
+
 /**
  * changes genes view to normal view with full length introns
  */
@@ -434,7 +433,25 @@ function changeToProteinId() {
  */
 function click(d) {
 
-    if (d.children && d.children != null) {
+    if (d.rank) {
+        var curr_rank = jQuery("#slider_percentage").val()
+
+        if (curr_rank > d.rank) {
+            jQuery("#slider_div").slider({
+                value: d.rank
+            })
+            jQuery("#slider_percentage").val(d.rank)
+            filterRank(d.rank)
+        } else if (curr_rank < d.rank) {
+            jQuery("#slider_div").slider({
+                value: d.rank
+            })
+            jQuery("#slider_percentage").val(d.rank)
+            filterRankUP(d.rank)
+        } else {
+            console.log("rankksksksk")
+        }
+    } else if (d.children && d.children != null) {
         if (d.children.size() == 1) {
             d._children = d.children;
             var new_children = pack(d)
@@ -518,9 +535,9 @@ function update(source, ref_member) {
 
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
-    .attr("id", function (d, i) {
-            
-                return "node" + d.node_id;
+        .attr("id", function (d, i) {
+
+            return "node" + d.node_id;
         })
         .attr("class", "node")
         .attr("transform", function (d) {
@@ -613,20 +630,15 @@ function update(source, ref_member) {
             if ((d.sequence && d.id.accession == protein_member_id)) {
                 return "black";
             }
-        })
-        .append("svg:title")
-        .text(function (d, i) {
-            return d.rank;
         });
-    ;
 
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
-         .attr("id", function (d, i) {
-            
-                return "node" + d.node_id;
+        .attr("id", function (d, i) {
+
+            return "node" + d.node_id;
         })
-         .duration(duration)
+        .duration(duration)
         .attr("transform", function (d) {
             if (d.x > maxHeight) {
                 maxHeight = d.x
@@ -684,11 +696,6 @@ function update(source, ref_member) {
             if ((d.sequence && d.sequence.id[0].accession == protein_member_id)) {
                 return "black";
             }
-        });
-
-    nodeUpdate.select("title")
-        .text(function (d, i) {
-            return d.rank;
         });
 
     // Transition exiting nodes to the parent's new position.
@@ -757,7 +764,7 @@ function update(source, ref_member) {
         .attr("rank", function (d) {
             if (d.rank) {
                 return d.rank;
-            }else{
+            } else {
                 return null;
             }
 
@@ -884,8 +891,8 @@ function rank() {
             }
             if (d.rank <= jQuery("#slider_percentage").val() && d._children) {
                 d._children.forEach(function (e, i) {
-                     d.children.push(e)
-                        d._children.splice(i, 1)
+                    d.children.push(e)
+                    d._children.splice(i, 1)
                 })
             }
         });
@@ -893,7 +900,7 @@ function rank() {
         jQuery('#slider_div').slider("option", "max", rank);
         ranked = true;
     }
-    else{
+    else {
         nodes.forEach(function (d, i) {
             if (d.rank >= rank) {
                 rank = d.rank;
