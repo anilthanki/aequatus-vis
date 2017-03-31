@@ -32,13 +32,25 @@ var slider_filter_div = null;
 
 
 function cleanTree(tree) {
-    var treestring = JSON.stringify(tree)
+    /*
+     *
+     * .toSource() will not work in Safari so using Stringify
+     *
+     * var treestring = tree.toSource()
+     * treestring = treestring.substring(1, treestring.length - 1)
+     * treestring = treestring.replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:([^\/])/g, '"$2":$4');
+     *
+     */
 
+    var treestring = JSON.stringify(tree)
+    /*
+     * removes unwated quotes
+     */
     treestring = treestring.replace(/\"\[/g, '\[');
     treestring = treestring.replace(/\\\"/g, '\"');
     treestring = treestring.replace(/\]\"/g, '\]');
 
-    var re = /"accession":"([a-z0-9_]*)([\.-])([\.a-z0-9_-]*)"/gi;
+    var re = /"accession":\s*"([a-z0-9_]*)([\.-])([\.a-z0-9_-]*)"/gi;
 
     var matches = [];
     var match = re.exec(treestring);
@@ -69,6 +81,7 @@ function cleanGenes(member) {
 
     jQuery.each(member, function (key, data) {
         var transcript = member[key].Transcript.replace(/:\s*_1/g, ":-1")
+        transcript = transcript.replace(/\./g, "")
         key = key.replace(/[.|-]/g, '_')
         member[key].Transcript = JSON.parse(transcript)
     })
@@ -144,6 +157,7 @@ function init(json, control_div, filter_spacer, slider_filter) {
     ref_data = syntenic_data.member[member_id]
     protein_member_id = json.protein_id.replace(/[^a-zA-Z0-9]/g, '_')
     transcript_member_id = json.transcript_id
+
     resize_ref();
 
 }
@@ -177,8 +191,6 @@ function addCigar(child) {
 }
 
 
-
-
 function addZero(x, n) {
     while (x.toString().length < n) {
         x = "0" + x;
@@ -192,8 +204,6 @@ function addZero(x, n) {
  */
 function redrawCIGAR() {
 
-
-    console.log("redrawCIGAR")
 
     ranked = false;
     rank()
@@ -339,7 +349,7 @@ function resize_ref() {
         check = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end)
     }
 
-    var diff  = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start)
+    var diff = parseInt(syntenic_data.member[syntenic_data.ref].Transcript[i].Translation.end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start)
     syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = diff
     exon_nu++;
 
@@ -376,8 +386,6 @@ function resize_ref_to_def() {
         syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].length = (syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].end - syntenic_data.member[syntenic_data.ref].Transcript[i].Exon[exon_nu].start) + 1
     }
 }
-
-
 
 
 /**
