@@ -315,6 +315,7 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, exons, temp_di
 
     var maxLentemp = parseInt(jQuery(div + " #exon" +exons[exon_number].id+""+div).attr('width'));
 
+    var colour_count = 0;
     for (var e = 0; e < exons.length; e++) {
         if (exons[e].end > translation_start) {
             cigar_pos = (translation_start - exons[e].start) ;
@@ -374,7 +375,7 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, exons, temp_di
 
                 if (parseInt(cigar_pos) + parseInt(length) <= (temp_end - temp_start)) {
                     startposition = parseFloat(startposition) + parseFloat(jQuery("#id"+protein_id+" #exon" + exons[exon_number].id + "" + div).attr("x"))
-                    trackHTML(g, startposition, stopposition, trackClass, temp_div, colours[exon_number]);
+                    trackHTML(g, startposition, stopposition, trackClass, temp_div, colours[colour_count]);
                     cigar_pos = parseInt(cigar_pos) + parseInt(length)
                 } else {
 
@@ -385,11 +386,12 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, exons, temp_di
                         stopposition = parseFloat(((temp_end - temp_start) - cigar_pos) * parseFloat(maxLentemp) / (temp_end-temp_start));
 
                         startposition = parseFloat(startposition) + parseFloat(jQuery("#id"+protein_id+" #exon" + exons[exon_number].id + "" + div).attr("x"))
-                        trackHTML(g, startposition, stopposition, trackClass, temp_div, colours[exon_number]);
+                        trackHTML(g, startposition, stopposition, trackClass, temp_div, colours[colour_count]);
 
                         length = length - ((temp_end - temp_start) - cigar_pos);
 
                         exon_number++;
+                        colour_count++;
 
 
                         if (exon_number >= no_of_exons) {
@@ -410,7 +412,7 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, exons, temp_di
                         if (parseInt(cigar_pos) + parseInt(length) <= (temp_end - temp_start)) {
                             startposition = parseFloat(startposition) + parseFloat(jQuery("#id"+protein_id+" #exon" + exons[exon_number].id + "" + div).attr("x"))
 
-                            trackHTML(g, startposition, stopposition, trackClass, temp_div, colours[exon_number]);
+                            trackHTML(g, startposition, stopposition, trackClass, temp_div, colours[colour_count]);
                             cigar_pos = parseInt(cigar_pos) + parseInt(length)
                             bool = false;
                         }
