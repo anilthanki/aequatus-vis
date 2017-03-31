@@ -173,10 +173,13 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, exons, temp_div, 
                 }
                 else if (key == "D" && length > 0) {
 
-                     trackClass = "delete ui-icon ui-icon-carat-1-s";
+                     trackClass = "delete";
                      startposition = parseInt((cigar_pos) * parseFloat(maxLentemp) / ((temp_end - temp_start)));
+                    console.log(cigar_pos)
+                    console.log(startposition)
                      stopposition = 15;
                      startposition = parseFloat(startposition) + parseFloat(jQuery("#id"+protein_id+" #exon" +  exons[exon_number].id + "" + div).attr("x"))
+                    console.log(startposition)
 
                      trackHTMLDelete(g, startposition, trackClass, temp_div);
 
@@ -253,9 +256,11 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, exons, temp_div, 
  * @param temp_div parent div for cigar
  */
 function trackHTMLDelete(g, startposition, trackClass, temp_div) {
-    temp_div.text(g, startposition, 7, '|', {
-        'class': trackClass
-    });
+    //temp_div.text(g, startposition, 7, '|', {
+    //    'class': trackClass
+    //});
+    temp_div.line(g, startposition, 0, startposition, 6, {'class': trackClass, stroke: 'red', strokeWidth: 1});
+
 
 }
 
@@ -414,13 +419,9 @@ function dispCigarLineRef(g, cigars, start, top, max, gene_start, exons, temp_di
             }
             else if (key == "D") {
 
-                trackClass = "delete ui-icon ui-icon-carat-1-s";
-
-                trackClass = "delete ui-icon ui-icon-carat-1-s";
+                trackClass = "delete";
 
                 startposition = parseInt((cigar_pos) * parseFloat(maxLentemp) / (temp_end-temp_start));
-
-                stopposition = 15;
 
                 startposition = parseFloat(startposition) + parseFloat(jQuery("#id"+protein_id+" #exon" + exons[exon_number].id + "" + div).attr("x"))
                 trackHTMLDelete(g, startposition, trackClass, temp_div);
