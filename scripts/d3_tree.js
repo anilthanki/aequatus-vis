@@ -50,6 +50,8 @@ function drawTree(json_tree, div, event) {
         .attr("width", width + margin.right + margin.left)
         .attr("height", height + margin.top + margin.bottom)
         .style("overflow", "visible")
+        .style("left", "100px")
+        .style("position", "relative")
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -70,8 +72,11 @@ function drawTree(json_tree, div, event) {
         .enter()
         .append('label')
         .attr("class", "filter")
+        .style("font-size", "12px")
+        .style("text-align", "left")
+        .style("display", "table-row")
         .attr('for', function (d, i) {
-            return 'a' + i;
+            return 'checkbox' + d;
         })
         .text(function (d) {
             return d;
@@ -80,20 +85,41 @@ function drawTree(json_tree, div, event) {
         .attr("checked", true)
         .attr("type", "checkbox")
         .attr("id", function (d, i) {
-            return 'a' + i;
+            return 'checkbox' + d;
         })
-        .on("click", filtercheck);
+        .on("click", function (d) {
+            filtercheck(d)
+            update(root, member_id);
+        });
 
-    jQuery(slider_filter_div).html("<table width=100%><tr><td><div id='slider_div'></div><tr><td><input type='number' min='0' id='slider_percentage' style='border: 1px solid lightgray; font-weight: bold; margin-left: 10px; padding: 2px; width: 50px;'></div></tr></table>")
+    jQuery(slider_filter_div).html("<table width=90%>" +
+        "<tr>" +
+        "<td><b><center>Filter Tree by distance</center></b></td>" +
+        "</tr>" +
+        "<tr>" +
+        "<td><div id='slider_div'></div>" +
+        "<td><input type='number' min='0' id='slider_percentage' style='border: 1px solid lightgray; font-weight: bold; margin-left: 10px; padding: 2px; width: 50px;'>" +
+        "</tr>" +
+        "</table>")
 
     jQuery("#slider_div").slider({
         value: 3,
         min: 1,
         max: 10,
-        step: 1
+        step: 1,
+        stop: function (event, ui) {
+            if (ui.value < last) filterRank(ui.value)//$("#amount").val("this is increasing");
+            if (ui.value > last) filterRankUP(ui.value)//$("#amount").val("this is decreasing");
+            last = ui.value;
+            jQuery("#slider_percentage").val(ui.value);
+        }
     });
+
+    last = jQuery("#slider_div").slider("value")
+
+
     jQuery("#slider_div").slider().bind({
-        slide: function (event, ui) {
+        stop: function (event, ui) {
             var value = jQuery("#slider_div").slider("value")
             if (value < last) filterRank(value)//$("#amount").val("this is increasing");
             if (value > last) filterRankUP(value)//$("#amount").val("this is decreasing");
@@ -102,7 +128,6 @@ function drawTree(json_tree, div, event) {
         }
     })
 
-    last = jQuery("#slider_div").slider("value")
 
     jQuery("#slider_percentage").val(jQuery("#slider_div").slider("value"));
 
@@ -118,198 +143,6 @@ function drawTree(json_tree, div, event) {
         })
     })
 
-    function filterRank(rank) {
-        svg.selectAll(".node")
-            .filter(function (d) {
-                if (d.rank && d.rank > rank) {
-                    var newObject = d;
-                    newObject.children.forEach(function (e) {
-                        if (e.rank && e.rank <= rank) {
-
-                        } else if (e.rank && e.rank > rank) {
-                            recusrsiveCheck(e)
-                        } else {
-                            closeNode(d, e)
-                        }
-                    })
-                }
-
-
-                function recusrsiveCheck(node) {
-                    node.children.forEach(function (e) {
-                        if (e.rank && e.rank <= rank) {
-                        } else if (e.rank && e.rank > rank) {
-                            recusrsiveCheck(e)
-                        } else {
-                            closeNode(node, e)
-                        }
-                    })
-                }
-
-                function closeNode(node, childNode) {
-                    var temp_children = childNode.children
-                    if (temp_children) {
-                        if (!childNode._children)
-                            childNode._children = []
-                        temp_children.forEach(function (child) {
-                            childNode._children.push(child)
-                        })
-                        childNode.children = null
-                        update(node, member_id);
-                    }
-                }
-            });
-    }
-
-    function filterRankUP(rank) {
-        svg.selectAll(".node")
-            .filter(function (d) {
-                if (d.rank && d.rank <= rank) {
-                    var newObject = d;
-                    if (newObject._children && newObject._children.size() > 0) {
-                        newObject._children.forEach(function (e, i) {
-                            newObject.children.push(e)
-                            newObject._children.splice(i, 1)
-
-                        })
-                    }
-                    newObject.children.forEach(function (e) {
-                        if (e.rank) {
-
-                        } else {
-                            openNode(e)
-
-                        }
-                    })
-                }
-
-                function recusrsiveCheckOpen(node) {
-                    node.children.forEach(function (e) {
-                        if (e.rank && e.rank <= rank) {
-                            openNode(e)
-                            recusrsiveCheckOpen(e)
-                        }
-                    })
-                }
-
-
-                function openNode(node) {
-                    if (!node.children)
-                        node.children = []
-
-                    if (node._children && node._children.size() > 0) {
-                        node._children.forEach(function (e, i) {
-                            if (e.node_id) {
-                                node.children.push(e)
-                            }
-                        })
-                        node._children = null
-                    }
-                    update(node, member_id);
-                    return node;
-                }
-            });
-
-    }
-
-    /**
-     * selects tree nodes for species
-     * @param de species name
-     */
-    function filtercheck(de) {
-        var selected = de;
-        var display = this.checked;
-
-        svg.selectAll(".node")
-            .filter(function (d) {
-                if (d.sequence && d.id.accession && display == false) {
-                    if (d.sequence.id[0].accession == protein_member_id) {
-                    } else {
-                        if (d._children) {
-                            var children = d._children.size()
-                            while (children--) {
-                            }
-                        }
-
-                        if (syntenic_data.member[d.id.accession] && selected == syntenic_data.member[d.id.accession].species) {
-                            if (display == true) {
-
-
-                            } else {
-                                if (d.close && d.close == true) {
-
-                                } else {
-                                    if (!d.parent._children) {
-                                        d.parent._children = [];
-                                    }
-
-                                    if (d.parent.children.size() > 1) {
-                                        d.parent._children.push(d)
-                                        d.parent.children.splice(d.parent.children.indexOf(d), 1)
-                                        update(d, member_id);
-
-                                    } else {
-                                        var cont = true;
-                                        var child = d.parent
-                                        while (cont) {
-                                            if (!child._children) {
-                                                child._children = [];
-                                            }
-                                            child._children.push(child.children[0])
-
-                                            child.children.splice(0, 1)
-                                            if (child.parent.children.size() > 1) {
-                                                cont = false;
-                                            }
-
-                                            child = child.parent;
-
-                                        }
-                                        update(child, member_id);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else {
-
-                    if (d._children && d._children.size() > 0) {
-                        var newObject = d;//jQuery.extend(true, {}, d);
-
-                        var cont = true;
-                        if (d.sequence) {
-                        }
-                        while (cont) {
-                            if (newObject._children && newObject._children.size() > 0) {
-                                var children = newObject._children.size()
-                                while (children--) {
-                                    if (!newObject.children) {
-                                        newObject.children = []
-                                    }
-                                    if (newObject._children[children].sequence && newObject._children[children].id.accession == member_id && selected == syntenic_data.member[syntenic_data.ref].species) {
-                                        newObject.children.push(newObject._children[children])
-                                        newObject._children.splice(children, 1)
-                                        cont = false;
-                                        update(newObject, member_id);
-                                    } else if (newObject._children[children].sequence && newObject._children[children].id.accession && selected == syntenic_data.member[newObject._children[children].id.accession].species) {
-                                        newObject.children.push(newObject._children[children])
-                                        newObject._children.splice(children, 1)
-                                        cont = false;
-                                        update(newObject, member_id);
-                                    } else if (newObject._children[children]._children && newObject._children[children]._children.size() > 0) {
-                                        newObject = newObject._children[children]
-                                    } else {
-                                        cont = false;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-    }
-
 
     d3.json(json_tree, function () {
 
@@ -319,10 +152,9 @@ function drawTree(json_tree, div, event) {
         root.y0 = 0;
         root.children.forEach(function (d) {
             recursiveChildren(d)
-
         });
         nodes = cluster.nodes(root);
-        rank()
+        rank();
 
 
     });
@@ -332,8 +164,7 @@ function drawTree(json_tree, div, event) {
 
 
     function recursiveChildren(d) {
-        if (d.children.size() == 1) {
-            // d._children = d.children;
+        if (d.children && d.children.size() == 1) {
             var new_children = pack(d)
             d.children = new_children.child;
             d.close = true
@@ -352,6 +183,203 @@ function drawTree(json_tree, div, event) {
      * @param ref_member reference member id
      */
 
+
+}
+
+/**
+ * selects tree nodes for species
+ * @param de species name
+ */
+function filtercheck(de) {
+    var selected = de;
+    var display = jQuery("#checkbox" + de).is(":checked")
+
+    root.children.forEach(function (d, i) {
+        recursiveChildren(d)
+
+    });
+
+    function recursiveChildren(d) {
+        if (!d.children || d._children) {
+            if (d.sequence && d.id.accession && display == false) {
+                if (d.sequence.id[0].accession == protein_member_id) {
+                } else {
+                    if (d._children) {
+                        var children = d._children.size()
+                        while (children--) {
+                        }
+                    }
+
+                    if (syntenic_data.member[d.id.accession] && selected == syntenic_data.member[d.id.accession].species) {
+                        if (display == true) {
+
+
+                        } else {
+                            if (d.close && d.close == true) {
+
+                            } else {
+                                if (!d.parent._children) {
+                                    d.parent._children = [];
+                                }
+
+                                if (d.parent.children.size() > 1) {
+                                    d.parent._children.push(d)
+                                    d.parent.children.splice(d.parent.children.indexOf(d), 1)
+                                    // update(d, member_id);
+
+                                } else {
+                                    var cont = true;
+                                    var child = d.parent
+                                    while (cont) {
+                                        if (!child._children) {
+                                            child._children = [];
+                                        }
+                                        child._children.push(child.children[0])
+
+                                        child.children.splice(0, 1)
+                                        if (child.parent.children.size() > 1) {
+                                            cont = false;
+                                        }
+
+                                        child = child.parent;
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+
+                if (d._children && d._children.size() > 0) {
+                    var newObject = d;//jQuery.extend(true, {}, d);
+
+                    var cont = true;
+                    if (d.sequence) {
+                    }
+                    while (cont) {
+                        if (d._children && d._children.size() > 0) {
+                            var children = d._children.size()
+                            while (children--) {
+                                if (!d.children) {
+                                    d.children = []
+                                }
+                                if (d._children[children].sequence && d._children[children].id.accession == member_id && selected == syntenic_data.member[syntenic_data.ref].species) {
+                                    d.children.push(d._children[children])
+                                    d._children.splice(children, 1)
+                                    cont = false;
+                                    // update(newObject, member_id);
+                                } else if (d._children[children].sequence && d._children[children].id.accession && selected == syntenic_data.member[d._children[children].id.accession].species) {
+                                    d.children.push(d._children[children])
+                                    d._children.splice(children, 1)
+                                    cont = false;
+                                    // update(d, member_id);
+                                } else if (d._children[children]._children && d._children[children]._children.size() > 0) {
+                                    d = d._children[children]
+                                } else {
+                                    cont = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (d.children) {
+            d.children.forEach(function (e) {
+                recursiveChildren(e)
+            })
+        }
+    }
+}
+
+
+function filterRank(rank) {
+    svg.selectAll(".node")
+        .filter(function (d) {
+            if (d.rank && d.rank > rank) {
+                var newObject = d;
+                newObject.children.forEach(function (e) {
+                    if (e.rank && e.rank <= rank) {
+
+                    } else if (e.rank && e.rank > rank) {
+                        recursiveCheck(e)
+                    } else {
+                        closeNode(d, e)
+                    }
+                })
+            }
+
+
+            function recursiveCheck(node) {
+                node.children.forEach(function (e) {
+                    if (e.rank && e.rank <= rank) {
+                    } else if (e.rank && e.rank > rank) {
+                        recursiveCheck(e)
+                    } else {
+                        closeNode(node, e)
+                    }
+                })
+            }
+
+            function closeNode(node, childNode) {
+                var temp_children = childNode
+                if (temp_children) {
+                    if (!node._children)
+                        node._children = []
+                    node._children.push(temp_children)
+                    var i = node.children.indexOf(childNode);
+                    node.children.splice(i, 1)
+                    update(node, member_id);
+                }
+            }
+        });
+}
+
+function filterRankUP(rank) {
+    console.log("filterRankUP")
+    svg.selectAll(".node")
+        .filter(function (d) {
+            if (d.rank && d.rank <= rank) {
+                var newObject = d;
+                if (newObject._children && newObject._children.size() > 0) {
+                    newObject._children.forEach(function (e, i) {
+                        if (e.rank && e.rank <= rank) {
+                        } else if (e.rank && e.rank <= rank) {
+                            recusrsiveCheckOpen(e)
+                        } else {
+                            openNode(d, e)
+                        }
+                    })
+                }
+            }
+
+            function recusrsiveCheckOpen(node) {
+                node.children.forEach(function (e) {
+                    if (e.rank && e.rank <= rank) {
+                    } else if (e.rank && e.rank <= rank) {
+                        recusrsiveCheckOpen(e)
+                    } else {
+                        openNode(node, e)
+                    }
+                })
+            }
+
+
+            function openNode(node, childNode) {
+                var temp_children = childNode
+                if (temp_children) {
+                    if (!node.children)
+                        node.children = []
+
+                    node.children.push(temp_children)
+                    var i = node._children.indexOf(childNode);
+                    node._children.splice(i, 1)
+                    update(node, member_id);
+                }
+            }
+        });
 
 }
 
@@ -405,7 +433,25 @@ function changeToProteinId() {
  */
 function click(d) {
 
-    if (d.children && d.children != null) {
+    if (d.rank) {
+        var curr_rank = jQuery("#slider_percentage").val()
+
+        if (curr_rank > d.rank) {
+            jQuery("#slider_div").slider({
+                value: d.rank
+            })
+            jQuery("#slider_percentage").val(d.rank)
+            filterRank(d.rank)
+        } else if (curr_rank < d.rank) {
+            jQuery("#slider_div").slider({
+                value: d.rank
+            })
+            jQuery("#slider_percentage").val(d.rank)
+            filterRankUP(d.rank)
+        } else {
+            console.log("rankksksksk")
+        }
+    } else if (d.children && d.children != null) {
         if (d.children.size() == 1) {
             d._children = d.children;
             var new_children = pack(d)
@@ -426,12 +472,11 @@ function click(d) {
 }
 
 function updateWindow(count) {
+    var y = count * 40;
 
-    // var y = count;
-
-    // svg.attr("height", y);
-    // cluster = d3.layout.cluster()
-    //     .size([y, width - 160]);
+    svg.attr("height", y);
+    cluster = d3.layout.cluster()
+        .size([y, width - 160]);
 }
 
 function pack(d) {
@@ -468,52 +513,18 @@ function update(source, ref_member) {
     console.log("update")
     // Compute the new tree layout.
     // Normalize for fixed-depth.
-
-    // if (ranked == false) {
-    //     nodes.forEach(function (d, i) {
-    //         if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
-    //             d.parent['rank'] = rank;
-    //         }
-    //         if (d.parent && d.rank > 0) {
-    //             rank++;
-    //             d.parent['rank'] = rank;
-    //         }
-
-
-    //         if (d.rank > jQuery("#slider_percentage").val()) {
-    //             if (!d._children)
-    //                 d._children = []
-
-    //             d.children.forEach(function (e, i) {
-
-    //              if (!e.sequence && !e.rank) {
-    //                    var temp_children = e.children
-    //                     if (temp_children) {
-    //                         if (!e._children)
-    //                             e._children = []
-    //                         temp_children.forEach(function (child) {
-    //                             e._children.push(child)
-    //                         })
-    //                         e.children = null
-    //                     }
-    //                 }
-    //             })
-    //         }
-    //     });
-    //     ranked = true;
-    // }
-
     nodes = cluster.nodes(root)
+    count = 0
 
-    nodes.forEach(function (d) {
-
-        if (d.children == null) {
+    cluster.nodes(root).forEach(function (d) {
+        if (d.children == null)
             count++;
-        }
-        count = count
     });
 
     updateWindow(count)
+
+
+    nodes = cluster.nodes(root)
 
     var links = cluster.links(nodes);
 
@@ -524,6 +535,10 @@ function update(source, ref_member) {
 
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
+        .attr("id", function (d, i) {
+
+            return "node" + d.node_id;
+        })
         .attr("class", "node")
         .attr("transform", function (d) {
             if (source.x0 > maxHeight) {
@@ -615,15 +630,14 @@ function update(source, ref_member) {
             if ((d.sequence && d.id.accession == protein_member_id)) {
                 return "black";
             }
-        })
-        .append("svg:title")
-        .text(function (d, i) {
-            return d.rank;
         });
-    ;
 
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
+        .attr("id", function (d, i) {
+
+            return "node" + d.node_id;
+        })
         .duration(duration)
         .attr("transform", function (d) {
             if (d.x > maxHeight) {
@@ -684,11 +698,6 @@ function update(source, ref_member) {
             }
         });
 
-    nodeUpdate.select("title")
-        .text(function (d, i) {
-            return d.rank;
-        });
-
     // Transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
         .duration(duration)
@@ -715,16 +724,16 @@ function update(source, ref_member) {
         .attr('width', width)
         .attr('height', '40px')
         .attr('x', 20)
-        .attr('y', -20)
+        .attr('y', -5)
         .style("fill", "red")
 
         .append('xhtml:div')
         .style("width", gene_width)
-        .style("height", "50px")
+        .style("height", "0px")
         .style("z-index", "999")
         .style("position", "fixed")
         .style("left", "10px")
-        .style("top", "10px")
+        .style("top", "0px")
         .html(function (d) {
             if (d.sequence) {
                 return "<div id = 'id" + d.sequence.id[0].accession + "' style='position:relative;  cursor:pointer; height: 14px;  LEFT: 0px; width :" + gene_width + "px;'></div>";//jQuery("#gene_widget #id" + d.seq_member_id).html();
@@ -734,12 +743,14 @@ function update(source, ref_member) {
     nodeEnter.filter(function (d) {
         if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
             jQuery("#id" + d.sequence.id[0].accession).svg()
-            dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession)
-            dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession)
+            dispGenesForMember_id("#id" + d.sequence.id[0].accession, syntenic_data.cigar[d.sequence.id[0].accession], d.id.accession, d.sequence.id[0].accession)
+            dispGenesExonForMember_id("#id" + d.sequence.id[0].accession, syntenic_data.cigar[d.sequence.id[0].accession], d.id.accession, d.sequence.id[0].accession)
         } else if (d.sequence && syntenic_data.member[d.id.accession]) {
             jQuery("#id" + d.sequence.id[0].accession).svg()
-            dispGenesForMember_id(d.id.accession, d.sequence.id[0].accession, true)
-            dispGenesExonForMember_id(d.id.accession, d.sequence.id[0].accession, true)
+
+            var ref_gicar = syntenic_data.cigar[protein_member_id]
+            dispGenesForMember_id("#id" + d.sequence.id[0].accession, syntenic_data.cigar[d.sequence.id[0].accession], d.id.accession, d.sequence.id[0].accession, ref_gicar)
+            dispGenesExonForMember_id("#id" + d.sequence.id[0].accession, syntenic_data.cigar[d.sequence.id[0].accession], d.id.accession, d.sequence.id[0].accession, ref_gicar)
         }
 
 
@@ -750,10 +761,19 @@ function update(source, ref_member) {
         .attr('width', function (d) {
             return jQuery(window).width() * 0.8;
         })
+        .attr("rank", function (d) {
+            if (d.rank) {
+                return d.rank;
+            } else {
+                return null;
+            }
+
+        })
         .attr('height', '40px')
         .attr('x', 10)
-        .attr('y', -20);
-
+        .attr('y', -5);
+    var width = 1;
+    var max_width = jQuery('#slider_div').slider("option", "max");
 
     // Update the links…
     var link = svg.selectAll("path.link")
@@ -764,19 +784,9 @@ function update(source, ref_member) {
     // Enter any new links at the parent's previous position.
     link.enter().insert("path", "g")
         .attr("class", "link")
-        .attr("d", function (d) {
-            return diagonal([{
-                y: d.source.x,
-                x: d.source.y
-            }, {
-                y: d.target.x,
-                x: d.target.y
-            }]);
-        });
-
-    // Transition links to their new position.
-    link.transition()
-        .duration(duration)
+        .attr('id', function (d) {
+            return "link" + d.target.node_id
+        })
         .attr("d", function (d) {
             return diagonal([{
                 y: d.source.x,
@@ -786,12 +796,39 @@ function update(source, ref_member) {
                 x: d.target.y
             }]);
         })
-        .attr('stroke', function (d){
-        if(d.source.rank){
-            return colours[d.rank]
-        }
-
-    });
+        .attr('stroke-width', function (d) {
+            if (d.source.rank) {
+                width = (max_width - d.source.rank) + 1
+            }
+            else {
+                width = jQuery("#link" + d.source.node_id).attr('stroke-width')
+            }
+            return width
+        });
+    // Transition links to their new position.
+    link.transition()
+        .duration(duration)
+        .attr('id', function (d) {
+            return "link" + d.target.node_id
+        })
+        .attr("d", function (d) {
+            return diagonal([{
+                y: d.source.x,
+                x: d.source.y
+            }, {
+                y: d.target.x,
+                x: d.target.y
+            }]);
+        })
+        .attr('stroke-width', function (d) {
+            if (d.source.rank) {
+                width = (max_width - d.source.rank) + 1
+            }
+            else {
+                width = jQuery("#link" + d.source.node_id).attr('stroke-width')
+            }
+            return width
+        });
 
     // Transition exiting nodes to the parent's new position.
     link.exit().transition()
@@ -821,21 +858,18 @@ function update(source, ref_member) {
     }
 }
 function rank() {
-    console.log("rank " + protein_member_id)
+    console.log("rank")
     var rank = 1;
     nodes.reverse()
     if (ranked == false) {
         nodes.forEach(function (d, i) {
             if (d.rank) {
                 delete d.rank;
-                console.log(d.rank + " " + d.node_id)
             }
-
         })
         nodes.forEach(function (d, i) {
             if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
                 d.parent['rank'] = rank;
-                console.log(d.node_id)
             }
             if (d.parent && d.rank > 0) {
                 rank++;
@@ -849,40 +883,34 @@ function rank() {
 
                 d.children.forEach(function (e, i) {
 
-                    if (!e.sequence && !e.rank) {
-                        var temp_children = e.children
-                        if (temp_children) {
-                            if (!e._children)
-                                e._children = []
-                            temp_children.forEach(function (child) {
-                                e._children.push(child)
-                            })
-                            e.children = null
-                        }
+                    if (!e.rank) {
+                        d._children.push(e)
+                        d.children.splice(i, 1)
                     }
                 })
             }
-            if (d.rank <= jQuery("#slider_percentage").val()) {
-                console.log(d.children)
-                d.children.forEach(function (e, i) {
-
-                    if (!e.sequence && !e.rank) {
-                        var temp_children = e._children
-                        if (temp_children) {
-                            if (!e.children)
-                                e.children = []
-                            temp_children.forEach(function (child) {
-                                e.children.push(child)
-                            })
-                            e._children = null
-                        }
-                    }
+            if (d.rank <= jQuery("#slider_percentage").val() && d._children) {
+                d._children.forEach(function (e, i) {
+                    d.children.push(e)
+                    d._children.splice(i, 1)
                 })
             }
         });
+
+        jQuery('#slider_div').slider("option", "max", rank);
         ranked = true;
     }
-
+    else {
+        nodes.forEach(function (d, i) {
+            if (d.rank >= rank) {
+                rank = d.rank;
+            }
+        })
+        jQuery('#slider_div').slider("option", "max", rank);
+    }
+    jQuery(filter_div).children("label").each(function () {
+        filtercheck(jQuery(this).text())
+    })
 
     update(root, member_id);
 }

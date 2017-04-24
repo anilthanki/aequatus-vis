@@ -23,12 +23,12 @@ function checkVisuals() {
     else
         jQuery(".utr").hide();  // unchecked jQuery('.utr').toggle()
 
-    if (jQuery('input[name=label_type]:radio:checked').val() == "stable") {
-        jQuery(".genelabel").hide();
-        jQuery(".stable").show();
+    if (jQuery('input[name=label_type]:radio:checked').val() == "gene_stable") {
+        changeToStable()
+    } else if (jQuery('input[name=label_type]:radio:checked').val() == "ptn_stable") {
+        changeToProteinId()
     } else {
-        jQuery(".genelabel").hide();
-        jQuery(".geneinfo").show();
+        changeToGeneInfo()
     }
 
     if (jQuery('input[name=view_type]:checked').val() == "with") {
@@ -37,13 +37,37 @@ function checkVisuals() {
     else {
         changeToNormal();
     }
+}
 
-    if (jQuery('input[name=label_type]:radio:checked').val() == "stable") {
-        changeToStable()
+function stringTrim(string, width, newClass) {
+    if (newClass) {
+        jQuery("#ruler").addClass(newClass.toString())
     }
-    else  if (jQuery('input[name=label_type]:radio:checked').val() == "gene_info"){
-        changeToGeneInfo()
-    } else{
-        changeToProteinId()
+    else {
+        jQuery("#ruler").addClass("ruler")
     }
+
+    var ruler = jQuery("#ruler");
+    var inLength = 0;
+    var tempStr = "";
+
+    jQuery("#ruler").html(string);
+    inLength = jQuery("#ruler").width();
+
+    if (newClass) {
+        jQuery("#ruler").removeClass(newClass.toString())
+    }
+    else {
+        jQuery("#ruler").removeClass("ruler")
+    }
+
+    if (inLength < width) {
+        return string;
+    }
+    else {
+        width = parseInt(string.length * width / inLength);
+        var string_title = string.replace(/\s+/g, '&nbsp;');
+        return "<span title=" + string_title + ">" + string.substring(0, width) + "... </span>";
+    }
+
 }
