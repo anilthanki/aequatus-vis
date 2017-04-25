@@ -8,7 +8,7 @@
 
 var mouseX, mouseY;
 
-function newpopup(member_id, protein_id) {
+function popup(member_id, protein_id) {
 
 var gene;
     var stable_id;
