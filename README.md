@@ -1,7 +1,39 @@
 # aequatus.js
 Visualisation JavaScript library for Homologous Genes 
 
-© 2015 - 2016. Earlham Institute, Norwich, UK
+# Usage
+
+Aequatus.js is a visualisation JavaScript library for Homologous Genes, easy to integrate with existing web services.
+
+To use aequatus.js in your webservice use following simple snippet.
+
+```javascript
+var syntenic_data = json;
+init(syntenic_data, "#settings_div", "#filter", "#sliderfilter");
+drawTree(syntenic_data.tree, "#gene_tree", popup);
+```
+
+where `settings_div`, `filter_div` and `sliderfilter` are ids for the divs to hold various controls, filter options and slider; and `popup` is a callback for JavaScript function when clicked on any gene.
+
+# Data Format
+An Example dataset is provided in the test/data directory. 
+
+snapshot:
+```
+{
+  "ref":<ref gene id>,
+  "protein_id":<ref protein id>,
+  "tree":<genetree in JSON>
+  "member":<JSON formatted genes array>
+}
+```
+
+In which genetree and each gene information can be downloaded from Ensembl using REST API. 
+
+1. Ensembl REST for genetree: http://rest.ensembl.org/documentation/info/genetree
+2. Ensembl REST for gene: http://rest.ensembl.org/documentation/info/lookup
+
+# License
 
 aequatus.js is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
@@ -14,4 +46,5 @@ You should have received a copy of the GNU General Public License along with Aeq
 * Robert Davey <Robert.Davey@earlham.ac.uk>
 
 
-More documentation coming soon ... 
+© 2015 - 2016. Earlham Institute, Norwich, UK
+
