@@ -15,6 +15,12 @@ drawTree(syntenic_data.tree, "#gene_tree", popup);
 
 where `settings_div`, `filter_div` and `sliderfilter` are ids for the divs to hold various controls, filter options and slider; and `popup` is a callback for JavaScript function when clicked on any gene.
 
+Functions:
+```javascript
+changeReference(new_gene_id, new_protein_id)
+```
+It is used to change reference gene in showing gene families.
+
 # Data Format
 An Example dataset is provided in the test/data directory. 
 
