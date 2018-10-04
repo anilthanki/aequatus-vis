@@ -54,5 +54,5 @@ You should have received a copy of the GNU General Public License along with Aeq
 * Robert Davey <Robert.Davey@earlham.ac.uk>
 
 
-© 2015 - 2016. Earlham Institute, Norwich, UK
+© 2015 - 2017. Earlham Institute, Norwich, UK
 
