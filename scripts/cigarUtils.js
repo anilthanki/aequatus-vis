@@ -138,7 +138,6 @@ function compressCigar(cigar_string) {
  * @returns {string} formated cigar
  */
 function format_ref_cigar() {
-
     var i = null;
     jQuery.map(syntenic_data.member[syntenic_data.ref].Transcript, function (obj) {
         if (obj.Translation && obj.Translation.id == protein_member_id) {
@@ -158,7 +157,7 @@ function format_ref_cigar() {
 
     while (i < no_of_exons) {
         var length = ref_exons[i].length
-       
+
         var ref_exon = length
         if (parseInt(length) >= 0) {
             ref_exon_array.push(ref_exon)
@@ -273,7 +272,7 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
         }
         var ref_cigar = cigar_string.replace(/D/g, "").length
     }
-    
+
     if (hit_strand != ref_strand && ref_strand == 1) {
         cigar_string = cigar_string.split("").reverse().join("");
         hit_cigar = hit_cigar.split("").reverse().join("");
@@ -329,7 +328,7 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
             }
             count_match++;
         }
-      
+
         hit_position++;
         ref_cigar_count++;
     }
