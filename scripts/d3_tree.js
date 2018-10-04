@@ -32,7 +32,7 @@ var diagonal = d3.svg.line().interpolate('step-before')
 var count = 0;
 var gene_width = jQuery(window).width() * 0.8
 var margin = {top: 0, right: 0, bottom: 0, left: 0},
-    width = jQuery(window).width() * 0.2,
+    tree_width = jQuery(window).width(),
     height = 800 - margin.top - margin.bottom;
 
 var maxHeight = 1000;
@@ -40,14 +40,13 @@ var event;
 
 function drawTree(json_tree, div, event) {
     this.event = event;
-    console.log("drawTree")
 
     cluster = d3.layout.cluster()
-        .size([height, width - 160]);
+        .size([height, (tree_width/5) - 160]);
 
 
     svg = d3.select(div).append("svg")
-        .attr("width", width + margin.right + margin.left)
+        .attr("width", tree_width + margin.right + margin.left)
         .attr("height", height + margin.top + margin.bottom)
         .style("overflow", "visible")
         .style("left", "100px")
@@ -74,7 +73,7 @@ function drawTree(json_tree, div, event) {
         .attr("class", "filter")
         .style("font-size", "12px")
         .style("text-align", "left")
-        .style("display", "table-row")
+        .style("display", "flex")
         .attr('for', function (d, i) {
             return 'checkbox' + d;
         })
@@ -338,7 +337,6 @@ function filterRank(rank) {
 }
 
 function filterRankUP(rank) {
-    console.log("filterRankUP")
     svg.selectAll(".node")
         .filter(function (d) {
             if (d.rank && d.rank <= rank) {
@@ -476,7 +474,7 @@ function updateWindow(count) {
 
     svg.attr("height", y);
     cluster = d3.layout.cluster()
-        .size([y, width - 160]);
+        .size([y, (tree_width/5) - 160]);
 }
 
 function pack(d) {
@@ -510,7 +508,7 @@ function pack(d) {
     return new_children;
 }
 function update(source, ref_member) {
-    console.log("update")
+
     // Compute the new tree layout.
     // Normalize for fixed-depth.
     nodes = cluster.nodes(root)
@@ -630,6 +628,9 @@ function update(source, ref_member) {
             if ((d.sequence && d.id.accession == protein_member_id)) {
                 return "black";
             }
+            else{
+                return "steelblue";
+            }
         });
 
     // Transition nodes to their new position.
@@ -695,6 +696,8 @@ function update(source, ref_member) {
         .style("stroke", function (d) {
             if ((d.sequence && d.sequence.id[0].accession == protein_member_id)) {
                 return "black";
+            }else{
+                return "steelblue";
             }
         });
 
@@ -721,7 +724,7 @@ function update(source, ref_member) {
         }
     }).append("foreignObject")
         .attr("class", "node_gene_holder")
-        .attr('width', width)
+        .attr('width', tree_width)
         .attr('height', '40px')
         .attr('x', 20)
         .attr('y', -5)
@@ -776,14 +779,16 @@ function update(source, ref_member) {
     var max_width = jQuery('#slider_div').slider("option", "max");
 
     // Update the links…
-    var link = svg.selectAll("path.link")
+    var link = svg.selectAll("path")
         .data(links, function (d, i) {
             return d.target.ID;
         });
 
     // Enter any new links at the parent's previous position.
     link.enter().insert("path", "g")
-        .attr("class", "link")
+        // .attr("class", "link")
+        .style("fill", "none")
+        .style("stroke", "#cccccc")
         .attr('id', function (d) {
             return "link" + d.target.node_id
         })
@@ -811,6 +816,8 @@ function update(source, ref_member) {
         .attr('id', function (d) {
             return "link" + d.target.node_id
         })
+        .style("fill", "none")
+        .style("stroke", "#cccccc")
         .attr("d", function (d) {
             return diagonal([{
                 y: d.source.x,
