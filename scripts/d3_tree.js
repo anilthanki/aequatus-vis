@@ -35,11 +35,17 @@ var margin = {top: 0, right: 0, bottom: 0, left: 0},
     tree_width = jQuery(window).width(),
     height = 800 - margin.top - margin.bottom;
 
+
 var maxHeight = 1000;
 var event;
 
 function drawTree(json_tree, div, event) {
     this.event = event;
+    console.log("drawTree")
+    gene_width = jQuery("body").width() * 0.8
+    margin = {top: 0, right: 0, bottom: 0, left: 0},
+    width = jQuery("body").width() * 0.2,
+    height = 800 - margin.top - margin.bottom;
 
     cluster = d3.layout.cluster()
         .size([height, (tree_width/5) - 160]);
@@ -116,7 +122,6 @@ function drawTree(json_tree, div, event) {
 
     last = jQuery("#slider_div").slider("value")
 
-
     jQuery("#slider_div").slider().bind({
         stop: function (event, ui) {
             var value = jQuery("#slider_div").slider("value")
@@ -127,9 +132,7 @@ function drawTree(json_tree, div, event) {
         }
     })
 
-
     jQuery("#slider_percentage").val(jQuery("#slider_div").slider("value"));
-
 
     jQuery("#slider_percentage").on("change", function () {
         var val = jQuery("#slider_percentage").val()
@@ -141,7 +144,6 @@ function drawTree(json_tree, div, event) {
             value: val
         })
     })
-
 
     d3.json(json_tree, function () {
 
@@ -157,7 +159,6 @@ function drawTree(json_tree, div, event) {
 
 
     });
-
 
     d3.select(self.frameElement).style("height", "800px");
 
@@ -175,13 +176,6 @@ function drawTree(json_tree, div, event) {
             })
         }
     }
-
-    /**
-     * updates tree layout
-     * @param source nodes
-     * @param ref_member reference member id
-     */
-
 
 }
 
@@ -447,7 +441,6 @@ function click(d) {
             jQuery("#slider_percentage").val(d.rank)
             filterRankUP(d.rank)
         } else {
-            console.log("rankksksksk")
         }
     } else if (d.children && d.children != null) {
         if (d.children.size() == 1) {
@@ -762,7 +755,7 @@ function update(source, ref_member) {
 
     nodeUpdate.select("foreignObject")
         .attr('width', function (d) {
-            return jQuery(window).width() * 0.8;
+            return jQuery("body").width() * 0.8;
         })
         .attr("rank", function (d) {
             if (d.rank) {
@@ -865,7 +858,6 @@ function update(source, ref_member) {
     }
 }
 function rank() {
-    console.log("rank")
     var rank = 1;
     nodes.reverse()
     if (ranked == false) {
