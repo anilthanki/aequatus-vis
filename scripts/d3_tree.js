@@ -851,7 +851,7 @@ function update(source, ref_member) {
     });
 
     if (maxHeight > height) {
-        var body = d3.select("body");
+        var body = d3.select(div);
         var temp_svg = body.select("svg")
         temp_svg.attr("height", parseInt(maxHeight) + 100 + "px")
 
