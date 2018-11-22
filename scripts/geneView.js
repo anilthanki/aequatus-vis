@@ -126,6 +126,7 @@ function init(json, control_div, filter_spacer, slider_filter) {
     }
 
     if (filter_spacer) {
+        jQuery(filter_spacer).html("")
         filter_div = filter_spacer
     }
 
