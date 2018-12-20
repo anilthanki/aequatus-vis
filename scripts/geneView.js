@@ -335,28 +335,35 @@ function set_members_length() {
 
                 while (diff < 0) {
                     syntenic_data.member[key].Transcript[t].Exon[exon_nu].length = 0
-                    exon_nu++;
-                    diff = parseInt(syntenic_data.member[key].Transcript[t].Exon[exon_nu].end - syntenic_data.member[key].Transcript[t].Translation.start) + parseInt(1)
+                    if(syntenic_data.member[key].Transcript[t].Exon[exon_nu+1]){
+                        exon_nu++;
+                        diff = parseInt(syntenic_data.member[key].Transcript[t].Exon[exon_nu].end - syntenic_data.member[key].Transcript[t].Translation.start) + parseInt(1)
+                    }
                 }
 
                 syntenic_data.member[key].Transcript[t].Exon[exon_nu].length = diff;
                 syntenic_data.member[key].Transcript[t].Exon[exon_nu]._start += syntenic_data.member[key].Transcript[t].Translation.start - syntenic_data.member[key].Transcript[t].Exon[exon_nu].start;
-                exon_nu++;
-
-
-                var check = parseInt(syntenic_data.member[key].Transcript[t].Translation.end - syntenic_data.member[key].Transcript[t].Exon[exon_nu].end)
-
-                while (check > 0) {
-                    diff = parseInt(syntenic_data.member[key].Transcript[t].Exon[exon_nu].end - syntenic_data.member[key].Transcript[t].Exon[exon_nu].start) + parseInt(1)
-                    syntenic_data.member[key].Transcript[t].Exon[exon_nu].length = diff;
+                var check = 0;
+                if(syntenic_data.member[key].Transcript[t].Exon[exon_nu+1]) {
                     exon_nu++;
                     check = parseInt(syntenic_data.member[key].Transcript[t].Translation.end - syntenic_data.member[key].Transcript[t].Exon[exon_nu].end)
                 }
 
+
+                while (check > 0) {
+                    diff = parseInt(syntenic_data.member[key].Transcript[t].Exon[exon_nu].end - syntenic_data.member[key].Transcript[t].Exon[exon_nu].start) + parseInt(1)
+                    syntenic_data.member[key].Transcript[t].Exon[exon_nu].length = diff;
+                    if(syntenic_data.member[key].Transcript[t].Exon[exon_nu+1]) {
+                        exon_nu++;
+                        check = parseInt(syntenic_data.member[key].Transcript[t].Translation.end - syntenic_data.member[key].Transcript[t].Exon[exon_nu].end)
+                    }
+                }
+
                 var diff = parseInt(syntenic_data.member[key].Transcript[t].Translation.end - syntenic_data.member[key].Transcript[t].Exon[exon_nu].start)
                 syntenic_data.member[key].Transcript[t].Exon[exon_nu].length = diff
-                exon_nu++;
-
+                if(syntenic_data.member[key].Transcript[t].Exon[exon_nu+1]) {
+                    exon_nu++;
+                }
                 for (var exon_nu; exon_nu < syntenic_data.member[key].Transcript[t].Exon.length; exon_nu++) {
                     syntenic_data.member[key].Transcript[t].Exon[exon_nu].length = 0
                 }
