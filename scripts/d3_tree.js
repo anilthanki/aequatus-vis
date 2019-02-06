@@ -44,8 +44,8 @@ function drawTree(json_tree, div, event) {
     console.log("drawTree")
     gene_width = jQuery("body").width() * 0.8
     margin = {top: 0, right: 0, bottom: 0, left: 0},
-    width = jQuery("body").width() * 0.2,
-    height = 800 - margin.top - margin.bottom;
+        width = jQuery("body").width() * 0.2,
+        height = 800 - margin.top - margin.bottom;
 
     cluster = d3.layout.cluster()
         .size([height, (tree_width/5) - 160]);
@@ -524,6 +524,7 @@ function update(source, ref_member) {
             return d.ID || (d.ID = ++i);
         });
 
+
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
         .attr("id", function (d, i) {
@@ -625,7 +626,6 @@ function update(source, ref_member) {
                 return "steelblue";
             }
         });
-
     // Transition nodes to their new position.
     var nodeUpdate = node.transition()
         .attr("id", function (d, i) {
@@ -693,7 +693,6 @@ function update(source, ref_member) {
                 return "steelblue";
             }
         });
-
     // Transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
         .duration(duration)
@@ -803,6 +802,7 @@ function update(source, ref_member) {
             }
             return width
         });
+
     // Transition links to their new position.
     link.transition()
         .duration(duration)
@@ -850,31 +850,41 @@ function update(source, ref_member) {
         d.y0 = d.y;
     });
 
-    if (maxHeight > height) {
-        var body = d3.select(div);
-        var temp_svg = body.select("svg")
-        temp_svg.attr("height", parseInt(maxHeight) + 100 + "px")
 
-    }
+    // if (maxHeight > height) {
+    // console.log("update  maxHeight if")
+
+    //     var body = d3.select(div);
+    // console.log("update  maxHeight if 1")
+    //     var temp_svg = body.select("svg")
+    // console.log("update  maxHeight if 2")
+    //     temp_svg.attr("height", parseInt(maxHeight) + 100 + "px")
+
+    // }
+
 }
 function rank() {
+
     var rank = 1;
     nodes.reverse()
     if (ranked == false) {
+
+
         nodes.forEach(function (d, i) {
             if (d.rank) {
                 delete d.rank;
             }
         })
         nodes.forEach(function (d, i) {
+
             if (d.sequence && d.sequence.id[0].accession == protein_member_id) {
                 d.parent['rank'] = rank;
             }
+
             if (d.parent && d.rank > 0) {
                 rank++;
                 d.parent['rank'] = rank;
             }
-
 
             if (d.rank > jQuery("#slider_percentage").val()) {
                 if (!d._children)
@@ -888,29 +898,36 @@ function rank() {
                     }
                 })
             }
+
             if (d.rank <= jQuery("#slider_percentage").val() && d._children) {
                 d._children.forEach(function (e, i) {
                     d.children.push(e)
                     d._children.splice(i, 1)
                 })
             }
+
         });
 
         jQuery('#slider_div').slider("option", "max", rank);
         ranked = true;
     }
     else {
+
         nodes.forEach(function (d, i) {
             if (d.rank >= rank) {
                 rank = d.rank;
             }
         })
+
         jQuery('#slider_div').slider("option", "max", rank);
     }
+
     jQuery(filter_div).children("label").each(function () {
         filtercheck(jQuery(this).text())
     })
 
+
     update(root, member_id);
+
 }
 

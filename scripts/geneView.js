@@ -8,7 +8,7 @@
 
 var data = "";
 
-var colours = ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)', 'rgb(255,255,153)', 'rgb(177,89,40)', 'rgb(141,211,199)', 'rgb(255,255,179)', 'rgb(190,186,218)', 'rgb(251,128,114)', 'rgb(128,177,211)', 'rgb(253,180,98)', 'rgb(179,222,105)', 'rgb(252,205,229)', 'rgb(217,217,217)', 'rgb(188,128,189)', 'rgb(204,235,197)', 'rgb(255,237,111)']
+var colours = ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)', 'rgb(255,255,153)', 'rgb(177,89,40)', 'rgb(141,211,199)', 'rgb(255,255,179)', 'rgb(190,186,218)', 'rgb(251,128,114)', 'rgb(128,177,211)', 'rgb(253,180,98)', 'rgb(179,222,105)', 'rgb(252,205,229)', 'rgb(217,217,217)', 'rgb(188,128,189)', 'rgb(204,235,197)', 'rgb(255,237,111)', 'rgb(166,206,226)', 'rgb(31,120,181)', 'rgb(178,223,137)', 'rgb(51,160,43)', 'rgb(251,154,151)', 'rgb(227,26,38)', 'rgb(253,191,110)', 'rgb(255,127,2)', 'rgb(202,178,211)', 'rgb(106,61,151)', 'rgb(255,255,151)', 'rgb(177,89,44)', 'rgb(141,211,198)', 'rgb(255,255,175)', 'rgb(190,186,215)', 'rgb(251,128,112)', 'rgb(128,177,210)', 'rgb(253,180,95)', 'rgb(179,222,102)', 'rgb(252,205,225)', 'rgb(217,217,211)', 'rgb(188,128,185)', 'rgb(204,235,195)', 'rgb(255,237,115)']
 
 var gene_list_array = [];
 var ref_member = null
@@ -321,12 +321,12 @@ function redrawCIGAR() {
 function set_members_length() {
     console.log("resize_ref")
     var exon_nu = 0
-    var noofrefcds = 0;
     var i = null;
 
     jQuery.each(syntenic_data.member, function (key, data) {
         var transcripts = syntenic_data.member[key].Transcript.length
         for(var t=0; t<transcripts; t++){
+            var noofrefcds = 1;
             if(syntenic_data.member[key].Transcript[t].Translation){
                 var exon_nu = 0
                 syntenic_data.member[key].Transcript[t].Exon.sort(sort_by('start', true, parseInt));
@@ -374,12 +374,12 @@ function set_members_length() {
                     }
                 }
 
-            }
-        }
+                if(key == syntenic_data.ref && syntenic_data.protein_id == syntenic_data.member[key].Transcript[t].Translation['id']){
+                    ref_data.formated_cigar = format_ref_cigar();
+                    ref_data.noofrefcds = noofrefcds;
+                }
 
-        if(key == syntenic_data.ref){
-            ref_data.formated_cigar = format_ref_cigar();
-            ref_data.noofrefcds = noofrefcds;
+            }
         }
     })
 }

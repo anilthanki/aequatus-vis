@@ -263,27 +263,21 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
         ref_exons[i] = ref_exons[i].length;
         i++;
     }
-    if (hit_strand != ref_strand) {
-        ref_exons = ref_exons.reverse();
-        var sum = 0;
 
-        for (i = 0; i < ref_exons.length; i++) {
-            sum += Number(ref_exons[i]);
-        }
-        var ref_cigar = cigar_string.replace(/D/g, "").length
-    }
 
-    if (hit_strand != ref_strand && ref_strand == 1) {
+    if (hit_strand != ref_strand && hit_strand == 1) { //working fine
         cigar_string = cigar_string.split("").reverse().join("");
         hit_cigar = hit_cigar.split("").reverse().join("");
-        //     // ref_cigar_array = ref_cigar_array.reverse()
     }
-    else if(hit_strand == ref_strand && ref_strand == -1){// && hit_strand != -1){
+    else if (hit_strand != ref_strand && ref_strand == 1) {
+        // cigar_string = cigar_string.split("").reverse().join("");
+        hit_cigar = hit_cigar.split("").reverse().join("");
+    }
+    else if(hit_strand == ref_strand && ref_strand == -1){ //working fine
         cigar_string = cigar_string.split("").reverse().join("");
         hit_cigar = hit_cigar.split("").reverse().join("");
 
     }
-
 
 
     // if cigar string is D in all sequences (because of subset) that that part get removed
@@ -299,7 +293,6 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
         j++;
     }
 
-
     var ref_cigar_count = 0;
 
     var hit_position = 0;
@@ -308,11 +301,10 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
     var count_match = 0;
 
     var temp_array = [];
-
     // dividing reference cigar into chunks based on exon length (ignoring deletions)
     while (ref_cigar_count < cigar_string.length) {
 
-        if (cigar_string.charAt(ref_cigar_count) == 'M') {
+        if (cigar_string.charAt(ref_cigar_count) == 'M' || cigar_string.charAt(ref_cigar_count) == '_') {
 
             if (count_match == ref_exons[ref_exon_number]) {
                 ref_exon_number++;
@@ -333,6 +325,11 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
         ref_cigar_count++;
     }
     hit_cigar_arr.push(hit_cigar.substr(last_pos, hit_position));
+
+    if (hit_strand != ref_strand) {
+        hit_cigar_arr.reverse()
+    }
+
     return hit_cigar_arr.join("-");
 
 }

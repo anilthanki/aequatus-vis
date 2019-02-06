@@ -25,6 +25,7 @@
  * @param div gene view type suffix for gene model
  */
 
+
 function dispCigarLine(g, cigars, start, top, max, gene_start, exons, temp_div, ref_exons, translation_start, strand, ref_cigar, ref_strand, div, protein_id) {
     exons = jQuery.parseJSON(exons);
 
@@ -75,11 +76,7 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, exons, temp_div, 
         cigar_string = expandCigar(cigars, "true")
 
         var temp_colours = colours.slice(0);
-        if (strand != ref_strand) {
-            var noofrefexon =   ref_data.noofrefcds;//jQuery.parseJSON(ref_exons).length;
-            temp_colours = temp_colours.splice(0, noofrefexon)
-            temp_colours = temp_colours.reverse();
-        }
+
         if (ref_exons) {
             ref_exons = jQuery.parseJSON(ref_exons);
             ref_exons.sort(sort_by('start', true, parseInt));
@@ -103,15 +100,24 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, exons, temp_div, 
         cigar_string = cigar_string.replace(/(I_)/g, "I,_");
         cigar_string = cigar_string.replace(/(_I)/g, "_,I");
 
+        var colour_count = 0;
+
+        var noofrefexon = ref_data.noofrefcds;//jQuery.parseJSON(ref_exons).length;
+
         if(cigar_string.charAt(0) == "-")
         {
             cigar_string = cigar_string.replace(/(-)/, ""); //so does not increase matching exon number
         }
 
+        temp_colours = temp_colours.splice(0, noofrefexon)
+
+        if (strand != ref_strand) {
+            temp_colours = temp_colours.reverse();
+        }
+
         var l = 0;
 
         var cigars_array = cigar_string.split('-');
-        var colour_count = -1;
         first: for (var i = 0; i < cigars_array.length; i++) {
             startposition = null
 
