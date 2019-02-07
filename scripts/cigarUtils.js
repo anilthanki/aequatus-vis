@@ -265,13 +265,18 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
     }
 
 
+    // if (hit_strand != ref_strand) {
+    //     hit_cigar = hit_cigar.split("").reverse().join("");
+    // }
+
     if (hit_strand != ref_strand && hit_strand == 1) { //working fine
         cigar_string = cigar_string.split("").reverse().join("");
         hit_cigar = hit_cigar.split("").reverse().join("");
     }
-    else if (hit_strand != ref_strand && ref_strand == 1) {
-        // cigar_string = cigar_string.split("").reverse().join("");
+    else if (hit_strand != ref_strand && ref_strand == 1) {//working fine
+        cigar_string = cigar_string.split("").reverse().join("");
         hit_cigar = hit_cigar.split("").reverse().join("");
+        ref_exons = ref_exons.reverse()
     }
     else if(hit_strand == ref_strand && ref_strand == -1){ //working fine
         cigar_string = cigar_string.split("").reverse().join("");
@@ -325,8 +330,7 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
         ref_cigar_count++;
     }
     hit_cigar_arr.push(hit_cigar.substr(last_pos, hit_position));
-
-    if (hit_strand != ref_strand) {
+    if (hit_strand != ref_strand && hit_strand == 1) {
         hit_cigar_arr.reverse()
     }
 
