@@ -326,20 +326,24 @@ function set_members_length() {
     jQuery.each(syntenic_data.member, function (key, data) {
         var transcripts = syntenic_data.member[key].Transcript.length
         for(var t=0; t<transcripts; t++){
-            var noofrefcds = 1;
+            var noofrefcds = 0;
+
             if(syntenic_data.member[key].Transcript[t].Translation){
                 var exon_nu = 0
                 syntenic_data.member[key].Transcript[t].Exon.sort(sort_by('start', true, parseInt));
 
-                var diff = parseInt(syntenic_data.member[key].Transcript[t].Exon[exon_nu].end - syntenic_data.member[key].Transcript[t].Translation.start) + parseInt(1)
+                var diff = 0;
+                var check = parseInt(syntenic_data.member[key].Transcript[t].Exon[exon_nu].end - syntenic_data.member[key].Transcript[t].Translation.start) + parseInt(1)
 
-                while (diff < 0) {
+                while (check < 0) {
                     syntenic_data.member[key].Transcript[t].Exon[exon_nu].length = 0
                     if(syntenic_data.member[key].Transcript[t].Exon[exon_nu+1]){
                         exon_nu++;
-                        diff = parseInt(syntenic_data.member[key].Transcript[t].Exon[exon_nu].end - syntenic_data.member[key].Transcript[t].Translation.start) + parseInt(1)
+                        check = parseInt(syntenic_data.member[key].Transcript[t].Exon[exon_nu].end - syntenic_data.member[key].Transcript[t].Translation.start)
                     }
                 }
+
+                diff = parseInt(syntenic_data.member[key].Transcript[t].Exon[exon_nu].end - syntenic_data.member[key].Transcript[t].Translation.start) + parseInt(1)
 
                 syntenic_data.member[key].Transcript[t].Exon[exon_nu].length = diff;
                 syntenic_data.member[key].Transcript[t].Exon[exon_nu]._start += syntenic_data.member[key].Transcript[t].Translation.start - syntenic_data.member[key].Transcript[t].Exon[exon_nu].start;
@@ -352,10 +356,12 @@ function set_members_length() {
 
                 while (check > 0) {
                     diff = parseInt(syntenic_data.member[key].Transcript[t].Exon[exon_nu].end - syntenic_data.member[key].Transcript[t].Exon[exon_nu].start) + parseInt(1)
+
                     syntenic_data.member[key].Transcript[t].Exon[exon_nu].length = diff;
                     if(syntenic_data.member[key].Transcript[t].Exon[exon_nu+1]) {
                         exon_nu++;
                         check = parseInt(syntenic_data.member[key].Transcript[t].Translation.end - syntenic_data.member[key].Transcript[t].Exon[exon_nu].end)
+
                     }
                 }
 
@@ -363,26 +369,33 @@ function set_members_length() {
                 syntenic_data.member[key].Transcript[t].Exon[exon_nu].length = diff
                 if(syntenic_data.member[key].Transcript[t].Exon[exon_nu+1]) {
                     exon_nu++;
+
+                    for (var exon_nu; exon_nu < syntenic_data.member[key].Transcript[t].Exon.length; exon_nu++) {
+                        syntenic_data.member[key].Transcript[t].Exon[exon_nu].length = 0
+                    }
                 }
-                for (var exon_nu; exon_nu < syntenic_data.member[key].Transcript[t].Exon.length; exon_nu++) {
-                    syntenic_data.member[key].Transcript[t].Exon[exon_nu].length = 0
-                }
+
 
                 for (var exon_nu = 0; exon_nu < syntenic_data.member[key].Transcript[t].Exon.length; exon_nu++) {
                     if (syntenic_data.member[key].Transcript[t].Exon[exon_nu].length > 0) {
+
                         noofrefcds++;
                     }
                 }
+
+
 
                 if(key == syntenic_data.ref && syntenic_data.protein_id == syntenic_data.member[key].Transcript[t].Translation['id']){
                     ref_data.formated_cigar = format_ref_cigar();
                     ref_data.noofrefcds = noofrefcds;
                 }
-
             }
+
         }
+
     })
 }
+
 
 /**
  * resets length of exons of reference gene
