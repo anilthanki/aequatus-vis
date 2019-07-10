@@ -102,7 +102,7 @@ function dispCigarLine(g, cigars, start, top, max, gene_start, exons, temp_div, 
 
         var colour_count = 0;
 
-        var noofrefexon = ref_data.noofrefcds;//jQuery.parseJSON(ref_exons).length;
+        var noofrefexon = ref_data.noofrefcds ? ref_data.noofrefcds : ref_exons.length;
 
         if(cigar_string.charAt(0) == "-")
         {
