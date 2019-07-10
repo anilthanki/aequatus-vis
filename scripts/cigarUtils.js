@@ -154,7 +154,7 @@ function format_ref_cigar() {
     var ref_strand = syntenic_data.member[syntenic_data.ref].strand;
 
     var ref_exon_array = [];
-
+    i = 0;
     while (i < no_of_exons) {
         var length = ref_exons[i].length
 
@@ -228,6 +228,81 @@ function format_ref_cigar() {
 
 }
 
+function format_pairwise_ref_cigar(ref_exons, ref_cigar, ref_strand) {
+    i = 0;
+    var no_of_exons = ref_exons.length;
+
+    var ref_exon_array = [];
+
+    while (i < no_of_exons) {
+        var length = ref_exons[i].length
+
+        var ref_exon = length
+        if (parseInt(length) >= 0) {
+            ref_exon_array.push(ref_exon)
+        }
+        i++;
+    }
+
+    var cigar_string = expandCigar(ref_cigar, "true")
+
+    var i = 0
+    var total_len = 0;
+    var flag = false;
+    var cigar_string_match = cigar_string.replace(/D/g, '');
+
+    // if cigar is shorter than CDS than last CDSs becomes 0
+    while (i < ref_exon_array.length) {
+        if (flag == false) {
+            if (parseInt(total_len) + parseInt(ref_exon_array[i]) < cigar_string_match.length) {
+                total_len += ref_exon_array[i];
+            }
+            else {
+                ref_exon_array[i] = cigar_string_match.length - total_len;
+                total_len = cigar_string_match.length;
+                flag = true;
+            }
+        } else {
+            ref_exon_array[i] = 0;
+        }
+        i++;
+    }
+
+    var ref_cigar_count = 0;
+
+    var hit_position = 0;
+
+    var ref_exon_number = 0;
+    var count_match = 0;
+
+    var formated_ref_cigar = []
+
+    var last_pos = 0;
+
+    // dividing reference cigar into chunks based on exon length (ignoring deletions)
+    while (ref_cigar_count < cigar_string.length) {
+
+        if (cigar_string.charAt(ref_cigar_count) == 'M') {
+            if (count_match == ref_exon_array[ref_exon_number]) {
+                ref_exon_number++;
+                formated_ref_cigar.push(cigar_string.substr(last_pos, hit_position));
+                count_match = 0;
+                last_pos += hit_position;
+                hit_position = 0;
+            }
+            count_match++;
+        }
+        hit_position++;
+        ref_cigar_count++;
+    }
+    formated_ref_cigar.push(cigar_string.substr(last_pos, hit_position));
+    var i = 0;
+
+
+    return formated_ref_cigar;
+
+}
+
 /**
  * formats hit cigar to match with reference cigar for drawing on genes
  * @param ref_exons list of reference exons
@@ -239,7 +314,6 @@ function format_ref_cigar() {
  * @returns {string} formated cigar
  */
 function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_strand) {
-
     var no_of_exons = ref_exons.length
     var hit_cigar_arr = [];
     var ref_exon_array = [];
@@ -247,7 +321,8 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
     var i = 0
     var j = 0;
 
-    var ref_cigar_array = ref_data.formated_cigar;
+    var ref_cigar_array = ref_data.formated_cigar ? ref_data.formated_cigar : format_pairwise_ref_cigar(ref_exons, ref_cigar, ref_strand);
+
     var cigar_string = expandCigar(ref_cigar, "true")
     hit_cigar = expandCigar(hit_cigar, "true")
 
@@ -265,10 +340,6 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
     }
 
 
-    // if (hit_strand != ref_strand) {
-    //     hit_cigar = hit_cigar.split("").reverse().join("");
-    // }
-
     if (hit_strand != ref_strand && hit_strand == 1) { //working fine
         cigar_string = cigar_string.split("").reverse().join("");
         hit_cigar = hit_cigar.split("").reverse().join("");
@@ -283,7 +354,6 @@ function formatCigar(ref_exons, hit_cigar, colours, ref_cigar, hit_strand, ref_s
         hit_cigar = hit_cigar.split("").reverse().join("");
 
     }
-
 
     // if cigar string is D in all sequences (because of subset) that that part get removed
     while (j < cigar_string.length) {
